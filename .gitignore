@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.local
+*.log
+
+# Claude Code internals
+.claude/
+
+# Prompt/migration history
+migrated_prompt_history/
+
+# dist/ is intentionally NOT ignored — deployment needs the built files

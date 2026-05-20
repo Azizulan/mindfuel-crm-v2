@@ -1,0 +1,5 @@
+{
+  "name": "Tele-Sales CRM Assistant Serverless",
+  "description": "An application for e-commerce customer data maintenance and tele-sales. Upload customer data via CSV, identify repeat buyers, and generate a prioritized follow-up list. Includes an AI-powered assistant to generate personalized sales scripts for each customer.",
+  "requestFramePermissions": []
+}
