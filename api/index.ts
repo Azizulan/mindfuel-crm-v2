@@ -38,21 +38,27 @@ function scoreCustomer(customer: ScoringCustomer, agentName: string, now: Date =
     const notes = customer.followUpNotes ?? [];
     const sorted = [...notes].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     const latest = sorted[0] ?? null;
-    // Called within 48 hours — hard exclude (don't call same person two days running)
+    const latestFeedback = latest?.feedback ?? null;
+    const reminderDate = _toDate(latest?.reminderDate);
     const latestDate = latest ? _toDate(latest.date) : null;
     const daysSinceLatest = latestDate ? _daysBetween(latestDate, now) : null;
-    if (daysSinceLatest !== null && daysSinceLatest <= 1) return { score: 0, reason: '', suppressed: true, suppressionReason: daysSinceLatest === 0 ? 'Already called today' : 'Called yesterday' };
-    if (latest?.feedback === 'Angry') return { score: 0, reason: '', suppressed: true, suppressionReason: 'Angry' };
+
+    if (latestFeedback === 'Angry') return { score: 0, reason: '', suppressed: true, suppressionReason: 'Angry' };
     const cut60 = new Date(now); cut60.setDate(now.getDate() - 60);
     if (notes.filter(n => n.feedback === 'Not Interested' && new Date(n.date) >= cut60).length >= 2)
         return { score: 0, reason: '', suppressed: true, suppressionReason: 'Not Interested ×2 in 60 days' };
     const cut14 = new Date(now); cut14.setDate(now.getDate() - 14);
     if (notes.filter(n => n.feedback === 'Call Not Received' && new Date(n.date) >= cut14).length >= 3)
         return { score: 0, reason: '', suppressed: true, suppressionReason: 'Unreachable (3× no answer in 14 days)' };
-    const latestFeedback = latest?.feedback ?? null;
-    const reminderDate = _toDate(latest?.reminderDate);
     if (latestFeedback === 'Call Back Later' && reminderDate && reminderDate > now)
         return { score: 0, reason: '', suppressed: true, suppressionReason: `Callback scheduled for ${reminderDate.toLocaleDateString()}` };
+
+    // Hard suppress: called within last 30 days — do not show again until 30 days have passed
+    // Only exception: CBL with a past/due reminder date (exec explicitly scheduled a callback)
+    const isDueCallback = latestFeedback === 'Call Back Later' && reminderDate && reminderDate <= now;
+    if (daysSinceLatest !== null && daysSinceLatest < 30 && !isDueCallback)
+        return { score: 0, reason: '', suppressed: true, suppressionReason: `Called ${daysSinceLatest}d ago` };
+
     const lastOrderDate = _toDate(customer.lastPurchaseDate);
     const daysSinceOrder = lastOrderDate ? _daysBetween(lastOrderDate, now) : null;
     const lastCallDate = sorted.length > 0 ? _toDate(sorted[0].date) : null;

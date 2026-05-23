@@ -134,42 +134,38 @@ export function scoreCustomer(customer: ScoringCustomer, agentName: string, now:
 
   const sortedNotes = [...notes].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   const latestNote = sortedNotes[0] ?? null;
-
-  // Called within 48 hours — exclude from queue (don't call same person two days running)
+  const latestFeedback = latestNote?.feedback ?? null;
+  const reminderDate = toDate(latestNote?.reminderDate);
   const latestNoteDate = latestNote ? toDate(latestNote.date) : null;
   const daysSinceLatest = latestNoteDate ? daysBetween(latestNoteDate, now) : null;
-  if (daysSinceLatest !== null && daysSinceLatest <= 1) {
-    return { score: 0, reason: '', suppressed: true, suppressionReason: daysSinceLatest === 0 ? 'Already called today' : 'Called yesterday' };
-  }
 
   // Angry: latest note is Angry
-  if (latestNote?.feedback === 'Angry') {
+  if (latestFeedback === 'Angry') {
     return { score: 0, reason: '', suppressed: true, suppressionReason: 'Angry' };
   }
 
   // 2+ Not Interested in last 60 days
   const cutoff60 = new Date(now); cutoff60.setDate(now.getDate() - 60);
-  const notInterested60 = notes.filter(
-    n => n.feedback === 'Not Interested' && new Date(n.date) >= cutoff60
-  );
-  if (notInterested60.length >= 2) {
+  if (notes.filter(n => n.feedback === 'Not Interested' && new Date(n.date) >= cutoff60).length >= 2) {
     return { score: 0, reason: '', suppressed: true, suppressionReason: 'Not Interested ×2 in 60 days' };
   }
 
   // 3+ Call Not Received in last 14 days
   const cutoff14 = new Date(now); cutoff14.setDate(now.getDate() - 14);
-  const cnr14 = notes.filter(
-    n => n.feedback === 'Call Not Received' && new Date(n.date) >= cutoff14
-  );
-  if (cnr14.length >= 3) {
+  if (notes.filter(n => n.feedback === 'Call Not Received' && new Date(n.date) >= cutoff14).length >= 3) {
     return { score: 0, reason: '', suppressed: true, suppressionReason: 'Unreachable (3× no answer in 14 days)' };
   }
 
-  // Future "Call Back Later" — exclude from main queue
-  const latestFeedback = latestNote?.feedback ?? null;
-  const reminderDate = toDate(latestNote?.reminderDate);
+  // Future "Call Back Later" — suppress until reminder date
   if (latestFeedback === 'Call Back Later' && reminderDate && reminderDate > now) {
     return { score: 0, reason: '', suppressed: true, suppressionReason: `Callback scheduled for ${reminderDate.toLocaleDateString()}` };
+  }
+
+  // Called within last 30 days — hard suppress
+  // Exception: CBL with a past/due reminder date (exec scheduled a callback — show it)
+  const isDueCallback = latestFeedback === 'Call Back Later' && reminderDate && reminderDate <= now;
+  if (daysSinceLatest !== null && daysSinceLatest < 30 && !isDueCallback) {
+    return { score: 0, reason: '', suppressed: true, suppressionReason: `Called ${daysSinceLatest}d ago` };
   }
 
   // --- Scoring ---
