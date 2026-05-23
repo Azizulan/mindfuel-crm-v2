@@ -492,7 +492,7 @@ app.get('/api/stats', handleRequest(async (req, res) => {
     } catch (e) { console.warn("Outreach global agg failed", e); }
 
     const leaderboard = await LocalOrder.aggregate([
-        { $match: { createdAt: { $gte: startOfCurrentMonth }, status: 'sent_to_courier' } },
+        { $match: { createdAt: { $gte: startOfCurrentMonth }, agent: { $exists: true, $ne: null } } },
         { $group: { _id: "$agent", count: { $sum: 1 } } },
         { $sort: { count: -1 } },
         { $limit: 10 },
@@ -600,10 +600,25 @@ app.get('/api/stats', handleRequest(async (req, res) => {
 }));
 
 app.get('/api/admin/executive-performance', handleRequest(async (req, res) => {
+    const { startDate, endDate } = req.query as { startDate?: string; endDate?: string };
+
+    // Build date-range match clauses
+    const outreachDateFilter: any = {};
+    if (startDate) outreachDateFilter.$gte = new Date(startDate);
+    if (endDate)   outreachDateFilter.$lte = new Date(endDate);
+    const outreachMatch: any = { "followUpNotes.feedback": { $ne: "Call Not Received" } };
+    if (Object.keys(outreachDateFilter).length) outreachMatch["followUpNotes.date"] = outreachDateFilter;
+
+    const salesDateFilter: any = {};
+    if (startDate) salesDateFilter.$gte = new Date(startDate);
+    if (endDate)   salesDateFilter.$lte = new Date(endDate);
+    const salesMatch: any = {};
+    if (Object.keys(salesDateFilter).length) salesMatch.createdAt = salesDateFilter;
+
     // 1. Aggregate Outreach Activity from followUpNotes
     const outreachAggregation = await Customer.aggregate([
         { $unwind: "$followUpNotes" },
-        { $match: { "followUpNotes.feedback": { $ne: "Call Not Received" } } },
+        { $match: outreachMatch },
         { $group: {
             _id: {
                 agent: "$followUpNotes.agent",
@@ -613,26 +628,28 @@ app.get('/api/admin/executive-performance', handleRequest(async (req, res) => {
         }}
     ]);
 
-    // 2. Aggregate Sales Activity from LocalOrder
-    const salesAggregation = await LocalOrder.aggregate([
-        { $group: {
-            _id: {
-                agent: "$agent",
-                month: { $dateToString: { format: "%Y-%m", date: "$createdAt" } }
-            },
-            totalOrders: { $sum: 1 },
-            approvedOrders: { 
-                $sum: { $cond: [{ $eq: ["$status", "sent_to_courier"] }, 1, 0] } 
-            }
-        }}
-    ]);
+    // 2. Aggregate Sales Activity from LocalOrder (all orders regardless of status)
+    const salesPipeline: any[] = [];
+    if (Object.keys(salesMatch).length) salesPipeline.push({ $match: salesMatch });
+    salesPipeline.push({ $group: {
+        _id: {
+            agent: "$agent",
+            month: { $dateToString: { format: "%Y-%m", date: "$createdAt" } }
+        },
+        totalOrders: { $sum: 1 },
+        approvedOrders: {
+            $sum: { $cond: [{ $eq: ["$status", "sent_to_courier"] }, 1, 0] }
+        }
+    }});
+    const salesAggregation = await LocalOrder.aggregate(salesPipeline);
 
     // 3. Merge Results
     const performanceMap: Record<string, Record<string, any>> = {};
-    
+
     // Fill with outreach data
     outreachAggregation.forEach(item => {
         const { agent, month } = item._id;
+        if (!agent) return;
         if (!performanceMap[agent]) performanceMap[agent] = {};
         if (!performanceMap[agent][month]) performanceMap[agent][month] = { month, outreachCount: 0, orderCount: 0, earnings: 0 };
         performanceMap[agent][month].outreachCount = item.outreachCount;
@@ -641,18 +658,20 @@ app.get('/api/admin/executive-performance', handleRequest(async (req, res) => {
     // Fill with sales data
     salesAggregation.forEach(item => {
         const { agent, month } = item._id;
+        if (!agent) return;
         if (!performanceMap[agent]) performanceMap[agent] = {};
         if (!performanceMap[agent][month]) performanceMap[agent][month] = { month, outreachCount: 0, orderCount: 0, earnings: 0 };
-        // Use total orders for the visual count, approved for earnings
         performanceMap[agent][month].orderCount = item.totalOrders;
-        performanceMap[agent][month].earnings = item.totalOrders * 7; 
+        performanceMap[agent][month].earnings = item.totalOrders * 7;
     });
 
-    // Format for Frontend
+    // Format for Frontend — sort agents by total orders desc so top performers appear first
     const finalData = Object.keys(performanceMap).map(agentName => {
         const history = Object.values(performanceMap[agentName]).sort((a, b) => b.month.localeCompare(a.month));
-        return { agentName, history };
-    }).sort((a, b) => a.agentName.localeCompare(b.agentName));
+        const totalOrders = history.reduce((s: number, r: any) => s + (r.orderCount || 0), 0);
+        return { agentName, history, totalOrders };
+    }).sort((a, b) => b.totalOrders - a.totalOrders)
+      .map(({ agentName, history }) => ({ agentName, history }));
 
     return res.json(finalData);
 }));

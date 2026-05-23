@@ -215,14 +215,41 @@ app.get('/api/admin/suppressed', handleRequest(async (req, res) => {
 }));
 
 app.get('/api/admin/executive-performance', handleRequest(async (req, res) => {
+    const { startDate, endDate } = req.query as { startDate?: string; endDate?: string };
+
+    const outreachDateFilter: any = {};
+    if (startDate) outreachDateFilter.$gte = new Date(startDate);
+    if (endDate)   outreachDateFilter.$lte = new Date(endDate);
+    const outreachMatch: any = { 'followUpNotes.feedback': { $ne: 'Call Not Received' } };
+    if (Object.keys(outreachDateFilter).length) outreachMatch['followUpNotes.date'] = outreachDateFilter;
+
+    const salesDateFilter: any = {};
+    if (startDate) salesDateFilter.$gte = new Date(startDate);
+    if (endDate)   salesDateFilter.$lte = new Date(endDate);
+    const salesMatchArr: any[] = [];
+    if (Object.keys(salesDateFilter).length) salesMatchArr.push({ $match: { createdAt: salesDateFilter } });
+    salesMatchArr.push({ $match: { agent: { $exists: true, $ne: null } } });
+
     const [outreach, sales] = await Promise.all([
-        Customer.aggregate([{ $unwind: '$followUpNotes' }, { $match: { 'followUpNotes.feedback': { $ne: 'Call Not Received' } } }, { $group: { _id: { agent: '$followUpNotes.agent', month: { $dateToString: { format: '%Y-%m', date: '$followUpNotes.date' } } }, outreachCount: { $sum: 1 } } }]),
-        LocalOrder.aggregate([{ $group: { _id: { agent: '$agent', month: { $dateToString: { format: '%Y-%m', date: '$createdAt' } } }, totalOrders: { $sum: 1 } } }])
+        Customer.aggregate([
+            { $unwind: '$followUpNotes' },
+            { $match: outreachMatch },
+            { $group: { _id: { agent: '$followUpNotes.agent', month: { $dateToString: { format: '%Y-%m', date: '$followUpNotes.date' } } }, outreachCount: { $sum: 1 } } }
+        ]),
+        LocalOrder.aggregate([
+            ...salesMatchArr,
+            { $group: { _id: { agent: '$agent', month: { $dateToString: { format: '%Y-%m', date: '$createdAt' } } }, totalOrders: { $sum: 1 } } }
+        ])
     ]);
     const map: Record<string, Record<string, any>> = {};
-    outreach.forEach(({ _id: { agent, month }, outreachCount }) => { if (!map[agent]) map[agent] = {}; if (!map[agent][month]) map[agent][month] = { month, outreachCount: 0, orderCount: 0, earnings: 0 }; map[agent][month].outreachCount = outreachCount; });
-    sales.forEach(({ _id: { agent, month }, totalOrders }) => { if (!map[agent]) map[agent] = {}; if (!map[agent][month]) map[agent][month] = { month, outreachCount: 0, orderCount: 0, earnings: 0 }; map[agent][month].orderCount = totalOrders; map[agent][month].earnings = totalOrders * 7; });
-    return res.json(Object.keys(map).map(a => ({ agentName: a, history: Object.values(map[a]).sort((x, y) => y.month.localeCompare(x.month)) })).sort((a, b) => a.agentName.localeCompare(b.agentName)));
+    outreach.forEach(({ _id: { agent, month }, outreachCount }) => { if (!agent) return; if (!map[agent]) map[agent] = {}; if (!map[agent][month]) map[agent][month] = { month, outreachCount: 0, orderCount: 0, earnings: 0 }; map[agent][month].outreachCount = outreachCount; });
+    sales.forEach(({ _id: { agent, month }, totalOrders }) => { if (!agent) return; if (!map[agent]) map[agent] = {}; if (!map[agent][month]) map[agent][month] = { month, outreachCount: 0, orderCount: 0, earnings: 0 }; map[agent][month].orderCount = totalOrders; map[agent][month].earnings = totalOrders * 7; });
+    // Sort by total orders descending so top performers appear first
+    return res.json(Object.keys(map).map(a => {
+        const history = Object.values(map[a]).sort((x, y) => y.month.localeCompare(x.month));
+        const totalOrders = history.reduce((s, r) => s + (r.orderCount || 0), 0);
+        return { agentName: a, history, totalOrders };
+    }).sort((a, b) => b.totalOrders - a.totalOrders).map(({ agentName, history }) => ({ agentName, history })));
 }));
 
 app.get('/api/audit-log', handleRequest(async (req, res) => {
@@ -562,7 +589,7 @@ app.get('/api/stats', handleRequest(async (req, res) => {
     const teamActivity = Object.values(tam).map(a => { a.isCurrentlyLow = isToday && curHour >= a.shiftStart && curHour < a.shiftEnd && a.hourlyBreakdown[curHour].count < 10; return a; });
     let totalOutreachCount = 0;
     try { const r = await Customer.aggregate([{ $unwind: '$followUpNotes' }, { $match: { 'followUpNotes.date': { $gte: startOfMonth }, 'followUpNotes.feedback': { $ne: 'Call Not Received' } } }, { $group: { _id: '$id' } }, { $count: 'total' }]); totalOutreachCount = r[0]?.total || 0; } catch {}
-    const leaderboard = await LocalOrder.aggregate([{ $match: { createdAt: { $gte: startOfMonth }, status: 'sent_to_courier' } }, { $group: { _id: '$agent', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }, { $project: { name: '$_id', count: 1, _id: 0 } }]);
+    const leaderboard = await LocalOrder.aggregate([{ $match: { createdAt: { $gte: startOfMonth }, agent: { $exists: true, $ne: null } } }, { $group: { _id: '$agent', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }, { $project: { name: '$_id', count: 1, _id: 0 } }]);
     let valueTrend: any = { monthly: [] }; let segmentTrend: any = { monthly: [] };
     try { const tp = (fmt: string, type: string): any[] => [{ $match: { lastPurchaseDate: { $exists: true, $ne: null } } }, { $group: { _id: { period: { $dateToString: { format: fmt, date: '$lastPurchaseDate' } }, metric: type === 'rating' ? '$valueRating' : { $gt: ['$purchaseCount', 1] } }, count: { $sum: 1 } } }, { $sort: { '_id.period': 1 } }]; const [rd, sd] = await Promise.all([Customer.aggregate(tp('%Y-%m', 'rating')), Customer.aggregate(tp('%Y-%m', 'isRepeat'))]); const mr: any[] = []; rd.forEach((d: any) => { let ex = mr.find(m => m.period === d._id.period); if (!ex) { ex = { period: d._id.period, High: 0, Medium: 0, Low: 0 }; mr.push(ex); } ex[d._id.metric] = d.count; }); valueTrend.monthly = mr; const ms: any[] = []; sd.forEach((d: any) => { let ex = ms.find(m => m.period === d._id.period); if (!ex) { ex = { period: d._id.period, Repeat: 0, Single: 0 }; ms.push(ex); } ex[d._id.metric ? 'Repeat' : 'Single'] = d.count; }); segmentTrend.monthly = ms; } catch {}
     const t30 = new Date(); t30.setDate(now.getDate() - 30);
