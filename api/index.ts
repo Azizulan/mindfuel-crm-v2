@@ -17,7 +17,7 @@ const _isToday = (d: Date, now: Date) => d.getFullYear() === now.getFullYear() &
 const _ltvPts = (s: number) => s >= 10000 ? 100 : s >= 5000 ? 80 : s >= 3000 ? 60 : s >= 1000 ? 40 : s > 0 ? 20 : 5;
 const _freqPts = (n: number) => n >= 5 ? 80 : n >= 3 ? 60 : n === 2 ? 40 : n === 1 ? 20 : 5;
 const _recencyPts = (d: number | null) => d === null ? 0 : d >= 31 && d <= 60 ? 50 : d >= 61 && d <= 90 ? 40 : d >= 0 && d <= 30 ? 20 : d <= 180 ? 15 : 5;
-const _callPenalty = (d: number | null) => d === null ? 0 : d < 1 ? 80 : d <= 2 ? 40 : d <= 7 ? 15 : d <= 14 ? 5 : 0;
+const _callPenalty = (d: number | null) => d === null ? 0 : d < 1 ? 200 : d <= 1 ? 90 : d <= 3 ? 40 : d <= 7 ? 15 : d <= 14 ? 5 : 0;
 const _sentimentMod = (f: string | null, rd: Date | null, now: Date) => {
     if (!f) return 0;
     if (f === 'Call Back Later') return (rd && rd <= now) ? 25 : 5;
@@ -38,6 +38,9 @@ function scoreCustomer(customer: ScoringCustomer, agentName: string, now: Date =
     const notes = customer.followUpNotes ?? [];
     const sorted = [...notes].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     const latest = sorted[0] ?? null;
+    // Already called today — hard exclude from today's queue
+    const latestDate = latest ? _toDate(latest.date) : null;
+    if (latestDate && _isToday(latestDate, now)) return { score: 0, reason: '', suppressed: true, suppressionReason: 'Already called today' };
     if (latest?.feedback === 'Angry') return { score: 0, reason: '', suppressed: true, suppressionReason: 'Angry' };
     const cut60 = new Date(now); cut60.setDate(now.getDate() - 60);
     if (notes.filter(n => n.feedback === 'Not Interested' && new Date(n.date) >= cut60).length >= 2)
@@ -731,40 +734,50 @@ app.get('/api/customers/followup', handleRequest(async (req, res) => {
     }
     
     const candidates = await Customer.find(baseQuery).lean();
-    const allLocalOrders = await LocalOrder.find({ createdAt: { $gte: broadMinDate } }).select('recipient_phone createdAt').lean();
+    const allLocalOrders = await LocalOrder.find({ createdAt: { $gte: tenDaysAgo } }).select('recipient_phone createdAt').lean();
     const segments: Record<string, any[]> = { pending: [], ordered: [], callLater: [], noAnswer: [], notInterested: [], all: [] };
-    
+
     candidates.forEach(c => {
         const lastPurchaseTime = c.lastPurchaseDate ? new Date(c.lastPurchaseDate).getTime() : 0;
-        const hasRecentInteraction = (c.followUpNotes || []).some(n => new Date(n.date).getTime() >= tenDaysAgo.getTime());
-        if (hasRecentInteraction) segments.all.push(c);
-        
+        const recentNotes = (c.followUpNotes || []).filter(n => new Date(n.date).getTime() >= tenDaysAgo.getTime());
+        const hasRecentNote = recentNotes.length > 0;
+        if (hasRecentNote) segments.all.push(c);
+
         const inBroadWindow = lastPurchaseTime >= broadMinDate.getTime() && lastPurchaseTime <= broadMaxDate.getTime();
         const inNarrowWindow = lastPurchaseTime >= narrowMinDate.getTime() && lastPurchaseTime <= narrowMaxDate.getTime();
-        
+
         if (inBroadWindow) {
-            const hasRecentOrder = allLocalOrders.some(o => 
-                o.recipient_phone === c.phone && 
+            // Standard outreach-window customers — classify by purchase date + notes after last purchase
+            const hasRecentOrder = allLocalOrders.some(o =>
+                o.recipient_phone === c.phone &&
                 new Date(o.createdAt).getTime() > lastPurchaseTime
             );
-            
             if (hasRecentOrder) {
-                 if (inNarrowWindow) segments.ordered.push(c);
+                if (inNarrowWindow) segments.ordered.push(c);
             } else {
                 const notesAfterPurchase = (c.followUpNotes || []).filter(n => new Date(n.date).getTime() > lastPurchaseTime);
                 const latestNote = [...notesAfterPurchase].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
-                
-                // CALL LATER ignores the narrow refinement to preserve appointments
                 if (latestNote && latestNote.feedback === 'Call Back Later') {
                     segments.callLater.push(c);
-                } 
-                // Other segments respect the executive's portion filter
-                else if (inNarrowWindow) {
+                } else if (inNarrowWindow) {
                     if (!latestNote) segments.pending.push(c);
                     else if (latestNote.feedback === 'Call Not Received') segments.noAnswer.push(c);
                     else segments.notInterested.push(c);
                 }
             }
+        } else if (hasRecentNote) {
+            // Call-queue customers (outside purchase window) — classify by latest recent note
+            const ln = [...recentNotes].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+            if (allLocalOrders.some(o => o.recipient_phone === c.phone && new Date(o.createdAt).getTime() >= tenDaysAgo.getTime())) {
+                segments.ordered.push(c);
+            } else if (ln.feedback === 'Call Back Later') {
+                segments.callLater.push(c);
+            } else if (ln.feedback === 'Call Not Received') {
+                segments.noAnswer.push(c);
+            } else if (ln.feedback === 'Not Interested' || ln.feedback === 'Angry') {
+                segments.notInterested.push(c);
+            }
+            // Happy / Positive / Neutral → warm leads visible in "all" tab only
         }
     });
     
