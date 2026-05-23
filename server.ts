@@ -646,40 +646,43 @@ app.post('/api/sync/steadfast', handleRequest(async (req, res) => {
         'Accept': 'application/json',
     };
 
-    const rangeStart = startDate ? new Date(startDate) : null;
-    const rangeEnd   = endDate   ? new Date(endDate)   : null;
-    if (rangeEnd) rangeEnd.setHours(23, 59, 59, 999);
+    const rangeStart = startDate ? new Date(startDate + 'T00:00:00') : null;
+    const rangeEnd   = endDate   ? new Date(endDate   + 'T23:59:59') : null;
 
     const result = { synced: 0, newCustomers: 0, alreadySynced: 0, paymentsProcessed: 0, errors: [] as string[] };
 
+    // Real response: { status, message, payments: [...] } — oldest-first, 10/page
     let page = 1;
-    const MAX_PAGES = 50;
-    const paymentsInRange: any[] = [];
+    const MAX_PAGES = 200;
+    const allPayments: any[] = [];
 
-    outer: while (page <= MAX_PAGES) {
+    while (page <= MAX_PAGES) {
         const resp = await fetch(`${PACKZY}/payments?page=${page}`, { headers: sfHeaders });
-        if (!resp.ok) throw new Error(`Steadfast /payments returned ${resp.status}: ${(await resp.text()).slice(0, 200)}`);
+        if (!resp.ok) throw new Error(`Steadfast /payments page ${page} returned ${resp.status}: ${(await resp.text()).slice(0, 200)}`);
         const raw = await resp.json();
-        const items: any[] = Array.isArray(raw) ? raw : (Array.isArray(raw.data) ? raw.data : []);
-        const lastPage: number = raw.last_page ?? 1;
+        const items: any[] = raw.payments ?? [];
         if (items.length === 0) break;
-        for (const payment of items) {
-            const pDate = payment.created_at ? new Date(payment.created_at) : null;
-            if (rangeStart && pDate && pDate < rangeStart) break outer;
-            if (rangeEnd && pDate && pDate > rangeEnd) continue;
-            paymentsInRange.push(payment);
-        }
-        if (!Array.isArray(raw.data) || page >= lastPage) break;
+        allPayments.push(...items);
+        if (items.length < 10) break; // last page
         page++;
     }
 
+    const paymentsInRange = allPayments.filter(p => {
+        const pDate = p.created_at ? new Date(p.created_at) : null;
+        if (!pDate) return true;
+        if (rangeStart && pDate < rangeStart) return false;
+        if (rangeEnd   && pDate > rangeEnd)   return false;
+        return true;
+    });
+
     for (const payment of paymentsInRange) {
         try {
-            const resp2 = await fetch(`${PACKZY}/payments/${payment.id}`, { headers: sfHeaders });
-            if (!resp2.ok) { result.errors.push(`Payment ${payment.id}: HTTP ${resp2.status}`); continue; }
+            const pid = payment.payment_id; // e.g. "SFC-20458087"
+            const resp2 = await fetch(`${PACKZY}/payments/${pid}`, { headers: sfHeaders });
+            if (!resp2.ok) { result.errors.push(`Payment ${pid}: HTTP ${resp2.status}`); continue; }
             const raw2 = await resp2.json();
-            const pDetail = raw2?.payment ?? raw2?.data ?? raw2;
-            const consignments: any[] = pDetail?.consignments ?? pDetail?.data?.consignments ?? [];
+            // Real response: { status, message, payment: { ..., consignments: [...] } }
+            const consignments: any[] = raw2?.payment?.consignments ?? [];
             result.paymentsProcessed++;
 
             for (const c of consignments) {
@@ -719,7 +722,7 @@ app.post('/api/sync/steadfast', handleRequest(async (req, res) => {
                 }
             }
         } catch (err: any) {
-            result.errors.push(`Payment ${payment.id}: ${err.message}`);
+            result.errors.push(`Payment ${payment.payment_id}: ${err.message}`);
         }
     }
 

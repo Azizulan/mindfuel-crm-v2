@@ -1226,56 +1226,56 @@ app.post('/api/sync/steadfast', handleRequest(async (req, res) => {
         'Accept': 'application/json',
     };
 
-    const rangeStart = startDate ? new Date(startDate) : null;
-    const rangeEnd   = endDate   ? new Date(endDate)   : null;
-    if (rangeEnd) rangeEnd.setHours(23, 59, 59, 999);
+    // Dates: treat startDate/endDate as local date strings (YYYY-MM-DD)
+    const rangeStart = startDate ? new Date(startDate + 'T00:00:00') : null;
+    const rangeEnd   = endDate   ? new Date(endDate   + 'T23:59:59') : null;
 
     const result = { synced: 0, newCustomers: 0, alreadySynced: 0, paymentsProcessed: 0, errors: [] as string[] };
 
-    // ── Step 1: collect payment records within the date range ──────────────
+    // ── Step 1: fetch ALL payment pages (oldest-first, 10/page) ───────────
+    // We must walk all pages because Steadfast returns oldest→newest.
+    // We collect everything then filter by date so we don't miss recent ones.
     let page = 1;
-    const MAX_PAGES = 50; // safety cap
-    const paymentsInRange: any[] = [];
+    const MAX_PAGES = 200;
+    const allPayments: any[] = [];
 
-    outer: while (page <= MAX_PAGES) {
+    while (page <= MAX_PAGES) {
         const resp = await fetch(`${PACKZY}/payments?page=${page}`, { headers: sfHeaders });
         if (!resp.ok) {
             const txt = await resp.text();
-            throw new Error(`Steadfast /payments returned ${resp.status}: ${txt.slice(0, 200)}`);
+            throw new Error(`Steadfast /payments page ${page} returned ${resp.status}: ${txt.slice(0, 200)}`);
         }
         const raw = await resp.json();
-
-        // Laravel pagination: { current_page, data:[…], last_page }  OR plain array
-        const items: any[] = Array.isArray(raw) ? raw : (Array.isArray(raw.data) ? raw.data : []);
-        const lastPage: number = raw.last_page ?? 1;
-
+        // Real response: { status, message, payments: [...] }
+        const items: any[] = raw.payments ?? [];
         if (items.length === 0) break;
-
-        for (const payment of items) {
-            const pDate = payment.created_at ? new Date(payment.created_at) : null;
-            // Payments sorted newest-first — once we pass rangeStart we can stop
-            if (rangeStart && pDate && pDate < rangeStart) break outer;
-            // Skip payments beyond rangeEnd
-            if (rangeEnd && pDate && pDate > rangeEnd) continue;
-            paymentsInRange.push(payment);
-        }
-
-        if (!Array.isArray(raw.data) || page >= lastPage) break;
+        allPayments.push(...items);
+        if (items.length < 10) break; // last page (10 per page)
         page++;
     }
+
+    // Filter to date range
+    const paymentsInRange = allPayments.filter(p => {
+        const pDate = p.created_at ? new Date(p.created_at) : null;
+        if (!pDate) return true;
+        if (rangeStart && pDate < rangeStart) return false;
+        if (rangeEnd   && pDate > rangeEnd)   return false;
+        return true;
+    });
 
     // ── Step 2: fetch consignments per payment and upsert customers ────────
     for (const payment of paymentsInRange) {
         try {
-            const resp2 = await fetch(`${PACKZY}/payments/${payment.id}`, { headers: sfHeaders });
+            // Field is payment_id (e.g. "SFC-20458087"), not id
+            const pid = payment.payment_id;
+            const resp2 = await fetch(`${PACKZY}/payments/${pid}`, { headers: sfHeaders });
             if (!resp2.ok) {
-                result.errors.push(`Payment ${payment.id}: HTTP ${resp2.status}`);
+                result.errors.push(`Payment ${pid}: HTTP ${resp2.status}`);
                 continue;
             }
             const raw2 = await resp2.json();
-            // Try multiple possible response shapes
-            const pDetail    = raw2?.payment ?? raw2?.data ?? raw2;
-            const consignments: any[] = pDetail?.consignments ?? pDetail?.data?.consignments ?? [];
+            // Real response: { status, message, payment: { ..., consignments: [...] } }
+            const consignments: any[] = raw2?.payment?.consignments ?? [];
 
             result.paymentsProcessed++;
 
