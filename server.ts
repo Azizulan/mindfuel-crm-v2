@@ -251,20 +251,36 @@ app.get('/api/customers/followup', handleRequest(async (req, res) => {
     if (voRes?.value) q.totalSpending = { $gte: mvRes ? Number(mvRes.value) : 0 };
     if (search) q.$or = [{ name: { $regex: search, $options: 'i' } }, { phone: { $regex: search, $options: 'i' } }];
     const candidates = await Customer.find(q).lean();
-    const orders = await LocalOrder.find({ createdAt: { $gte: bMin } }).select('recipient_phone createdAt').lean();
+    const orders = await LocalOrder.find({ createdAt: { $gte: t10 } }).select('recipient_phone createdAt').lean();
     const segs: Record<string, any[]> = { pending: [], ordered: [], callLater: [], noAnswer: [], notInterested: [], all: [] };
     candidates.forEach(c => {
         const lpt = c.lastPurchaseDate ? new Date(c.lastPurchaseDate).getTime() : 0;
-        if ((c.followUpNotes || []).some((n: any) => new Date(n.date).getTime() >= t10.getTime())) segs.all.push(c);
+        const recentNotes = (c.followUpNotes || []).filter((n: any) => new Date(n.date).getTime() >= t10.getTime());
+        const hasRecentNote = recentNotes.length > 0;
+        if (hasRecentNote) segs.all.push(c);
         const inB = lpt >= bMin.getTime() && lpt <= bMax.getTime();
         const inN = lpt >= nMin.getTime() && lpt <= nMax.getTime();
         if (inB) {
+            // Standard outreach-window customers — classify by purchase date + notes after last purchase
             if (orders.some(o => o.recipient_phone === c.phone && new Date(o.createdAt).getTime() > lpt)) { if (inN) segs.ordered.push(c); }
             else {
                 const ln = [...(c.followUpNotes || []).filter((n: any) => new Date(n.date).getTime() > lpt)].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
                 if (ln?.feedback === 'Call Back Later') segs.callLater.push(c);
                 else if (inN) { if (!ln) segs.pending.push(c); else if (ln.feedback === 'Call Not Received') segs.noAnswer.push(c); else segs.notInterested.push(c); }
             }
+        } else if (hasRecentNote) {
+            // Call-queue customers (outside purchase window) — classify by latest recent note
+            const ln = [...recentNotes].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+            if (orders.some(o => o.recipient_phone === c.phone && new Date(o.createdAt).getTime() >= t10.getTime())) {
+                segs.ordered.push(c);
+            } else if (ln.feedback === 'Call Back Later') {
+                segs.callLater.push(c);
+            } else if (ln.feedback === 'Call Not Received') {
+                segs.noAnswer.push(c);
+            } else if (ln.feedback === 'Not Interested' || ln.feedback === 'Angry') {
+                segs.notInterested.push(c);
+            }
+            // Happy / Positive / Neutral → warm leads; visible in "all" tab only
         }
     });
     const list = segs[tab as string] || segs.pending;

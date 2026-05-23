@@ -101,7 +101,7 @@ const App: React.FC = () => {
   // Debounced fetch logic for Main Directory and Data Management
   useEffect(() => {
     const timer = setTimeout(() => {
-        if (currentUser && (activeView === 'dashboard' || activeView === 'executiveDashboard' || activeView === 'dataManagement' || activeView === 'teamActivity' || activeView === 'loading')) {
+        if (currentUser && (activeView === 'dashboard' || activeView === 'executiveDashboard' || activeView === 'dataManagement' || activeView === 'teamActivity' || activeView === 'loading' || activeView === 'newOrder')) {
             fetchData();
         }
     }, 400);

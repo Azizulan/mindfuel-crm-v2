@@ -1,1 +1,0 @@
-import{j as o}from"./index-DEketbn2.js";const s=({className:r="w-5 h-5"})=>o.jsx("svg",{xmlns:"http://www.w3.org/2000/svg",className:r,fill:"none",viewBox:"0 0 24 24",stroke:"currentColor",strokeWidth:2,children:o.jsx("path",{strokeLinecap:"round",strokeLinejoin:"round",d:"M19 9l-7 7-7-7"})});export{s as C};
