@@ -65,11 +65,11 @@ function recencyUrgencyPoints(daysSinceOrder: number | null): number {
 
 function callRecencyPenalty(daysSinceLastCall: number | null): number {
   if (daysSinceLastCall === null) return 0;
-  if (daysSinceLastCall < 1) return 200; // suppressed via isToday check above, but belt+suspenders
-  if (daysSinceLastCall <= 1) return 90;  // called yesterday — heavily deprioritised
-  if (daysSinceLastCall <= 3) return 40;
-  if (daysSinceLastCall <= 7) return 15;
-  if (daysSinceLastCall <= 14) return 5;
+  if (daysSinceLastCall <= 1) return 200;  // suppressed above — belt+suspenders
+  if (daysSinceLastCall <= 3) return 150;  // 2-3 days ago: very heavy — can't top uncalled customers
+  if (daysSinceLastCall <= 7) return 80;   // 4-7 days ago: significant
+  if (daysSinceLastCall <= 14) return 30;  // 8-14 days ago: moderate
+  if (daysSinceLastCall <= 30) return 10;  // 15-30 days ago: light
   return 0;
 }
 
@@ -135,10 +135,11 @@ export function scoreCustomer(customer: ScoringCustomer, agentName: string, now:
   const sortedNotes = [...notes].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   const latestNote = sortedNotes[0] ?? null;
 
-  // Already called today — never re-appear in today's queue
+  // Called within 48 hours — exclude from queue (don't call same person two days running)
   const latestNoteDate = latestNote ? toDate(latestNote.date) : null;
-  if (latestNoteDate && isToday(latestNoteDate, now)) {
-    return { score: 0, reason: '', suppressed: true, suppressionReason: 'Already called today' };
+  const daysSinceLatest = latestNoteDate ? daysBetween(latestNoteDate, now) : null;
+  if (daysSinceLatest !== null && daysSinceLatest <= 1) {
+    return { score: 0, reason: '', suppressed: true, suppressionReason: daysSinceLatest === 0 ? 'Already called today' : 'Called yesterday' };
   }
 
   // Angry: latest note is Angry

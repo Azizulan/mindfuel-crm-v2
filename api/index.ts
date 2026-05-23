@@ -17,7 +17,7 @@ const _isToday = (d: Date, now: Date) => d.getFullYear() === now.getFullYear() &
 const _ltvPts = (s: number) => s >= 10000 ? 100 : s >= 5000 ? 80 : s >= 3000 ? 60 : s >= 1000 ? 40 : s > 0 ? 20 : 5;
 const _freqPts = (n: number) => n >= 5 ? 80 : n >= 3 ? 60 : n === 2 ? 40 : n === 1 ? 20 : 5;
 const _recencyPts = (d: number | null) => d === null ? 0 : d >= 31 && d <= 60 ? 50 : d >= 61 && d <= 90 ? 40 : d >= 0 && d <= 30 ? 20 : d <= 180 ? 15 : 5;
-const _callPenalty = (d: number | null) => d === null ? 0 : d < 1 ? 200 : d <= 1 ? 90 : d <= 3 ? 40 : d <= 7 ? 15 : d <= 14 ? 5 : 0;
+const _callPenalty = (d: number | null) => d === null ? 0 : d <= 1 ? 200 : d <= 3 ? 150 : d <= 7 ? 80 : d <= 14 ? 30 : d <= 30 ? 10 : 0;
 const _sentimentMod = (f: string | null, rd: Date | null, now: Date) => {
     if (!f) return 0;
     if (f === 'Call Back Later') return (rd && rd <= now) ? 25 : 5;
@@ -38,9 +38,10 @@ function scoreCustomer(customer: ScoringCustomer, agentName: string, now: Date =
     const notes = customer.followUpNotes ?? [];
     const sorted = [...notes].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     const latest = sorted[0] ?? null;
-    // Already called today — hard exclude from today's queue
+    // Called within 48 hours — hard exclude (don't call same person two days running)
     const latestDate = latest ? _toDate(latest.date) : null;
-    if (latestDate && _isToday(latestDate, now)) return { score: 0, reason: '', suppressed: true, suppressionReason: 'Already called today' };
+    const daysSinceLatest = latestDate ? _daysBetween(latestDate, now) : null;
+    if (daysSinceLatest !== null && daysSinceLatest <= 1) return { score: 0, reason: '', suppressed: true, suppressionReason: daysSinceLatest === 0 ? 'Already called today' : 'Called yesterday' };
     if (latest?.feedback === 'Angry') return { score: 0, reason: '', suppressed: true, suppressionReason: 'Angry' };
     const cut60 = new Date(now); cut60.setDate(now.getDate() - 60);
     if (notes.filter(n => n.feedback === 'Not Interested' && new Date(n.date) >= cut60).length >= 2)
