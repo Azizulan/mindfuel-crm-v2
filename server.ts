@@ -631,6 +631,104 @@ if (isProd) {
     app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'dist', 'index.html')));
 }
 
+// ─── Steadfast / Packzy Delivery Sync ────────────────────────────────────────
+app.post('/api/sync/steadfast', handleRequest(async (req, res) => {
+    const { apiKey, secretKey, startDate, endDate } = req.body;
+    if (!apiKey || !secretKey) {
+        return res.status(400).json({ message: 'Steadfast API credentials are required. Please add them in Settings → Courier Integration.' });
+    }
+
+    const PACKZY = 'https://portal.packzy.com/api/v1';
+    const sfHeaders: Record<string, string> = {
+        'Api-Key': apiKey,
+        'Secret-Key': secretKey,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+    };
+
+    const rangeStart = startDate ? new Date(startDate) : null;
+    const rangeEnd   = endDate   ? new Date(endDate)   : null;
+    if (rangeEnd) rangeEnd.setHours(23, 59, 59, 999);
+
+    const result = { synced: 0, newCustomers: 0, alreadySynced: 0, paymentsProcessed: 0, errors: [] as string[] };
+
+    let page = 1;
+    const MAX_PAGES = 50;
+    const paymentsInRange: any[] = [];
+
+    outer: while (page <= MAX_PAGES) {
+        const resp = await fetch(`${PACKZY}/payments?page=${page}`, { headers: sfHeaders });
+        if (!resp.ok) throw new Error(`Steadfast /payments returned ${resp.status}: ${(await resp.text()).slice(0, 200)}`);
+        const raw = await resp.json();
+        const items: any[] = Array.isArray(raw) ? raw : (Array.isArray(raw.data) ? raw.data : []);
+        const lastPage: number = raw.last_page ?? 1;
+        if (items.length === 0) break;
+        for (const payment of items) {
+            const pDate = payment.created_at ? new Date(payment.created_at) : null;
+            if (rangeStart && pDate && pDate < rangeStart) break outer;
+            if (rangeEnd && pDate && pDate > rangeEnd) continue;
+            paymentsInRange.push(payment);
+        }
+        if (!Array.isArray(raw.data) || page >= lastPage) break;
+        page++;
+    }
+
+    for (const payment of paymentsInRange) {
+        try {
+            const resp2 = await fetch(`${PACKZY}/payments/${payment.id}`, { headers: sfHeaders });
+            if (!resp2.ok) { result.errors.push(`Payment ${payment.id}: HTTP ${resp2.status}`); continue; }
+            const raw2 = await resp2.json();
+            const pDetail = raw2?.payment ?? raw2?.data ?? raw2;
+            const consignments: any[] = pDetail?.consignments ?? pDetail?.data?.consignments ?? [];
+            result.paymentsProcessed++;
+
+            for (const c of consignments) {
+                const rawPhone = String(c.recipient_phone ?? '').replace(/\D/g, '');
+                if (rawPhone.length < 10) continue;
+                const last10  = rawPhone.slice(-10);
+                const cid     = String(c.consignment_id ?? c.id ?? '');
+                const amount  = parseFloat(String(c.cod_amount ?? 0)) || 0;
+                const delDate = new Date(c.created_at ?? payment.created_at ?? Date.now());
+
+                const existing = await Customer.findOne({ phone: { $regex: last10 + '$' } }).lean();
+                if (existing) {
+                    const alreadyIn = ((existing as any).purchases ?? []).some((p: any) => p.steadfastId === cid);
+                    if (alreadyIn) { result.alreadySynced++; continue; }
+                    await Customer.updateOne({ _id: (existing as any)._id }, {
+                        $inc: { purchaseCount: 1, totalSpending: amount },
+                        $max: { lastPurchaseDate: delDate },
+                        $push: { purchases: { date: delDate, amount, steadfastId: cid } },
+                    });
+                    result.synced++;
+                } else {
+                    const phone11 = rawPhone.length === 11 ? rawPhone : ('0' + rawPhone.slice(-10));
+                    await Customer.create({
+                        id: `SF-${phone11}`,
+                        name: c.recipient_name ?? 'Unknown',
+                        phone: phone11,
+                        address: c.recipient_address ?? '',
+                        purchaseCount: 1,
+                        totalSpending: amount,
+                        lastPurchaseDate: delDate,
+                        purchases: [{ date: delDate, amount, steadfastId: cid }],
+                        valueRating: amount >= 5000 ? 'High' : amount >= 1000 ? 'Medium' : 'Low',
+                        followUpNotes: [],
+                    });
+                    result.newCustomers++;
+                    result.synced++;
+                }
+            }
+        } catch (err: any) {
+            result.errors.push(`Payment ${payment.id}: ${err.message}`);
+        }
+    }
+
+    return res.json({
+        message: `Sync complete — ${result.synced} deliveries applied (${result.newCustomers} new customer${result.newCustomers !== 1 ? 's' : ''} created). ${result.alreadySynced} already up to date.`,
+        ...result,
+    });
+}));
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
     if (!isProd) console.log('API only — run "npm run dev" in another terminal for the frontend.');

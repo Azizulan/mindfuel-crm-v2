@@ -165,3 +165,17 @@ export const liftSuppression = (customerId: string): Promise<any> =>
 export const getDashboardToday = (): Promise<any> => apiRequest('/dashboard/today');
 export const getDashboardMonth = (): Promise<any> => apiRequest('/dashboard/month');
 export const getDashboardAllTime = (): Promise<any> => apiRequest('/dashboard/alltime');
+
+export const syncSteadfast = (
+    apiKey: string,
+    secretKey: string,
+    startDate?: string,
+    endDate?: string,
+): Promise<{
+    message: string;
+    synced: number;
+    newCustomers: number;
+    alreadySynced: number;
+    paymentsProcessed: number;
+    errors: string[];
+}> => apiRequest('/sync/steadfast', 'POST', { apiKey, secretKey, startDate, endDate });
