@@ -74,7 +74,7 @@ async function connectToDatabase() {
 }
 
 const FollowUpNoteSchema = new mongoose.Schema({ date: { type: Date, default: Date.now }, feedback: { type: String, required: true }, notes: { type: String }, agent: { type: String, required: true }, reminderDate: { type: Date }, reminderStatus: { type: String, default: 'pending', enum: ['pending', 'completed'] } });
-const PurchaseSchema = new mongoose.Schema({ date: { type: Date, required: true }, product: { type: String, required: true }, amount: { type: Number, required: true } });
+const PurchaseSchema = new mongoose.Schema({ date: { type: Date, required: true }, product: { type: String, required: true }, amount: { type: Number, required: true }, steadfastId: { type: String } });
 const CustomerSchema = new mongoose.Schema({ id: { type: String, required: true, unique: true, index: true }, name: { type: String, required: true, index: true }, email: { type: String, index: true }, phone: { type: String, required: true, index: true }, address: { type: String }, lastPurchaseDate: { type: Date, index: true }, purchases: [PurchaseSchema], purchaseCount: { type: Number, default: 0 }, totalSpending: { type: Number, default: 0 }, valueRating: { type: String, index: true }, purchaseHistory: { type: String }, followUpNotes: [FollowUpNoteSchema], suppressedUntil: { type: Date, default: null, index: true }, suppressionReason: { type: String, default: null } });
 const ProductSchema = new mongoose.Schema({ name: { type: String, required: true }, price: { type: Number, required: true }, stock: { type: Number, default: 0 } });
 const UserSchema = new mongoose.Schema({ name: { type: String, required: true }, email: { type: String, required: true, unique: true }, password: { type: String, required: true }, role: { type: String, default: 'Sales Executive', enum: ['Administrator', 'Sales Executive'] }, status: { type: String, default: 'Pending', enum: ['Pending', 'Active', 'Blocked'] }, shiftStart: { type: Number, default: 10 }, shiftEnd: { type: Number, default: 21 } }, { timestamps: true });
@@ -697,10 +697,11 @@ app.post('/api/sync/steadfast', handleRequest(async (req, res) => {
                 if (existing) {
                     const alreadyIn = ((existing as any).purchases ?? []).some((p: any) => p.steadfastId === cid);
                     if (alreadyIn) { result.alreadySynced++; continue; }
+                    const product = c.item_description ?? c.parcel_details ?? c.remarks ?? 'Steadfast Delivery';
                     await Customer.updateOne({ _id: (existing as any)._id }, {
                         $inc: { purchaseCount: 1, totalSpending: amount },
                         $max: { lastPurchaseDate: delDate },
-                        $push: { purchases: { date: delDate, amount, steadfastId: cid } },
+                        $push: { purchases: { date: delDate, amount, product, steadfastId: cid } },
                     });
                     result.synced++;
                 } else {
@@ -713,7 +714,7 @@ app.post('/api/sync/steadfast', handleRequest(async (req, res) => {
                         purchaseCount: 1,
                         totalSpending: amount,
                         lastPurchaseDate: delDate,
-                        purchases: [{ date: delDate, amount, steadfastId: cid }],
+                        purchases: [{ date: delDate, amount, product: c.item_description ?? c.parcel_details ?? c.remarks ?? 'Steadfast Delivery', steadfastId: cid }],
                         valueRating: amount >= 5000 ? 'High' : amount >= 1000 ? 'Medium' : 'Low',
                         followUpNotes: [],
                     });

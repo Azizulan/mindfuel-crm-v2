@@ -97,7 +97,8 @@ const FollowUpNoteSchema = new mongoose.Schema({
 const PurchaseSchema = new mongoose.Schema({
     date: { type: Date, required: true },
     product: { type: String, required: true },
-    amount: { type: Number, required: true }
+    amount: { type: Number, required: true },
+    steadfastId: { type: String }   // set when synced from Steadfast; used for dedup
 });
 
 const CustomerSchema = new mongoose.Schema({
@@ -1295,10 +1296,11 @@ app.post('/api/sync/steadfast', handleRequest(async (req, res) => {
                     const alreadyIn = ((existing as any).purchases ?? []).some((p: any) => p.steadfastId === cid);
                     if (alreadyIn) { result.alreadySynced++; continue; }
 
+                    const product = c.item_description ?? c.parcel_details ?? c.remarks ?? 'Steadfast Delivery';
                     await Customer.updateOne({ _id: existing._id }, {
                         $inc: { purchaseCount: 1, totalSpending: amount },
                         $max: { lastPurchaseDate: delDate },
-                        $push: { purchases: { date: delDate, amount, steadfastId: cid } },
+                        $push: { purchases: { date: delDate, amount, product, steadfastId: cid } },
                     });
                     result.synced++;
                 } else {
@@ -1312,7 +1314,7 @@ app.post('/api/sync/steadfast', handleRequest(async (req, res) => {
                         purchaseCount: 1,
                         totalSpending: amount,
                         lastPurchaseDate: delDate,
-                        purchases: [{ date: delDate, amount, steadfastId: cid }],
+                        purchases: [{ date: delDate, amount, product: c.item_description ?? c.parcel_details ?? c.remarks ?? 'Steadfast Delivery', steadfastId: cid }],
                         valueRating: amount >= 5000 ? 'High' : amount >= 1000 ? 'Medium' : 'Low',
                         followUpNotes: [],
                     });
@@ -1321,7 +1323,7 @@ app.post('/api/sync/steadfast', handleRequest(async (req, res) => {
                 }
             }
         } catch (err: any) {
-            result.errors.push(`Payment ${payment.id}: ${err.message}`);
+            result.errors.push(`Payment ${payment.payment_id ?? payment.id}: ${err.message}`);
         }
     }
 
