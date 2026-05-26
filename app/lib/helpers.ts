@@ -1,5 +1,21 @@
 import type { ICustomer } from './models';
 
+// ─── Phone normalisation (Tier 3.12) ─────────────────────────────────────────
+//
+// Bangladesh mobile numbers are 11 digits starting with "01" (e.g. 01712345678).
+// The same human enters their number as "01712345678", "+8801712345678",
+// "8801712345678", "017-1234-5678", "+88 01712 345678" — without normalisation
+// these become 5 different customers and the Steadfast sync uses a slow regex
+// scan to match them. The normalised form is always the last 10 digits, which
+// uniquely identifies a Bangladesh mobile number regardless of how it was typed.
+
+export function normalizePhone(raw: string | null | undefined): string {
+  if (!raw) return '';
+  const digits = String(raw).replace(/\D/g, '');
+  if (digits.length < 10) return digits; // too short to be a real mobile; keep as-is
+  return digits.slice(-10);
+}
+
 // ─── Per-customer reorder cycle prediction (Tier 1.1) ────────────────────────
 //
 // Returns the median gap between this customer's purchases plus a confidence

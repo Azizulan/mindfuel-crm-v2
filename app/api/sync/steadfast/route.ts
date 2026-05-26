@@ -1,6 +1,6 @@
 import { handleApi, err } from '@/app/lib/api-helper';
 import { Customer } from '@/app/lib/models';
-import { recalculateCustomerStats } from '@/app/lib/helpers';
+import { recalculateCustomerStats, normalizePhone } from '@/app/lib/helpers';
 
 export async function POST(req: Request) {
   return handleApi(async () => {
@@ -57,18 +57,18 @@ export async function POST(req: Request) {
         result.paymentsProcessed++;
 
         for (const c of consignments) {
+          const normalized = normalizePhone(c.recipient_phone);
+          if (normalized.length < 10) continue;
           const rawPhone = String(c.recipient_phone ?? '').replace(/\D/g, '');
-          if (rawPhone.length < 10) continue;
-          const last10  = rawPhone.slice(-10);
           const cid     = String(c.consignment_id ?? c.id ?? '');
           const amount  = parseFloat(String(c.cod_amount ?? 0)) || 0;
           const delDate = new Date(c.created_at ?? payment.created_at ?? Date.now());
           const product = c.item_description ?? c.parcel_details ?? c.remarks ?? 'Steadfast Delivery';
 
-          // NOTE: load the full doc (not .lean()) so we can mutate + .save(),
-          // which lets recalculateCustomerStats() refresh totals AND the
-          // personalised reorder cycle in one place.
-          const existing = await Customer.findOne({ phone: { $regex: last10 + '$' } });
+          // Fast indexed lookup by normalised phone — replaces the previous
+          // regex scan ($regex: last10 + '$') that did a full collection scan
+          // for every consignment.
+          const existing = await Customer.findOne({ normalizedPhone: normalized });
           if (existing) {
             const alreadyIn = (existing.purchases ?? []).some((p: any) => p.steadfastId === cid);
             if (alreadyIn) { result.alreadySynced++; continue; }
@@ -77,11 +77,12 @@ export async function POST(req: Request) {
             await existing.save();
             result.synced++;
           } else {
-            const phone11 = rawPhone.length === 11 ? rawPhone : ('0' + rawPhone.slice(-10));
+            const phone11 = rawPhone.length === 11 ? rawPhone : ('0' + normalized);
             const fresh = new Customer({
               id: `SF-${phone11}`,
               name: c.recipient_name ?? 'Unknown',
               phone: phone11,
+              normalizedPhone: normalized,
               address: c.recipient_address ?? '',
               purchases: [{ date: delDate, amount, product, steadfastId: cid }],
               followUpNotes: [],

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { handleApi, err } from '@/app/lib/api-helper';
 import { Customer } from '@/app/lib/models';
-import { computeReorderCycle } from '@/app/lib/helpers';
+import { computeReorderCycle, normalizePhone } from '@/app/lib/helpers';
 
 export async function POST(req: Request) {
   return handleApi(async () => {
@@ -15,6 +15,8 @@ export async function POST(req: Request) {
       if (isNaN(lastPurchaseDate.getTime())) lastPurchaseDate = new Date();
       const totalSpending = purchases.reduce((s: number, p: any) => s + (Number(p.amount) || 0), 0);
       const valueRating = totalSpending >= 3000 ? 'High' : totalSpending >= 1000 ? 'Medium' : 'Low';
+      const phone = String(cust.phone).trim();
+      const normalized = normalizePhone(phone);
 
       // Personalised reorder cycle — same logic as recalculateCustomerStats()
       // but computed inline so we can keep the bulkWrite fast-path.
@@ -22,12 +24,17 @@ export async function POST(req: Request) {
 
       return {
         updateOne: {
-          filter: { phone: String(cust.phone).trim() },
+          // Match by normalisedPhone so re-uploading the same person with a
+          // different phone format (with/without +88, dashes, spaces) updates
+          // the same record instead of creating a duplicate.
+          filter: { normalizedPhone: normalized || phone },
           update: {
             $set: {
-              id: String(cust.phone).trim(),
+              id: phone,
               name: String(cust.name || 'Unknown').trim(),
               email: String(cust.email || '').trim(),
+              phone,
+              normalizedPhone: normalized,
               address: String(cust.address || '').trim(),
               purchases,
               lastPurchaseDate,

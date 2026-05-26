@@ -23,6 +23,9 @@ const CustomerSchema = new mongoose.Schema({
   name: { type: String, required: true, index: true },
   email: { type: String, index: true },
   phone: { type: String, required: true, index: true },
+  // Last 10 digits of `phone` — uniquely identifies a Bangladesh mobile.
+  // Indexed so lookups (Steadfast sync, dedupe, customer search) are O(log n).
+  normalizedPhone: { type: String, index: true, default: '' },
   address: { type: String },
   lastPurchaseDate: { type: Date, index: true },
   purchases: [PurchaseSchema],
@@ -39,6 +42,17 @@ const CustomerSchema = new mongoose.Schema({
   predictedReorderDays: { type: Number, default: null },
   nextOutreachDate:     { type: Date,   default: null, index: true },
   reorderConfidence:    { type: String, default: 'none', enum: ['none', 'low', 'medium', 'high'] },
+});
+
+// Auto-sync normalizedPhone whenever phone changes on .save() (Tier 3.12).
+// Note: this hook does NOT run for updateOne / bulkWrite / findOneAndUpdate —
+// those code paths set normalizedPhone explicitly.
+CustomerSchema.pre('save', function (next) {
+  if (this.isModified('phone') || !this.normalizedPhone) {
+    const digits = String(this.phone || '').replace(/\D/g, '');
+    this.normalizedPhone = digits.length >= 10 ? digits.slice(-10) : digits;
+  }
+  next();
 });
 
 const ProductSchema = new mongoose.Schema({
@@ -97,6 +111,7 @@ export interface ICustomer extends Document {
   name: string;
   email: string;
   phone: string;
+  normalizedPhone: string;
   address?: string;
   lastPurchaseDate: Date;
   purchases: mongoose.Types.DocumentArray<any>;
