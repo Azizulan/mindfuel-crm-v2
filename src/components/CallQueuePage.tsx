@@ -15,6 +15,11 @@ interface QueueItem {
     daysSinceLastOrder: number | null;
     totalSpending: number;
     purchaseCount: number;
+    // Tier 1.1: personalised reorder cycle
+    predictedReorderDays?: number | null;
+    reorderConfidence?: 'none' | 'low' | 'medium' | 'high';
+    reorderStatus?: 'early' | 'ripe' | 'overdue' | 'churn-risk' | null;
+    daysVsReorder?: number | null;
 }
 
 interface QueueResponse {
@@ -50,6 +55,17 @@ const segmentLabel = (purchaseCount: number) => {
     if (purchaseCount === 2) return { label: 'Repeat', color: 'bg-sky-100 text-sky-700' };
     if (purchaseCount === 1) return { label: '1× Buyer', color: 'bg-gray-100 text-gray-600' };
     return { label: 'Outreach', color: 'bg-gray-100 text-gray-500' };
+};
+
+// Tier 1.1 — reorder-cycle badge. Tells the agent at a glance whether this
+// customer is in their personal buying window. "Ripe" = highest conversion EV.
+const reorderBadge = (status: QueueItem['reorderStatus'], daysVs: number | null | undefined, predicted: number | null | undefined) => {
+    if (!status || predicted == null) return null;
+    if (status === 'ripe')        return { label: `Ripe now · ~${predicted}d cycle`, color: 'bg-emerald-100 text-emerald-700 border-emerald-200' };
+    if (status === 'early')       return { label: `${Math.abs(daysVs ?? 0)}d early · ~${predicted}d cycle`, color: 'bg-sky-50 text-sky-700 border-sky-200' };
+    if (status === 'overdue')     return { label: `${daysVs}d overdue · ~${predicted}d cycle`, color: 'bg-amber-100 text-amber-800 border-amber-200' };
+    if (status === 'churn-risk')  return { label: `${daysVs}d past cycle · churn risk`, color: 'bg-red-100 text-red-700 border-red-200' };
+    return null;
 };
 
 const PhoneIcon = () => (
@@ -229,6 +245,14 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                     {item.lastSentiment}
                                                 </span>
                                             )}
+                                            {(() => {
+                                                const rb = reorderBadge(item.reorderStatus, item.daysVsReorder, item.predictedReorderDays);
+                                                return rb ? (
+                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${rb.color}`}>
+                                                        {rb.label}
+                                                    </span>
+                                                ) : null;
+                                            })()}
                                         </div>
                                         <p className="text-xs text-gray-400 font-mono">{item.phone}</p>
                                         <p className="text-xs text-gray-500 mt-1">{item.reason}</p>

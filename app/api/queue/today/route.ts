@@ -17,7 +17,9 @@ export async function GET(req: Request) {
         { $or: [{ purchaseCount: { $gt: 0 } }, { 'followUpNotes.0': { $exists: true } }] },
         { $or: [{ suppressedUntil: null }, { suppressedUntil: { $lte: now } }] },
       ],
-    }).select('id name phone totalSpending purchaseCount lastPurchaseDate followUpNotes').lean();
+    })
+      .select('id name phone totalSpending purchaseCount lastPurchaseDate followUpNotes predictedReorderDays reorderConfidence nextOutreachDate')
+      .lean();
 
     let suppressed = 0;
     const scored: any[] = [];
@@ -35,6 +37,8 @@ export async function GET(req: Request) {
           followUpNotes: (doc.followUpNotes ?? []).map((n: any) => ({
             date: n.date, feedback: n.feedback, agent: n.agent, reminderDate: n.reminderDate ?? null,
           })),
+          predictedReorderDays: (doc as any).predictedReorderDays ?? null,
+          reorderConfidence:    (doc as any).reorderConfidence    ?? 'none',
         },
         agentId,
         now
@@ -52,6 +56,11 @@ export async function GET(req: Request) {
         daysSinceLastCall: latestNote ? Math.floor((now.getTime() - new Date(latestNote.date).getTime()) / msPerDay) : null,
         daysSinceLastOrder: doc.lastPurchaseDate ? Math.floor((now.getTime() - new Date(doc.lastPurchaseDate).getTime()) / msPerDay) : null,
         totalSpending: doc.totalSpending, purchaseCount: doc.purchaseCount,
+        // Personalised reorder cycle, surfaced to the queue card UI.
+        predictedReorderDays: (doc as any).predictedReorderDays ?? null,
+        reorderConfidence:    (doc as any).reorderConfidence    ?? 'none',
+        reorderStatus:        result.reorderStatus              ?? null,
+        daysVsReorder:        result.daysVsReorder              ?? null,
       });
     }
 

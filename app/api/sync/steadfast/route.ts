@@ -1,5 +1,6 @@
 import { handleApi, err } from '@/app/lib/api-helper';
 import { Customer } from '@/app/lib/models';
+import { recalculateCustomerStats } from '@/app/lib/helpers';
 
 export async function POST(req: Request) {
   return handleApi(async () => {
@@ -64,30 +65,29 @@ export async function POST(req: Request) {
           const delDate = new Date(c.created_at ?? payment.created_at ?? Date.now());
           const product = c.item_description ?? c.parcel_details ?? c.remarks ?? 'Steadfast Delivery';
 
-          const existing = await Customer.findOne({ phone: { $regex: last10 + '$' } }).lean();
+          // NOTE: load the full doc (not .lean()) so we can mutate + .save(),
+          // which lets recalculateCustomerStats() refresh totals AND the
+          // personalised reorder cycle in one place.
+          const existing = await Customer.findOne({ phone: { $regex: last10 + '$' } });
           if (existing) {
-            const alreadyIn = ((existing as any).purchases ?? []).some((p: any) => p.steadfastId === cid);
+            const alreadyIn = (existing.purchases ?? []).some((p: any) => p.steadfastId === cid);
             if (alreadyIn) { result.alreadySynced++; continue; }
-            await Customer.updateOne({ _id: (existing as any)._id }, {
-              $inc: { purchaseCount: 1, totalSpending: amount },
-              $max: { lastPurchaseDate: delDate },
-              $push: { purchases: { date: delDate, amount, product, steadfastId: cid } },
-            });
+            existing.purchases.push({ date: delDate, amount, product, steadfastId: cid } as any);
+            recalculateCustomerStats(existing);
+            await existing.save();
             result.synced++;
           } else {
             const phone11 = rawPhone.length === 11 ? rawPhone : ('0' + rawPhone.slice(-10));
-            await Customer.create({
+            const fresh = new Customer({
               id: `SF-${phone11}`,
               name: c.recipient_name ?? 'Unknown',
               phone: phone11,
               address: c.recipient_address ?? '',
-              purchaseCount: 1,
-              totalSpending: amount,
-              lastPurchaseDate: delDate,
               purchases: [{ date: delDate, amount, product, steadfastId: cid }],
-              valueRating: amount >= 5000 ? 'High' : amount >= 1000 ? 'Medium' : 'Low',
               followUpNotes: [],
             });
+            recalculateCustomerStats(fresh);
+            await fresh.save();
             result.newCustomers++;
             result.synced++;
           }

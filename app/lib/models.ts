@@ -33,6 +33,12 @@ const CustomerSchema = new mongoose.Schema({
   followUpNotes: [FollowUpNoteSchema],
   suppressedUntil: { type: Date, default: null, index: true },
   suppressionReason: { type: String, default: null },
+
+  // ─── Per-customer reorder cycle (Tier 1.1) ─────────────────────────────────
+  // Computed from the median gap between this customer's purchases.
+  predictedReorderDays: { type: Number, default: null },
+  nextOutreachDate:     { type: Date,   default: null, index: true },
+  reorderConfidence:    { type: String, default: 'none', enum: ['none', 'low', 'medium', 'high'] },
 });
 
 const ProductSchema = new mongoose.Schema({
@@ -101,6 +107,9 @@ export interface ICustomer extends Document {
   followUpNotes: mongoose.Types.DocumentArray<any>;
   suppressedUntil: Date | null;
   suppressionReason: string | null;
+  predictedReorderDays: number | null;
+  nextOutreachDate: Date | null;
+  reorderConfidence: 'none' | 'low' | 'medium' | 'high';
 }
 
 // ─── Model exports (safe re-registration for Next.js hot-reload) ──────────────
