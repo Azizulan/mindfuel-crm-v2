@@ -1,4 +1,4 @@
-
+'use client';
 import React, { useState, lazy, Suspense, useEffect, useCallback } from 'react';
 import { Customer, Product, FollowUpNote, User, DashboardStats, AuditLogEntry } from './types';
 import Sidebar from './components/Sidebar';
