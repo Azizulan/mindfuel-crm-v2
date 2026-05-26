@@ -1,5 +1,21 @@
 import type { ICustomer } from './models';
 
+// ─── Product name normalisation (Tier 1.3) ───────────────────────────────────
+//
+// Free-text product names from Steadfast and CSV uploads have casing /
+// whitespace drift ("Chocolate 250g" vs "chocolate 250G "). Normalise for
+// matching but preserve the original casing for display.
+
+export function normalizeProductName(name: string | null | undefined): string | null {
+  if (!name) return null;
+  const trimmed = String(name).trim().toLowerCase().replace(/\s+/g, ' ');
+  if (!trimmed) return null;
+  // Generic Steadfast fallback isn't a real product — don't mine associations.
+  if (trimmed === 'steadfast delivery') return null;
+  if (trimmed === 'unknown') return null;
+  return trimmed;
+}
+
 // ─── Phone normalisation (Tier 3.12) ─────────────────────────────────────────
 //
 // Bangladesh mobile numbers are 11 digits starting with "01" (e.g. 01712345678).

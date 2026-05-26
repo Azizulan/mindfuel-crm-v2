@@ -28,6 +28,10 @@ interface QueueItem {
     bestCallConfidence?: 'none' | 'low' | 'medium' | 'high';
     bestCallHourStart?: number | null;
     bestCallHourEnd?: number | null;
+    // Tier 1.3: best-next-product recommendation
+    recommendedProduct?: string | null;
+    recommendedProductReason?: string | null;
+    recommendedProductLift?: number;
 }
 
 interface QueueResponse {
@@ -302,6 +306,11 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                         </div>
                                         <p className="text-xs text-gray-400 font-mono">{item.phone}</p>
                                         <p className="text-xs text-gray-500 mt-1">{item.reason}</p>
+                                        {item.recommendedProduct && (
+                                            <p className="text-xs text-emerald-700 mt-1 font-medium" title={item.recommendedProductReason ?? ''}>
+                                                🎯 Recommend: <span className="font-bold">{item.recommendedProduct}</span>
+                                            </p>
+                                        )}
                                         <div className="flex flex-wrap gap-3 mt-2 text-[10px] text-gray-400 font-semibold uppercase tracking-wide">
                                             <span>৳{item.totalSpending.toLocaleString()}</span>
                                             {item.daysSinceLastOrder !== null && <span>{item.daysSinceLastOrder}d since order</span>}
@@ -356,6 +365,17 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                     <div className="mb-3 flex items-start gap-2 px-3 py-2 rounded-xl bg-blue-50 border border-blue-100">
                                                         <span className="text-base flex-shrink-0">💡</span>
                                                         <p className="text-xs text-blue-900 font-medium leading-relaxed">{item.rfmAction}</p>
+                                                    </div>
+                                                )}
+                                                {item.recommendedProduct && (
+                                                    <div className="mb-3 flex items-start gap-2 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-100">
+                                                        <span className="text-base flex-shrink-0">🎯</span>
+                                                        <p className="text-xs text-emerald-900 leading-relaxed">
+                                                            <span className="font-bold">Pitch: {item.recommendedProduct}</span>
+                                                            {item.recommendedProductReason && (
+                                                                <span className="font-normal text-emerald-700"> — {item.recommendedProductReason}</span>
+                                                            )}
+                                                        </p>
                                                     </div>
                                                 )}
                                                 <div className="flex flex-col sm:flex-row gap-3">

@@ -60,6 +60,14 @@ const CustomerSchema = new mongoose.Schema({
   bestPickupRate:     { type: Number, default: 0 },     // 0-1
   bestCallConfidence: { type: String, default: 'none', enum: ['none', 'low', 'medium', 'high'] },
   bestCallSummary:    { type: String, default: '' },
+
+  // ─── Best-next-product recommendation (Tier 1.3) ────────────────────────────
+  // Looked up from global ProductAssociation rules based on what THIS customer
+  // has already bought. Cached on the customer doc so the queue endpoint
+  // doesn't re-mine on every request.
+  recommendedProduct:        { type: String, default: null },
+  recommendedProductReason:  { type: String, default: null },
+  recommendedProductLift:    { type: Number, default: 0 },
 });
 
 // Auto-sync normalizedPhone whenever phone changes on .save() (Tier 3.12).
@@ -96,6 +104,27 @@ const SettingSchema = new mongoose.Schema({
   key: { type: String, required: true, unique: true },
   value: { type: mongoose.Schema.Types.Mixed, required: true },
 });
+
+// ─── Product association rules (Tier 1.3) ──────────────────────────────────
+// One document per directed product pair (A → B) where customers who bought
+// A also bought B more often than chance. Mined by /api/admin/recompute-reorder
+// from the global customer purchase history.
+//
+// confidence = P(B|A) — of customers who bought A, what fraction also bought B
+// lift       = confidence(A→B) / P(B) — >1 means positive association
+// support    = pairCount / totalCustomers
+const ProductAssociationSchema = new mongoose.Schema(
+  {
+    source:      { type: String, required: true, index: true },
+    target:      { type: String, required: true },
+    pairCount:   { type: Number, required: true },
+    sourceCount: { type: Number, required: true },
+    support:     { type: Number, required: true },
+    confidence:  { type: Number, required: true, index: true },
+    lift:        { type: Number, required: true, index: true },
+  },
+  { timestamps: true }
+);
 
 const LocalOrderSchema = new mongoose.Schema(
   {
@@ -153,6 +182,9 @@ export interface ICustomer extends Document {
   bestPickupRate: number;
   bestCallConfidence: 'none' | 'low' | 'medium' | 'high';
   bestCallSummary: string;
+  recommendedProduct: string | null;
+  recommendedProductReason: string | null;
+  recommendedProductLift: number;
 }
 
 // ─── Model exports (safe re-registration for Next.js hot-reload) ──────────────
@@ -171,3 +203,6 @@ export const Setting =
 
 export const LocalOrder =
   (mongoose.models.LocalOrder || mongoose.model('LocalOrder', LocalOrderSchema)) as mongoose.Model<any>;
+
+export const ProductAssociation =
+  (mongoose.models.ProductAssociation || mongoose.model('ProductAssociation', ProductAssociationSchema)) as mongoose.Model<any>;

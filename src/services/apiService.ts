@@ -196,7 +196,10 @@ export const recomputeCustomerStats = (): Promise<{
     processed: number;
     withCycle: number;
     withCallTime: number;
+    withRec: number;
+    associationCount: number;
     segmentDistribution: Record<string, number>;
+    topAssociations: Array<{ source: string; target: string; pairCount: number; confidence: number; lift: number }>;
 }> => apiRequest('/admin/recompute-reorder', 'POST');
 
 export const normalizePhones = (): Promise<{

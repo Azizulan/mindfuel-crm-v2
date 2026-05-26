@@ -30,7 +30,7 @@ export async function GET(req: Request) {
     if (focusSegments) baseQuery.rfmSegment = { $in: focusSegments };
 
     const candidates = await Customer.find(baseQuery)
-      .select('id name phone totalSpending purchaseCount lastPurchaseDate followUpNotes predictedReorderDays reorderConfidence nextOutreachDate rfmSegment rfmAction rScore fScore mScore bestCallHourStart bestCallHourEnd bestPickupRate bestCallConfidence bestCallSummary')
+      .select('id name phone totalSpending purchaseCount lastPurchaseDate followUpNotes predictedReorderDays reorderConfidence nextOutreachDate rfmSegment rfmAction rScore fScore mScore bestCallHourStart bestCallHourEnd bestPickupRate bestCallConfidence bestCallSummary recommendedProduct recommendedProductReason recommendedProductLift')
       .lean();
 
     let suppressed = 0;
@@ -82,6 +82,10 @@ export async function GET(req: Request) {
         bestCallConfidence:   (doc as any).bestCallConfidence   ?? 'none',
         bestCallHourStart:    (doc as any).bestCallHourStart    ?? null,
         bestCallHourEnd:      (doc as any).bestCallHourEnd      ?? null,
+        // Best next product to pitch (Tier 1.3).
+        recommendedProduct:       (doc as any).recommendedProduct       ?? null,
+        recommendedProductReason: (doc as any).recommendedProductReason ?? null,
+        recommendedProductLift:   (doc as any).recommendedProductLift   ?? 0,
       });
     }
 
