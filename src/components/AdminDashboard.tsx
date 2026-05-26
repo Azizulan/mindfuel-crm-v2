@@ -415,7 +415,7 @@ const TodayTab = ({ setView }: { setView: (v: View) => void }) => {
             {error && <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 text-sm text-red-700 font-medium">{error}</div>}
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <KpiCard label="Calls Today" value={data?.callsToday ?? 0} delta={data ? pct(data.callsToday, data.callsYesterday) : undefined} sparkData={data?.callsLast7Days.map((d: any) => d.count)} sparkColor="#6366f1" loading={sk} />
+                <KpiCard label="Calls Today" value={data?.callsToday ?? 0} delta={data ? pct(data.callsToday, data.callsYesterday) : undefined} sparkData={data?.callsLast7Days?.map((d: any) => d.count)} sparkColor="#6366f1" loading={sk} />
                 <KpiCard label="Orders Today" value={data ? formatBDT(data.ordersTodayBDT) : '৳0'} delta={data ? pct(data.ordersTodayBDT, data.ordersYesterdayBDT) : undefined} sub={data?.ordersTodayBDT === 0 ? 'No CRM orders yet' : undefined} loading={sk} />
                 <KpiCard label="Hot Leads" value={data?.hotLeadsCount ?? 0} sub={data?.hotLeadsCount ? 'Happy/Positive, last call >3 days ago, no order since' : 'No warm leads waiting'} badge={data?.hotLeadsCount ? 'Call now →' : undefined} badgeColor="bg-emerald-50 text-emerald-600" loading={sk} onClick={data?.hotLeadsCount ? () => setView('callQueue') : undefined} />
                 <KpiCard label="Reminders Due" value={data?.remindersDueToday ?? 0} sub={data?.remindersDueToday ? 'Pending, due today or earlier' : 'All clear'} badge={data?.remindersDueToday ? 'View →' : undefined} badgeColor="bg-violet-50 text-violet-600" loading={sk} onClick={data?.remindersDueToday ? () => setView('followUp') : undefined} />
@@ -425,7 +425,7 @@ const TodayTab = ({ setView }: { setView: (v: View) => void }) => {
                 <Card>
                     <CardHeader title="Live Agent Activity" />
                     {sk ? <div className="space-y-3">{[1,2,3].map(i => <Sk key={i} className="h-8" />)}</div>
-                    : !data?.agentActivity.length ? <EmptyState message="No activity yet today" cta="Start the queue →" onCta={() => setView('callQueue')} />
+                    : !data?.agentActivity?.length ? <EmptyState message="No activity yet today" cta="Start the queue →" onCta={() => setView('callQueue')} />
                     : (
                         <div className="overflow-x-auto -mx-1">
                             <table className="w-full text-xs min-w-[300px]">
@@ -462,7 +462,7 @@ const TodayTab = ({ setView }: { setView: (v: View) => void }) => {
             <Card>
                 <CardHeader title="Founder Action Items" />
                 {sk ? <div className="space-y-3">{[1,2].map(i => <Sk key={i} className="h-14" />)}</div>
-                : !data?.actionItems.length ? (
+                : !data?.actionItems?.length ? (
                     <div className="py-8 text-center">
                         <div className="w-9 h-9 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-2">
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
