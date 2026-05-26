@@ -16,6 +16,126 @@ export function normalizePhone(raw: string | null | undefined): string {
   return digits.slice(-10);
 }
 
+// ─── Optimal call time per customer (Tier 1.4) ───────────────────────────────
+//
+// Each follow-up note carries a timestamp and an outcome. "Call Not Received"
+// = they didn't pick up; any other feedback = they did. By bucketing each
+// customer's call history by hour-of-day (in their local timezone) we learn
+// when they actually answer — stopping the team from burning calls at hours
+// where THIS customer never picks up.
+//
+// We use a 4-hour sliding window so the answer is actionable ("call between
+// 11 AM and 3 PM") rather than a fragile single-hour point estimate.
+
+// Default timezone is Bangladesh (UTC+6). Override with CRM_TIMEZONE env var
+// if the deployment ever expands beyond BD.
+const CRM_TIMEZONE = process.env.CRM_TIMEZONE || 'Asia/Dhaka';
+const _hourFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: CRM_TIMEZONE,
+  hour: 'numeric',
+  hour12: false,
+});
+function _localHour(d: Date): number {
+  const parts = _hourFormatter.formatToParts(d);
+  const hourPart = parts.find(p => p.type === 'hour');
+  // Intl returns "24" for midnight in some locales; normalise to 0-23.
+  const h = parseInt(hourPart?.value ?? '0', 10);
+  return h === 24 ? 0 : h;
+}
+
+export interface CallTimePrediction {
+  bestCallHourStart: number | null; // 0-23 — inclusive
+  bestCallHourEnd:   number | null; // 0-23 — exclusive (start + 4 hours)
+  bestPickupRate:    number;        // 0-1
+  bestCallConfidence: 'none' | 'low' | 'medium' | 'high';
+  bestCallSummary:   string;        // human-readable, empty if insufficient data
+}
+
+function _fmtHour(h: number): string {
+  if (h === 0)  return '12AM';
+  if (h === 12) return '12PM';
+  return h < 12 ? `${h}AM` : `${h - 12}PM`;
+}
+
+export function computeBestCallTime(
+  notes: Array<{ date: Date | string; feedback: string }> | null | undefined
+): CallTimePrediction {
+  const calls = (notes ?? []).filter(n => n?.date && n?.feedback);
+
+  // Need a minimum sample size to say anything useful.
+  if (calls.length < 3) {
+    return {
+      bestCallHourStart: null,
+      bestCallHourEnd:   null,
+      bestPickupRate:    0,
+      bestCallConfidence: 'none',
+      bestCallSummary:   '',
+    };
+  }
+
+  // Bucket calls by local hour, separating answered vs. no-answer.
+  const hourStats: Array<{ answered: number; total: number }> = Array.from(
+    { length: 24 },
+    () => ({ answered: 0, total: 0 })
+  );
+
+  for (const n of calls) {
+    const d = new Date(n.date);
+    if (isNaN(d.getTime())) continue;
+    const hr = _localHour(d);
+    hourStats[hr].total++;
+    if (n.feedback !== 'Call Not Received') hourStats[hr].answered++;
+  }
+
+  // Slide a 4-hour window across all 24 hours. Pick the window with the
+  // highest pickup rate, tie-breaking by sample size (so we don't end up
+  // recommending a 100%-pickup window backed by a single call).
+  let bestStart = -1;
+  let bestRate  = -1;
+  let bestSample = 0;
+
+  for (let start = 0; start < 24; start++) {
+    let answered = 0, total = 0;
+    for (let i = 0; i < 4; i++) {
+      const hr = (start + i) % 24;
+      answered += hourStats[hr].answered;
+      total    += hourStats[hr].total;
+    }
+    if (total === 0) continue;
+    const rate = answered / total;
+    // Require at least 2 calls in the window to consider it; otherwise the
+    // signal is noise.
+    if (total < 2) continue;
+    if (rate > bestRate || (rate === bestRate && total > bestSample)) {
+      bestRate   = rate;
+      bestStart  = start;
+      bestSample = total;
+    }
+  }
+
+  if (bestStart < 0 || bestRate <= 0) {
+    return {
+      bestCallHourStart: null,
+      bestCallHourEnd:   null,
+      bestPickupRate:    0,
+      bestCallConfidence: 'none',
+      bestCallSummary:   '',
+    };
+  }
+
+  const bestEnd = (bestStart + 4) % 24;
+  const confidence: CallTimePrediction['bestCallConfidence'] =
+    calls.length >= 10 ? 'high' : calls.length >= 6 ? 'medium' : 'low';
+
+  return {
+    bestCallHourStart: bestStart,
+    bestCallHourEnd:   bestEnd,
+    bestPickupRate:    bestRate,
+    bestCallConfidence: confidence,
+    bestCallSummary: `Answers ${_fmtHour(bestStart)}–${_fmtHour(bestEnd)} (${Math.round(bestRate * 100)}% pickup)`,
+  };
+}
+
 // ─── RFM segmentation (Tier 1.6) ─────────────────────────────────────────────
 //
 // Replaces the coarse Low/Medium/High valueRating with actionable segments
@@ -217,6 +337,13 @@ export function recalculateCustomerStats(customer: ICustomer) {
     customer.mScore     = rfm.mScore;
     customer.rfmSegment = rfm.rfmSegment;
     customer.rfmAction  = rfm.rfmAction;
+    // Best call time still computable from prior outreach attempts.
+    const callTime = computeBestCallTime(customer.followUpNotes as any);
+    customer.bestCallHourStart  = callTime.bestCallHourStart;
+    customer.bestCallHourEnd    = callTime.bestCallHourEnd;
+    customer.bestPickupRate     = callTime.bestPickupRate;
+    customer.bestCallConfidence = callTime.bestCallConfidence;
+    customer.bestCallSummary    = callTime.bestCallSummary;
     return;
   }
   const sorted = [...purchases].sort(
@@ -246,6 +373,14 @@ export function recalculateCustomerStats(customer: ICustomer) {
   customer.mScore     = rfm.mScore;
   customer.rfmSegment = rfm.rfmSegment;
   customer.rfmAction  = rfm.rfmAction;
+
+  // Best call time prediction (Tier 1.4).
+  const callTime = computeBestCallTime(customer.followUpNotes as any);
+  customer.bestCallHourStart  = callTime.bestCallHourStart;
+  customer.bestCallHourEnd    = callTime.bestCallHourEnd;
+  customer.bestPickupRate     = callTime.bestPickupRate;
+  customer.bestCallConfidence = callTime.bestCallConfidence;
+  customer.bestCallSummary    = callTime.bestCallSummary;
 }
 
 // ─── Map Mongoose doc to plain object with id string ─────────────────────────

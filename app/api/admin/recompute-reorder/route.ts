@@ -1,6 +1,6 @@
 import { handleApi } from '@/app/lib/api-helper';
 import { Customer } from '@/app/lib/models';
-import { computeReorderCycle, computeRFM } from '@/app/lib/helpers';
+import { computeReorderCycle, computeRFM, computeBestCallTime } from '@/app/lib/helpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,21 +16,23 @@ export async function POST() {
   return handleApi(async () => {
     const cursor = Customer.find(
       {},
-      { _id: 1, purchases: 1, lastPurchaseDate: 1, purchaseCount: 1, totalSpending: 1 }
+      { _id: 1, purchases: 1, lastPurchaseDate: 1, purchaseCount: 1, totalSpending: 1, followUpNotes: 1 }
     ).cursor();
 
     const ops: any[] = [];
     let processed = 0;
     let withCycle = 0;
+    let withCallTime = 0;
     const segmentCounts: Record<string, number> = {};
 
     for await (const doc of cursor) {
-      const cycle = computeReorderCycle((doc as any).purchases ?? []);
-      const rfm   = computeRFM({
+      const cycle    = computeReorderCycle((doc as any).purchases ?? []);
+      const rfm      = computeRFM({
         lastPurchaseDate: (doc as any).lastPurchaseDate,
         purchaseCount:    (doc as any).purchaseCount ?? 0,
         totalSpending:    (doc as any).totalSpending ?? 0,
       });
+      const callTime = computeBestCallTime((doc as any).followUpNotes ?? []);
 
       ops.push({
         updateOne: {
@@ -45,6 +47,11 @@ export async function POST() {
               mScore:     rfm.mScore,
               rfmSegment: rfm.rfmSegment,
               rfmAction:  rfm.rfmAction,
+              bestCallHourStart:  callTime.bestCallHourStart,
+              bestCallHourEnd:    callTime.bestCallHourEnd,
+              bestPickupRate:     callTime.bestPickupRate,
+              bestCallConfidence: callTime.bestCallConfidence,
+              bestCallSummary:    callTime.bestCallSummary,
             },
           },
         },
@@ -52,6 +59,7 @@ export async function POST() {
 
       processed++;
       if (cycle.predictedReorderDays !== null) withCycle++;
+      if (callTime.bestCallConfidence !== 'none') withCallTime++;
       segmentCounts[rfm.rfmSegment] = (segmentCounts[rfm.rfmSegment] || 0) + 1;
 
       if (ops.length >= 500) {
@@ -62,9 +70,10 @@ export async function POST() {
     if (ops.length > 0) await Customer.bulkWrite(ops, { ordered: false });
 
     return {
-      message: `Recomputed cycle + RFM for ${processed} customers (${withCycle} got a personalised reorder window).`,
+      message: `Recomputed cycle + RFM + call-time for ${processed} customers (${withCycle} with reorder window, ${withCallTime} with a confident call-time prediction).`,
       processed,
       withCycle,
+      withCallTime,
       segmentDistribution: segmentCounts,
     };
   });

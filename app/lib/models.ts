@@ -51,6 +51,15 @@ const CustomerSchema = new mongoose.Schema({
   mScore:     { type: Number, default: 1, min: 1, max: 5 },
   rfmSegment: { type: String, default: 'Outreach Only', index: true },
   rfmAction:  { type: String, default: '' },
+
+  // ─── Optimal call time (Tier 1.4) ───────────────────────────────────────────
+  // Best 4-hour window for reaching this customer, derived from their call
+  // history. Hours are in CRM_TIMEZONE (default: Asia/Dhaka).
+  bestCallHourStart:  { type: Number, default: null },  // 0-23 inclusive
+  bestCallHourEnd:    { type: Number, default: null },  // 0-23 exclusive
+  bestPickupRate:     { type: Number, default: 0 },     // 0-1
+  bestCallConfidence: { type: String, default: 'none', enum: ['none', 'low', 'medium', 'high'] },
+  bestCallSummary:    { type: String, default: '' },
 });
 
 // Auto-sync normalizedPhone whenever phone changes on .save() (Tier 3.12).
@@ -139,6 +148,11 @@ export interface ICustomer extends Document {
   mScore: 1 | 2 | 3 | 4 | 5;
   rfmSegment: string;
   rfmAction: string;
+  bestCallHourStart: number | null;
+  bestCallHourEnd: number | null;
+  bestPickupRate: number;
+  bestCallConfidence: 'none' | 'low' | 'medium' | 'high';
+  bestCallSummary: string;
 }
 
 // ─── Model exports (safe re-registration for Next.js hot-reload) ──────────────

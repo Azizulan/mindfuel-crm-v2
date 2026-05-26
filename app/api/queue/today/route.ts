@@ -18,7 +18,7 @@ export async function GET(req: Request) {
         { $or: [{ suppressedUntil: null }, { suppressedUntil: { $lte: now } }] },
       ],
     })
-      .select('id name phone totalSpending purchaseCount lastPurchaseDate followUpNotes predictedReorderDays reorderConfidence nextOutreachDate rfmSegment rfmAction rScore fScore mScore')
+      .select('id name phone totalSpending purchaseCount lastPurchaseDate followUpNotes predictedReorderDays reorderConfidence nextOutreachDate rfmSegment rfmAction rScore fScore mScore bestCallHourStart bestCallHourEnd bestPickupRate bestCallConfidence bestCallSummary')
       .lean();
 
     let suppressed = 0;
@@ -65,6 +65,11 @@ export async function GET(req: Request) {
         // RFM segment + recommended action (Tier 1.6).
         rfmSegment:           (doc as any).rfmSegment           ?? null,
         rfmAction:            (doc as any).rfmAction            ?? null,
+        // Best call time (Tier 1.4) — only meaningful at medium+ confidence.
+        bestCallSummary:      (doc as any).bestCallSummary      ?? '',
+        bestCallConfidence:   (doc as any).bestCallConfidence   ?? 'none',
+        bestCallHourStart:    (doc as any).bestCallHourStart    ?? null,
+        bestCallHourEnd:      (doc as any).bestCallHourEnd      ?? null,
       });
     }
 

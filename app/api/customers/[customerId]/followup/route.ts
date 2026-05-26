@@ -1,5 +1,6 @@
 import { handleApi, err } from '@/app/lib/api-helper';
 import { Customer } from '@/app/lib/models';
+import { computeBestCallTime } from '@/app/lib/helpers';
 
 export async function POST(
   req: Request,
@@ -41,6 +42,14 @@ export async function POST(
         customer.suppressionReason = 'Unreachable — 3× no answer in 14 days';
       }
     }
+
+    // Recompute optimal call time (Tier 1.4) — cheap, in-memory only.
+    const callTime = computeBestCallTime(customer.followUpNotes as any);
+    customer.bestCallHourStart  = callTime.bestCallHourStart;
+    customer.bestCallHourEnd    = callTime.bestCallHourEnd;
+    customer.bestPickupRate     = callTime.bestPickupRate;
+    customer.bestCallConfidence = callTime.bestCallConfidence;
+    customer.bestCallSummary    = callTime.bestCallSummary;
 
     await customer.save();
     return customer;

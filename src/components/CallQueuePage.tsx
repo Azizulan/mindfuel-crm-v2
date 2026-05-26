@@ -23,6 +23,11 @@ interface QueueItem {
     // Tier 1.6: RFM segment + recommended action
     rfmSegment?: string | null;
     rfmAction?: string | null;
+    // Tier 1.4: best call time prediction
+    bestCallSummary?: string | null;
+    bestCallConfidence?: 'none' | 'low' | 'medium' | 'high';
+    bestCallHourStart?: number | null;
+    bestCallHourEnd?: number | null;
 }
 
 interface QueueResponse {
@@ -83,6 +88,14 @@ const RFM_BADGE_COLORS: Record<string, string> = {
     "Hibernating":         'bg-gray-100 text-gray-600 border-gray-200',
     "Lost":                'bg-gray-100 text-gray-400 border-gray-200',
     "Outreach Only":       'bg-gray-100 text-gray-500 border-gray-200',
+};
+
+// Tier 1.4 — is the current local hour inside this customer's best-pickup
+// window? Used to colour the call-time badge: green = call now, amber = wait.
+const isInBestWindow = (start: number | null | undefined, end: number | null | undefined): boolean => {
+    if (start == null || end == null) return false;
+    const hr = new Date().getHours();
+    return start <= end ? (hr >= start && hr < end) : (hr >= start || hr < end);
 };
 
 const PhoneIcon = () => (
@@ -274,6 +287,17 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                         {rb.label}
                                                     </span>
                                                 ) : null;
+                                            })()}
+                                            {item.bestCallSummary && (item.bestCallConfidence === 'high' || item.bestCallConfidence === 'medium') && (() => {
+                                                const inWindow = isInBestWindow(item.bestCallHourStart, item.bestCallHourEnd);
+                                                return (
+                                                    <span
+                                                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${inWindow ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-50 text-gray-500 border-gray-200'}`}
+                                                        title={item.bestCallSummary}
+                                                    >
+                                                        {inWindow ? '📞 ' : '⏰ '}{item.bestCallSummary}
+                                                    </span>
+                                                );
                                             })()}
                                         </div>
                                         <p className="text-xs text-gray-400 font-mono">{item.phone}</p>
