@@ -7,7 +7,9 @@ import {
     getRepeatOnlyMode, setRepeatOnlyMode,
     getValueOnlyMode, setValueOnlyMode,
     getMinOrderValue, setMinOrderValue,
-    clearDatabase, getGmtOffset, setGmtOffset
+    clearDatabase, getGmtOffset, setGmtOffset,
+    getSegmentDistribution, getQueueFocusSegments, setQueueFocusSegments,
+    recomputeCustomerStats, normalizePhones,
 } from '../services/apiService';
 import { CogIcon } from './icons/CogIcon';
 import { PhoneIcon } from './icons/PhoneIcon';
@@ -136,22 +138,102 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
     const [valueStatus, setValueStatus] = useState<'idle' | 'success'>('idle');
     const [gmtStatus, setGmtStatus] = useState<'idle' | 'success'>('idle');
 
+    // Tier 1.6: RFM segment focus
+    const [segmentCounts, setSegmentCounts] = useState<Record<string, number>>({});
+    const [focusSegments, setFocusSegments] = useState<string[]>([]);
+    const [focusStatus, setFocusStatus] = useState<'idle' | 'saving' | 'success'>('idle');
+
+    // Manual maintenance buttons
+    const [recomputeStatus, setRecomputeStatus] = useState<'idle' | 'running' | 'done' | 'error'>('idle');
+    const [recomputeResult, setRecomputeResult] = useState<string>('');
+    const [normalizeStatus, setNormalizeStatus] = useState<'idle' | 'running' | 'done' | 'error'>('idle');
+    const [normalizeResult, setNormalizeResult] = useState<string>('');
+
+    // Ordered display list of RFM segments — most urgent first so checkboxes
+    // appear in the order the admin most likely cares about.
+    const ALL_SEGMENTS = [
+        "Can't Lose", 'At Risk', 'Champion', 'Loyal', 'Potential Loyalist',
+        'New', 'Hibernating', 'Lost', 'Outreach Only',
+    ];
+    const SEGMENT_DESC: Record<string, string> = {
+        "Can't Lose":          'URGENT high-value lapsing',
+        'At Risk':             'Used to be loyal — win-back',
+        'Champion':            'Recent + frequent + high spend',
+        'Loyal':               'Frequent buyers',
+        'Potential Loyalist':  'Recent + 1-2 orders, push to 3rd',
+        'New':                 'Just made first purchase',
+        'Hibernating':         'Moderate value, gone silent',
+        'Lost':                '6+ months silent',
+        'Outreach Only':       'Never purchased',
+    };
+
     useEffect(() => {
         const creds = getApiCredentials();
         if (creds) { setApiKey(creds.apiKey); setSecretKey(creds.secretKey); }
         setOutreachGoal(currentTarget.toString());
         const fetchData = async () => {
             try {
-                const [resRange, resMode, resValMode, resMinVal, resGmt] = await Promise.all([
-                    getOutreachRange(), getRepeatOnlyMode(), getValueOnlyMode(), getMinOrderValue(), getGmtOffset()
+                const [resRange, resMode, resValMode, resMinVal, resGmt, resSegCounts, resFocus] = await Promise.all([
+                    getOutreachRange(), getRepeatOnlyMode(), getValueOnlyMode(), getMinOrderValue(), getGmtOffset(),
+                    getSegmentDistribution(), getQueueFocusSegments(),
                 ]);
                 setRangeStart(resRange.start.toString()); setRangeEnd(resRange.end.toString());
                 setRepeatOnly(resMode.value); setValueOnly(resValMode.value);
                 setMinOrderValInput(resMinVal.value.toString()); setGmtOffsetVal(resGmt.value.toString());
+                setSegmentCounts(resSegCounts || {});
+                setFocusSegments(resFocus.value || []);
             } catch (err) { console.error(err); }
         };
         fetchData();
     }, [currentTarget]);
+
+    const toggleSegment = (seg: string) => {
+        setFocusSegments(prev => prev.includes(seg) ? prev.filter(s => s !== seg) : [...prev, seg]);
+        setFocusStatus('idle');
+    };
+
+    const saveFocusSegments = async () => {
+        setFocusStatus('saving');
+        try {
+            await setQueueFocusSegments(focusSegments);
+            setFocusStatus('success');
+            setTimeout(() => setFocusStatus('idle'), 3000);
+        } catch {
+            setFocusStatus('idle');
+        }
+    };
+
+    const runRecompute = async () => {
+        setRecomputeStatus('running');
+        setRecomputeResult('');
+        try {
+            const res = await recomputeCustomerStats();
+            setRecomputeStatus('done');
+            setRecomputeResult(res.message);
+            // Refresh segment counts so the focus card reflects the new data.
+            const fresh = await getSegmentDistribution();
+            setSegmentCounts(fresh || {});
+        } catch (err: any) {
+            setRecomputeStatus('error');
+            setRecomputeResult(err.message || 'Failed');
+        }
+    };
+
+    const runNormalize = async () => {
+        setNormalizeStatus('running');
+        setNormalizeResult('');
+        try {
+            const res = await normalizePhones();
+            setNormalizeStatus('done');
+            setNormalizeResult(`${res.message}${res.duplicateGroupCount > 0 ? ` — see browser console for the duplicate list.` : ''}`);
+            if (res.duplicateGroupCount > 0) {
+                console.log('Duplicate customer groups (same normalised phone):', res.duplicates);
+            }
+        } catch (err: any) {
+            setNormalizeStatus('error');
+            setNormalizeResult(err.message || 'Failed');
+        }
+    };
 
     const autoReset = (setter: (v: any) => void) => { setter('success'); setTimeout(() => setter('idle'), 3000); };
 
@@ -199,6 +281,107 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
         <div className="space-y-6 pb-20">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
+                {/* Tier 1.6 — RFM segment focus. Drives Today's Queue. */}
+                <Card
+                    icon={SparklesIcon}
+                    title="Queue Focus Segments"
+                    description="Which RFM segments to build Today's Queue from. Leave all unchecked = everyone eligible. Use this to run targeted campaigns (e.g. only Can't Lose + At Risk for a win-back week)."
+                    status={focusStatus === 'success' ? 'success' : 'idle'}
+                    statusText="Saved"
+                >
+                    <div className="space-y-2">
+                        {ALL_SEGMENTS.map(seg => {
+                            const checked = focusSegments.includes(seg);
+                            const count = segmentCounts[seg] ?? 0;
+                            return (
+                                <label
+                                    key={seg}
+                                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${checked ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200 hover:border-gray-300'}`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={checked}
+                                        onChange={() => toggleSegment(seg)}
+                                        className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-semibold text-gray-800">{seg}</p>
+                                        <p className="text-[11px] text-gray-400 mt-0.5">{SEGMENT_DESC[seg]}</p>
+                                    </div>
+                                    <span className="text-xs font-mono text-gray-500 flex-shrink-0">{count.toLocaleString()}</span>
+                                </label>
+                            );
+                        })}
+                        {(segmentCounts['Unclassified'] ?? 0) > 0 && (
+                            <p className="text-[11px] text-amber-600 px-1">
+                                ⚠ {segmentCounts['Unclassified']} customers have no RFM segment yet — run "Recompute customer stats" below.
+                            </p>
+                        )}
+                        <div className="flex justify-between items-center pt-2">
+                            <p className="text-[11px] text-gray-400">
+                                {focusSegments.length === 0
+                                    ? 'No filter — using all eligible customers.'
+                                    : `Filtering to ${focusSegments.length} segment${focusSegments.length === 1 ? '' : 's'} (${focusSegments.reduce((s, seg) => s + (segmentCounts[seg] ?? 0), 0).toLocaleString()} customers).`}
+                            </p>
+                            <button
+                                onClick={saveFocusSegments}
+                                disabled={focusStatus === 'saving'}
+                                className="px-6 py-2.5 bg-blue-600 text-white text-xs font-semibold uppercase rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all"
+                            >
+                                {focusStatus === 'saving' ? 'Saving…' : 'Save Focus'}
+                            </button>
+                        </div>
+                    </div>
+                </Card>
+
+                {/* Manual data maintenance (Tier 1.1 / 1.4 / 1.6 / 3.12 backfills). */}
+                <Card
+                    icon={CogIcon}
+                    title="Data Maintenance"
+                    description="Recompute derived customer fields (reorder cycle, RFM segment, call-time prediction) and normalise phone numbers. Idempotent — safe to re-run."
+                    status={(recomputeStatus === 'done' || normalizeStatus === 'done') ? 'success' : 'idle'}
+                    statusText="Done"
+                >
+                    <div className="space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                            <div className="flex-1">
+                                <p className="text-sm font-semibold text-gray-800">Recompute customer stats</p>
+                                <p className="text-[11px] text-gray-400 mt-0.5">Reorder cycle + RFM segment + best call time</p>
+                                {recomputeResult && (
+                                    <p className={`text-[11px] mt-1.5 ${recomputeStatus === 'error' ? 'text-red-600' : 'text-emerald-700'}`}>
+                                        {recomputeResult}
+                                    </p>
+                                )}
+                            </div>
+                            <button
+                                onClick={runRecompute}
+                                disabled={recomputeStatus === 'running'}
+                                className="flex-shrink-0 px-5 py-2.5 bg-indigo-600 text-white text-xs font-semibold rounded-xl hover:bg-indigo-700 disabled:opacity-50 transition-all"
+                            >
+                                {recomputeStatus === 'running' ? 'Running…' : 'Recompute Now'}
+                            </button>
+                        </div>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                            <div className="flex-1">
+                                <p className="text-sm font-semibold text-gray-800">Normalise phone numbers</p>
+                                <p className="text-[11px] text-gray-400 mt-0.5">Backfill last-10-digits index + duplicate report</p>
+                                {normalizeResult && (
+                                    <p className={`text-[11px] mt-1.5 ${normalizeStatus === 'error' ? 'text-red-600' : 'text-emerald-700'}`}>
+                                        {normalizeResult}
+                                    </p>
+                                )}
+                            </div>
+                            <button
+                                onClick={runNormalize}
+                                disabled={normalizeStatus === 'running'}
+                                className="flex-shrink-0 px-5 py-2.5 bg-teal-600 text-white text-xs font-semibold rounded-xl hover:bg-teal-700 disabled:opacity-50 transition-all"
+                            >
+                                {normalizeStatus === 'running' ? 'Running…' : 'Normalise Now'}
+                            </button>
+                        </div>
+                    </div>
+                </Card>
+
                 <Card icon={ClockIcon} title="System Clock" description="Adjust global GMT offset for hourly activity tracking." status={gmtStatus} statusText="Updated">
                     <form onSubmit={handleGmtSubmit} className="space-y-4">
                         <div>
@@ -211,7 +394,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                     </form>
                 </Card>
 
-                <Card icon={SparklesIcon} title="Outreach Focus" description="Restrict outreach pool to specific customer segments." status={modeStatus === 'success' || valueStatus === 'success' ? 'success' : 'idle'}>
+                <Card icon={SparklesIcon} title="Outreach Focus (Legacy)" description="Applies to the Follow-up list only. For Today's Queue, use the Queue Focus Segments card above." status={modeStatus === 'success' || valueStatus === 'success' ? 'success' : 'idle'}>
                     <div className="space-y-4">
                         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200">
                             <div>
@@ -251,7 +434,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                     </form>
                 </Card>
 
-                <Card icon={CalendarIcon} title="Retention Window" description="Days range from last purchase to appear in Follow-up list." status={rangeStatus} statusText="Updated">
+                <Card icon={CalendarIcon} title="Retention Window (Fallback)" description="Used for the Follow-up list, and for the Queue when a customer doesn't have enough purchase history for a personal reorder cycle. Customers with confident cycles override this." status={rangeStatus} statusText="Updated">
                     <form onSubmit={handleRangeSubmit} className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div>

@@ -1,5 +1,5 @@
 import { handleApi, err } from '@/app/lib/api-helper';
-import { Customer } from '@/app/lib/models';
+import { Customer, Setting } from '@/app/lib/models';
 import { scoreCustomer } from '@/app/lib/helpers';
 
 export const dynamic = 'force-dynamic';
@@ -12,12 +12,24 @@ export async function GET(req: Request) {
     if (!agentId) return err('agentId is required');
 
     const now = new Date();
-    const candidates = await Customer.find({
+
+    // Optional admin-controlled segment filter (Settings → Queue Focus).
+    // Empty / unset = no filter → use all eligible customers.
+    const focusSetting = await Setting.findOne({ key: 'queue_focus_segments' });
+    const focusSegments: string[] | null =
+      Array.isArray(focusSetting?.value) && focusSetting!.value.length > 0
+        ? (focusSetting!.value as string[])
+        : null;
+
+    const baseQuery: any = {
       $and: [
         { $or: [{ purchaseCount: { $gt: 0 } }, { 'followUpNotes.0': { $exists: true } }] },
         { $or: [{ suppressedUntil: null }, { suppressedUntil: { $lte: now } }] },
       ],
-    })
+    };
+    if (focusSegments) baseQuery.rfmSegment = { $in: focusSegments };
+
+    const candidates = await Customer.find(baseQuery)
       .select('id name phone totalSpending purchaseCount lastPurchaseDate followUpNotes predictedReorderDays reorderConfidence nextOutreachDate rfmSegment rfmAction rScore fScore mScore bestCallHourStart bestCallHourEnd bestPickupRate bestCallConfidence bestCallSummary')
       .lean();
 
@@ -74,6 +86,13 @@ export async function GET(req: Request) {
     }
 
     scored.sort((a, b) => b.score - a.score);
-    return { queue: scored.slice(0, size), suppressed, totalEligible: scored.length, generatedAt: now.toISOString() };
+    return {
+      queue: scored.slice(0, size),
+      suppressed,
+      totalEligible: scored.length,
+      generatedAt: now.toISOString(),
+      // Helps the UI tell agents which campaign is active without surprising them.
+      focusSegments: focusSegments ?? [],
+    };
   });
 }

@@ -179,3 +179,31 @@ export const syncSteadfast = (
     paymentsProcessed: number;
     errors: string[];
 }> => apiRequest('/sync/steadfast', 'POST', { apiKey, secretKey, startDate, endDate });
+
+// ─── RFM segment focus + admin maintenance (Tier 1.6 / 1.4 / 3.12) ──────────
+
+export const getSegmentDistribution = (): Promise<Record<string, number>> =>
+    apiRequest('/stats/segment-distribution');
+
+export const getQueueFocusSegments = (): Promise<{ value: string[] }> =>
+    apiRequest('/settings/queue-focus-segments');
+
+export const setQueueFocusSegments = (value: string[]): Promise<{ value: string[] }> =>
+    apiRequest('/settings/queue-focus-segments', 'POST', { value });
+
+export const recomputeCustomerStats = (): Promise<{
+    message: string;
+    processed: number;
+    withCycle: number;
+    withCallTime: number;
+    segmentDistribution: Record<string, number>;
+}> => apiRequest('/admin/recompute-reorder', 'POST');
+
+export const normalizePhones = (): Promise<{
+    message: string;
+    processed: number;
+    updated: number;
+    invalid: number;
+    duplicateGroupCount: number;
+    duplicates: any[];
+}> => apiRequest('/admin/normalize-phones', 'POST');
