@@ -20,6 +20,9 @@ interface QueueItem {
     reorderConfidence?: 'none' | 'low' | 'medium' | 'high';
     reorderStatus?: 'early' | 'ripe' | 'overdue' | 'churn-risk' | null;
     daysVsReorder?: number | null;
+    // Tier 1.6: RFM segment + recommended action
+    rfmSegment?: string | null;
+    rfmAction?: string | null;
 }
 
 interface QueueResponse {
@@ -66,6 +69,20 @@ const reorderBadge = (status: QueueItem['reorderStatus'], daysVs: number | null 
     if (status === 'overdue')     return { label: `${daysVs}d overdue · ~${predicted}d cycle`, color: 'bg-amber-100 text-amber-800 border-amber-200' };
     if (status === 'churn-risk')  return { label: `${daysVs}d past cycle · churn risk`, color: 'bg-red-100 text-red-700 border-red-200' };
     return null;
+};
+
+// Tier 1.6 — RFM segment badge. Tells the agent what KIND of customer this
+// is so they pick the right approach (upsell vs. win-back vs. nurture).
+const RFM_BADGE_COLORS: Record<string, string> = {
+    "Champion":            'bg-violet-100 text-violet-700 border-violet-200',
+    "Loyal":               'bg-blue-100 text-blue-700 border-blue-200',
+    "Potential Loyalist":  'bg-sky-100 text-sky-700 border-sky-200',
+    "New":                 'bg-teal-100 text-teal-700 border-teal-200',
+    "At Risk":             'bg-orange-100 text-orange-700 border-orange-200',
+    "Can't Lose":          'bg-red-100 text-red-700 border-red-200',
+    "Hibernating":         'bg-gray-100 text-gray-600 border-gray-200',
+    "Lost":                'bg-gray-100 text-gray-400 border-gray-200',
+    "Outreach Only":       'bg-gray-100 text-gray-500 border-gray-200',
 };
 
 const PhoneIcon = () => (
@@ -240,6 +257,11 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                         <div className="flex flex-wrap items-center gap-2 mb-1">
                                             <span className="text-sm font-bold text-gray-900">{item.name}</span>
                                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${seg.color}`}>{seg.label}</span>
+                                            {item.rfmSegment && item.rfmSegment !== 'Outreach Only' && (
+                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${RFM_BADGE_COLORS[item.rfmSegment] ?? 'bg-gray-100 text-gray-500 border-gray-200'}`}>
+                                                    {item.rfmSegment}
+                                                </span>
+                                            )}
                                             {item.lastSentiment && (
                                                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${SENTIMENT_COLORS[item.lastSentiment] ?? 'bg-gray-100 text-gray-500'}`}>
                                                     {item.lastSentiment}
@@ -306,6 +328,12 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                             className="overflow-hidden"
                                         >
                                             <div className="px-5 pb-5 border-t border-gray-100 pt-4 bg-gray-50/50">
+                                                {item.rfmAction && (
+                                                    <div className="mb-3 flex items-start gap-2 px-3 py-2 rounded-xl bg-blue-50 border border-blue-100">
+                                                        <span className="text-base flex-shrink-0">💡</span>
+                                                        <p className="text-xs text-blue-900 font-medium leading-relaxed">{item.rfmAction}</p>
+                                                    </div>
+                                                )}
                                                 <div className="flex flex-col sm:flex-row gap-3">
                                                     <div className="flex-1 space-y-3">
                                                         {/* Sentiment */}

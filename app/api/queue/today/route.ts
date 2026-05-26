@@ -18,7 +18,7 @@ export async function GET(req: Request) {
         { $or: [{ suppressedUntil: null }, { suppressedUntil: { $lte: now } }] },
       ],
     })
-      .select('id name phone totalSpending purchaseCount lastPurchaseDate followUpNotes predictedReorderDays reorderConfidence nextOutreachDate')
+      .select('id name phone totalSpending purchaseCount lastPurchaseDate followUpNotes predictedReorderDays reorderConfidence nextOutreachDate rfmSegment rfmAction rScore fScore mScore')
       .lean();
 
     let suppressed = 0;
@@ -39,6 +39,7 @@ export async function GET(req: Request) {
           })),
           predictedReorderDays: (doc as any).predictedReorderDays ?? null,
           reorderConfidence:    (doc as any).reorderConfidence    ?? 'none',
+          rfmSegment:           (doc as any).rfmSegment           ?? undefined,
         },
         agentId,
         now
@@ -61,6 +62,9 @@ export async function GET(req: Request) {
         reorderConfidence:    (doc as any).reorderConfidence    ?? 'none',
         reorderStatus:        result.reorderStatus              ?? null,
         daysVsReorder:        result.daysVsReorder              ?? null,
+        // RFM segment + recommended action (Tier 1.6).
+        rfmSegment:           (doc as any).rfmSegment           ?? null,
+        rfmAction:            (doc as any).rfmAction            ?? null,
       });
     }
 

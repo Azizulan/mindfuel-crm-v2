@@ -16,6 +16,120 @@ export function normalizePhone(raw: string | null | undefined): string {
   return digits.slice(-10);
 }
 
+// ─── RFM segmentation (Tier 1.6) ─────────────────────────────────────────────
+//
+// Replaces the coarse Low/Medium/High valueRating with actionable segments
+// based on three dimensions:
+//   R — Recency:   how recently did they buy
+//   F — Frequency: how often do they buy
+//   M — Monetary:  how much do they spend
+//
+// Each dimension is scored 1-5 (R also has 0 = never purchased). The combined
+// score maps to a segment that tells the agent *what to do* about this
+// customer, not just how valuable they are.
+
+export type RFMSegment =
+  | 'Champion'           // recent + frequent + high spend — protect & upsell
+  | 'Loyal'              // frequent (maybe lapsing) — maintain
+  | 'Potential Loyalist' // good recency + 1-2 purchases — push to 3rd order
+  | 'New'                // just made first purchase
+  | 'At Risk'            // historically loyal, gone quiet — win-back
+  | "Can't Lose"         // HIGH-VALUE at risk — most urgent
+  | 'Hibernating'        // moderate value, gone silent
+  | 'Lost'               // 6+ months silent, low value
+  | 'Outreach Only';     // never purchased
+
+export interface RFMResult {
+  rScore: 0 | 1 | 2 | 3 | 4 | 5;
+  fScore: 1 | 2 | 3 | 4 | 5;
+  mScore: 1 | 2 | 3 | 4 | 5;
+  rfmSegment: RFMSegment;
+  rfmAction: string; // one-line recommended next action for agents
+}
+
+export function computeRFM(opts: {
+  lastPurchaseDate: Date | string | null | undefined;
+  purchaseCount: number;
+  totalSpending: number;
+  now?: Date;
+}): RFMResult {
+  const now = opts.now ?? new Date();
+  const pc  = opts.purchaseCount || 0;
+  const ts  = opts.totalSpending || 0;
+
+  const lpd        = opts.lastPurchaseDate ? new Date(opts.lastPurchaseDate) : null;
+  const daysSince  = lpd && !isNaN(lpd.getTime())
+    ? Math.floor((now.getTime() - lpd.getTime()) / 86_400_000)
+    : null;
+
+  // R: 0 = never, 5 = within 30d, 1 = > 180d
+  const rScore: RFMResult['rScore'] =
+    daysSince === null ? 0 :
+    daysSince <= 30   ? 5 :
+    daysSince <= 60   ? 4 :
+    daysSince <= 90   ? 3 :
+    daysSince <= 180  ? 2 : 1;
+
+  // F: 5 = VIP (5+), 4 = loyal (3-4), 3 = repeat (2), 2 = one-time, 1 = none
+  const fScore: RFMResult['fScore'] =
+    pc >= 5 ? 5 :
+    pc >= 3 ? 4 :
+    pc === 2 ? 3 :
+    pc === 1 ? 2 : 1;
+
+  // M: tuned for BDT — review with the founder if these don't match reality.
+  const mScore: RFMResult['mScore'] =
+    ts >= 10000 ? 5 :
+    ts >= 5000  ? 4 :
+    ts >= 2000  ? 3 :
+    ts >= 500   ? 2 : 1;
+
+  // Segment classification. Order matters — most specific cases first so
+  // "Can't Lose" wins over "At Risk" wins over "Loyal" for the same customer.
+  let rfmSegment: RFMSegment;
+  let rfmAction: string;
+
+  if (pc === 0) {
+    rfmSegment = 'Outreach Only';
+    rfmAction  = 'Never purchased — pitch intro offer';
+  } else if (pc === 1 && rScore === 5) {
+    rfmSegment = 'New';
+    rfmAction  = 'Just bought — thank-you call, set reorder expectation';
+  } else if (pc === 1 && rScore >= 3) {
+    rfmSegment = 'Potential Loyalist';
+    rfmAction  = 'Encourage 2nd purchase — bundle or referral incentive';
+  } else if (pc === 1 && rScore === 1) {
+    rfmSegment = 'Lost';
+    rfmAction  = 'Cheap recapture only — low priority';
+  } else if (pc === 1) {
+    rfmSegment = 'Hibernating';
+    rfmAction  = 'Limited-time offer to revive';
+  } else if (fScore >= 4 && rScore <= 2 && mScore >= 4) {
+    rfmSegment = "Can't Lose";
+    rfmAction  = 'URGENT: high-value & lapsing — personal call + discount';
+  } else if (fScore >= 3 && rScore <= 2) {
+    rfmSegment = 'At Risk';
+    rfmAction  = 'Used to be loyal — win-back call with offer';
+  } else if (rScore >= 4 && fScore >= 4 && mScore >= 4) {
+    rfmSegment = 'Champion';
+    rfmAction  = 'Protect — reward, upsell premium, ask for referral';
+  } else if (fScore >= 4) {
+    rfmSegment = 'Loyal';
+    rfmAction  = 'Maintain — regular check-in, new product preview';
+  } else if (rScore >= 4) {
+    rfmSegment = 'Potential Loyalist';
+    rfmAction  = 'Push to 3rd order — bundle or loyalty perk';
+  } else if (rScore === 1) {
+    rfmSegment = 'Lost';
+    rfmAction  = 'Cheap recapture only — low priority';
+  } else {
+    rfmSegment = 'Hibernating';
+    rfmAction  = 'Limited-time offer to revive';
+  }
+
+  return { rScore, fScore, mScore, rfmSegment, rfmAction };
+}
+
 // ─── Per-customer reorder cycle prediction (Tier 1.1) ────────────────────────
 //
 // Returns the median gap between this customer's purchases plus a confidence
@@ -96,6 +210,13 @@ export function recalculateCustomerStats(customer: ICustomer) {
     customer.predictedReorderDays = null;
     customer.nextOutreachDate = null;
     customer.reorderConfidence = 'none';
+    // RFM still meaningful for outreach-only customers.
+    const rfm = computeRFM({ lastPurchaseDate: null, purchaseCount: 0, totalSpending: 0 });
+    customer.rScore     = rfm.rScore;
+    customer.fScore     = rfm.fScore;
+    customer.mScore     = rfm.mScore;
+    customer.rfmSegment = rfm.rfmSegment;
+    customer.rfmAction  = rfm.rfmAction;
     return;
   }
   const sorted = [...purchases].sort(
@@ -113,6 +234,18 @@ export function recalculateCustomerStats(customer: ICustomer) {
   customer.predictedReorderDays = cycle.predictedReorderDays;
   customer.nextOutreachDate     = cycle.nextOutreachDate;
   customer.reorderConfidence    = cycle.reorderConfidence;
+
+  // RFM segmentation (Tier 1.6).
+  const rfm = computeRFM({
+    lastPurchaseDate: customer.lastPurchaseDate,
+    purchaseCount:    customer.purchaseCount,
+    totalSpending:    customer.totalSpending,
+  });
+  customer.rScore     = rfm.rScore;
+  customer.fScore     = rfm.fScore;
+  customer.mScore     = rfm.mScore;
+  customer.rfmSegment = rfm.rfmSegment;
+  customer.rfmAction  = rfm.rfmAction;
 }
 
 // ─── Map Mongoose doc to plain object with id string ─────────────────────────
@@ -149,6 +282,8 @@ interface ScoringCustomer {
   // Optional personalised reorder fields (Tier 1.1).
   predictedReorderDays?: number | null;
   reorderConfidence?: 'none' | 'low' | 'medium' | 'high';
+  // Optional RFM segment (Tier 1.6) — boosts At Risk / Can't Lose priority.
+  rfmSegment?: RFMSegment;
 }
 interface ScoringResult {
   score: number;
@@ -159,6 +294,23 @@ interface ScoringResult {
   reorderStatus?: 'early' | 'ripe' | 'overdue' | 'churn-risk' | null;
   daysVsReorder?: number | null;
 }
+
+// Segment-driven priority boost. Most actionable segments get the biggest
+// push — "Can't Lose" is the customer you most regret losing if you wait.
+const _segmentBoost = (segment: RFMSegment | undefined): number => {
+  switch (segment) {
+    case "Can't Lose":         return 60;  // highest urgency
+    case 'At Risk':            return 35;
+    case 'Champion':           return 15;  // already scoring high; small nudge
+    case 'Potential Loyalist': return 10;
+    case 'New':                return 5;
+    case 'Loyal':              return 0;   // baseline (already weighted via F)
+    case 'Hibernating':        return -5;
+    case 'Lost':               return -15;
+    case 'Outreach Only':      return 0;
+    default:                   return 0;
+  }
+};
 
 const _db = (a: Date, b: Date) => Math.floor((b.getTime() - a.getTime()) / 86400000);
 const _td = (v: any): Date | null => { if (!v) return null; const d = new Date(v); return isNaN(d.getTime()) ? null : d; };
@@ -277,7 +429,8 @@ export function scoreCustomer(customer: ScoringCustomer, agentName: string, now:
   const rec = _recPersonal(dso, customer.predictedReorderDays, customer.reorderConfidence);
 
   const score = _ltv(customer.totalSpending) + _freq(customer.purchaseCount)
-              + rec.score - _pen(dsc) + _sent(lf, rd, now) - excl;
+              + rec.score - _pen(dsc) + _sent(lf, rd, now) - excl
+              + _segmentBoost(customer.rfmSegment);
 
   return {
     score,

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { handleApi, err } from '@/app/lib/api-helper';
 import { Customer } from '@/app/lib/models';
-import { computeReorderCycle, normalizePhone } from '@/app/lib/helpers';
+import { computeReorderCycle, computeRFM, normalizePhone } from '@/app/lib/helpers';
 
 export async function POST(req: Request) {
   return handleApi(async () => {
@@ -18,9 +18,10 @@ export async function POST(req: Request) {
       const phone = String(cust.phone).trim();
       const normalized = normalizePhone(phone);
 
-      // Personalised reorder cycle — same logic as recalculateCustomerStats()
+      // Personalised reorder cycle + RFM — same logic as recalculateCustomerStats()
       // but computed inline so we can keep the bulkWrite fast-path.
       const cycle = computeReorderCycle(purchases);
+      const rfm   = computeRFM({ lastPurchaseDate, purchaseCount: purchases.length, totalSpending });
 
       return {
         updateOne: {
@@ -44,6 +45,11 @@ export async function POST(req: Request) {
               predictedReorderDays: cycle.predictedReorderDays,
               nextOutreachDate:     cycle.nextOutreachDate,
               reorderConfidence:    cycle.reorderConfidence,
+              rScore:     rfm.rScore,
+              fScore:     rfm.fScore,
+              mScore:     rfm.mScore,
+              rfmSegment: rfm.rfmSegment,
+              rfmAction:  rfm.rfmAction,
             },
           },
           upsert: true,

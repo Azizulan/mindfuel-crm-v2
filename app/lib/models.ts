@@ -42,6 +42,15 @@ const CustomerSchema = new mongoose.Schema({
   predictedReorderDays: { type: Number, default: null },
   nextOutreachDate:     { type: Date,   default: null, index: true },
   reorderConfidence:    { type: String, default: 'none', enum: ['none', 'low', 'medium', 'high'] },
+
+  // ─── RFM segmentation (Tier 1.6) ────────────────────────────────────────────
+  // Recency / Frequency / Monetary scores (each 1-5; R also has 0 = never).
+  // rfmSegment is the actionable label; rfmAction is the recommended next step.
+  rScore:     { type: Number, default: 0, min: 0, max: 5 },
+  fScore:     { type: Number, default: 1, min: 1, max: 5 },
+  mScore:     { type: Number, default: 1, min: 1, max: 5 },
+  rfmSegment: { type: String, default: 'Outreach Only', index: true },
+  rfmAction:  { type: String, default: '' },
 });
 
 // Auto-sync normalizedPhone whenever phone changes on .save() (Tier 3.12).
@@ -125,6 +134,11 @@ export interface ICustomer extends Document {
   predictedReorderDays: number | null;
   nextOutreachDate: Date | null;
   reorderConfidence: 'none' | 'low' | 'medium' | 'high';
+  rScore: 0 | 1 | 2 | 3 | 4 | 5;
+  fScore: 1 | 2 | 3 | 4 | 5;
+  mScore: 1 | 2 | 3 | 4 | 5;
+  rfmSegment: string;
+  rfmAction: string;
 }
 
 // ─── Model exports (safe re-registration for Next.js hot-reload) ──────────────
