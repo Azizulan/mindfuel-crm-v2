@@ -15,11 +15,29 @@ export async function GET(req: Request) {
 
     // Optional admin-controlled segment filter (Settings → Queue Focus).
     // Empty / unset = no filter → use all eligible customers.
-    const focusSetting = await Setting.findOne({ key: 'queue_focus_segments' });
+    const [focusSetting, convSetting] = await Promise.all([
+      Setting.findOne({ key: 'queue_focus_segments' }),
+      Setting.findOne({ key: 'conversion_model' }),
+    ]);
     const focusSegments: string[] | null =
       Array.isArray(focusSetting?.value) && focusSetting!.value.length > 0
         ? (focusSetting!.value as string[])
         : null;
+
+    // Conversion model (Tier 1.2). Expected value = P(convert|segment) × avg
+    // order value for this customer. Used to surface EV and nudge ranking.
+    const convModel: any = convSetting?.value || null;
+    const expectedValueFor = (doc: any): number => {
+      if (!convModel) return 0;
+      const seg = doc.rfmSegment;
+      const p = (seg && convModel.ratesBySegment?.[seg] != null)
+        ? convModel.ratesBySegment[seg]
+        : (convModel.overallRate ?? 0);
+      const aov = (doc.purchaseCount > 0 && doc.totalSpending > 0)
+        ? doc.totalSpending / doc.purchaseCount
+        : (convModel.avgOrderValue ?? 0);
+      return p * aov;
+    };
 
     const baseQuery: any = {
       $and: [
@@ -59,12 +77,19 @@ export async function GET(req: Request) {
 
       if (result.suppressed) { suppressed++; continue; }
 
+      // Expected value = P(convert) × avg order value (Tier 1.2). Nudge the
+      // score so high-EV customers rise, without overriding the urgency
+      // signals (reorder window, suppression, etc.).
+      const expectedValue = expectedValueFor(doc);
+      const evBoost = Math.min(Math.round(expectedValue / 20), 60);
+
       const notes = (doc.followUpNotes ?? []) as any[];
       const sortedNotes = [...notes].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       const latestNote = sortedNotes[0] ?? null;
       scored.push({
         id: doc.id, name: doc.name, phone: doc.phone,
-        score: result.score, reason: result.reason,
+        score: result.score + evBoost, reason: result.reason,
+        expectedValue: Math.round(expectedValue),
         lastSentiment: latestNote?.feedback ?? null,
         daysSinceLastCall: latestNote ? Math.floor((now.getTime() - new Date(latestNote.date).getTime()) / msPerDay) : null,
         daysSinceLastOrder: doc.lastPurchaseDate ? Math.floor((now.getTime() - new Date(doc.lastPurchaseDate).getTime()) / msPerDay) : null,

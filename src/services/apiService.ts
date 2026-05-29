@@ -233,6 +233,7 @@ export const recomputeCustomerStats = (): Promise<{
     associationCount: number;
     segmentDistribution: Record<string, number>;
     topAssociations: Array<{ source: string; target: string; pairCount: number; confidence: number; lift: number }>;
+    conversionModel?: { overallRate: number; avgOrderValue: number; ratesBySegment: Record<string, number>; sampleCalls: number };
 }> => apiRequest('/admin/recompute-reorder', 'POST');
 
 export const normalizePhones = (): Promise<{

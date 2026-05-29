@@ -32,6 +32,8 @@ interface QueueItem {
     recommendedProduct?: string | null;
     recommendedProductReason?: string | null;
     recommendedProductLift?: number;
+    // Tier 1.2: expected value = P(convert) × avg order value
+    expectedValue?: number;
 }
 
 interface QueueResponse {
@@ -313,6 +315,11 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                         )}
                                         <div className="flex flex-wrap gap-3 mt-2 text-[10px] text-gray-400 font-semibold uppercase tracking-wide">
                                             <span>৳{item.totalSpending.toLocaleString()}</span>
+                                            {typeof item.expectedValue === 'number' && item.expectedValue > 0 && (
+                                                <span className="text-indigo-600" title="Expected value = conversion probability × average order value">
+                                                    EV ৳{item.expectedValue.toLocaleString()}
+                                                </span>
+                                            )}
                                             {item.daysSinceLastOrder !== null && <span>{item.daysSinceLastOrder}d since order</span>}
                                             {item.daysSinceLastCall !== null
                                                 ? <span>{item.daysSinceLastCall}d since last call</span>
