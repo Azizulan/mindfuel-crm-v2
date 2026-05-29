@@ -25,6 +25,7 @@ const titles: Record<string, string> = {
   teamActivity: 'Team Pulse',
   executivePerformance: 'Performance',
   agentCoaching: 'Agent Coaching',
+  winBack: 'Win-Back Squad',
   loading: 'Loading...',
 };
 

@@ -680,6 +680,37 @@ const AllTimeTab = () => {
                 <KpiCard label="Avg Reorder Cycle" value={data?.avgReorderCycle ? `${data.avgReorderCycle}d` : '—'} sub="Avg days between orders" loading={sk} />
             </div>
 
+            {/* Tier 2.9 — Revenue at risk */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card className="border-amber-200 bg-amber-50/40">
+                    <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Revenue at Risk (recoverable)</span>
+                    {sk ? <div className="mt-3"><Sk className="h-10 w-32" /></div> : (
+                        <div className="mt-2">
+                            <div className="text-[2rem] font-black text-amber-700 leading-none font-mono">{data ? formatBDT(data.revenueAtRisk?.recoverableValue ?? 0) : '—'}</div>
+                            <p className="text-[11px] text-amber-600/80 mt-1.5">{data?.revenueAtRisk?.recoverableCount ?? 0} At-Risk + Can't-Lose customers — still saveable with a call</p>
+                        </div>
+                    )}
+                </Card>
+                <Card className="border-red-200 bg-red-50/40">
+                    <span className="text-[10px] font-bold text-red-600 uppercase tracking-widest">Can't-Lose Value</span>
+                    {sk ? <div className="mt-3"><Sk className="h-10 w-32" /></div> : (
+                        <div className="mt-2">
+                            <div className="text-[2rem] font-black text-red-700 leading-none font-mono">{data ? formatBDT(data.revenueAtRisk?.cantLoseValue ?? 0) : '—'}</div>
+                            <p className="text-[11px] text-red-600/80 mt-1.5">{data?.revenueAtRisk?.cantLoseCount ?? 0} high-value customers lapsing now — call today</p>
+                        </div>
+                    )}
+                </Card>
+                <Card>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Already Lost</span>
+                    {sk ? <div className="mt-3"><Sk className="h-10 w-32" /></div> : (
+                        <div className="mt-2">
+                            <div className="text-[2rem] font-black text-gray-500 leading-none font-mono">{data ? formatBDT(data.revenueAtRisk?.lostValue ?? 0) : '—'}</div>
+                            <p className="text-[11px] text-gray-400 mt-1.5">{data?.revenueAtRisk?.lostCount ?? 0} customers gone 6+ months — cheap recapture only</p>
+                        </div>
+                    )}
+                </Card>
+            </div>
+
             {/* Row 2 — Distribution cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Lifecycle pyramid */}

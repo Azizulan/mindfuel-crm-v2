@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   return handleApi(async () => {
-    const [totalCustomers, revenueAgg, lifecycleAgg, topProductsAgg, monthlyTrendAgg] = await Promise.all([
+    const [totalCustomers, revenueAgg, lifecycleAgg, topProductsAgg, monthlyTrendAgg, riskAgg] = await Promise.all([
       Customer.countDocuments(),
 
       // Total revenue + customers who have purchased
@@ -68,6 +68,12 @@ export async function GET() {
         },
         { $sort: { '_id.year': 1, '_id.month': 1 } },
       ]),
+
+      // Revenue at risk + already lost, grouped by churn-relevant RFM segment (Tier 2.9).
+      Customer.aggregate([
+        { $match: { rfmSegment: { $in: ['At Risk', "Can't Lose", 'Lost'] } } },
+        { $group: { _id: '$rfmSegment', count: { $sum: 1 }, value: { $sum: '$totalSpending' } } },
+      ]),
     ]);
 
     const totalRevenue   = revenueAgg[0]?.totalRevenue || 0;
@@ -77,6 +83,21 @@ export async function GET() {
     const lc = lifecycleAgg[0] || { vip: 0, loyal: 0, repeat: 0, oneTime: 0, outreach: 0 };
     const repeatCount        = (lc.vip || 0) + (lc.loyal || 0) + (lc.repeat || 0);
     const repeatPurchaseRate = totalCustomers > 0 ? Math.round((repeatCount / totalCustomers) * 100) : 0;
+
+    // Tier 2.9 — revenue at risk (recoverable) vs. already lost.
+    const riskMap: Record<string, { count: number; value: number }> = {};
+    for (const r of riskAgg) riskMap[r._id] = { count: r.count, value: r.value || 0 };
+    const atRisk    = riskMap['At Risk']    || { count: 0, value: 0 };
+    const cantLose  = riskMap["Can't Lose"] || { count: 0, value: 0 };
+    const lost      = riskMap['Lost']       || { count: 0, value: 0 };
+    const revenueAtRisk = {
+      recoverableValue: atRisk.value + cantLose.value,   // At Risk + Can't Lose — still saveable
+      recoverableCount: atRisk.count + cantLose.count,
+      cantLoseValue:    cantLose.value,
+      cantLoseCount:    cantLose.count,
+      lostValue:        lost.value,                       // already churned
+      lostCount:        lost.count,
+    };
 
     const monthlyTrend = monthlyTrendAgg.map((m: any) => ({
       month:          `${m._id.year}-${String(m._id.month).padStart(2, '0')}`,
@@ -101,6 +122,7 @@ export async function GET() {
       },
       revenueConcentration: [],
       variantBuckets:       null,
+      revenueAtRisk,
       monthlyTrend,
       topProducts: topProductsAgg.map((p: any) => ({
         name:      p.name      || 'Unknown',

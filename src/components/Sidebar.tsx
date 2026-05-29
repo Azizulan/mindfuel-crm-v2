@@ -96,6 +96,10 @@ const Sidebar: React.FC<SidebarProps> = ({ user, activeView, setView, isOpen, se
             icon={<Icon d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />}
             active={activeView === 'followUp'} onClick={go}
           />
+          <NavItem view="winBack" label="Win-Back Squad"
+            icon={<Icon d="M16 12a4 4 0 1 0-8 0 4 4 0 0 0 8 0Zm0 0v1.5a2.5 2.5 0 0 0 5 0V12a9 9 0 1 0-9 9m4.5-1.206a8.959 8.959 0 0 1-4.5 1.207" />}
+            active={activeView === 'winBack'} onClick={go}
+          />
 
           {isAdmin && (
             <>

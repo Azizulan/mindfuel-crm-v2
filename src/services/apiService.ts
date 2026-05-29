@@ -175,6 +175,19 @@ export const getCallQueue = (agentId: string, size: number = 50): Promise<any> =
     return apiRequest(`/queue/today?${params.toString()}`);
 };
 
+export interface WinBackCustomer {
+    id: string; name: string; phone: string;
+    rfmSegment: string; rfmAction: string;
+    totalSpending: number; purchaseCount: number;
+    daysSinceLastOrder: number | null; predictedReorderDays: number | null; daysOverCycle: number | null;
+    lastSentiment: string | null; lastContactDays: number | null;
+    recommendedProduct: string | null; recommendedProductReason: string | null;
+    bestCallSummary: string; valueAtRisk: number;
+}
+export const getWinBackQueue = (size: number = 50): Promise<{
+    customers: WinBackCustomer[]; count: number; cantLoseCount: number; totalValueAtRisk: number; generatedAt: string;
+}> => apiRequest(`/queue/winback?size=${size}`);
+
 export const getSuppressedCustomers = (page: number = 1, limit: number = 20): Promise<any> => {
     const params = new URLSearchParams({ page: String(page), limit: String(limit) });
     return apiRequest(`/admin/suppressed?${params.toString()}`);

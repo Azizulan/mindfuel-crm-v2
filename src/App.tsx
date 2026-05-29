@@ -25,6 +25,7 @@ const ExecutivePerformancePage= lazy(() => import('./components/ExecutivePerform
 const CallQueuePage          = lazy(() => import('./components/CallQueuePage'));
 const SuppressionPage        = lazy(() => import('./components/SuppressionPage'));
 const AgentCoachingPage      = lazy(() => import('./components/AgentCoachingPage'));
+const WinBackPage            = lazy(() => import('./components/WinBackPage'));
 
 const PageSpinner = () => (
   <div className="flex items-center justify-center py-20">
@@ -32,7 +33,7 @@ const PageSpinner = () => (
   </div>
 );
 
-export type View = 'dashboard' | 'executiveDashboard' | 'callQueue' | 'suppression' | 'products' | 'newOrder' | 'trackOrder' | 'orderStatus' | 'settings' | 'followUp' | 'userManagement' | 'uploadData' | 'auditLog' | 'dataManagement' | 'teamActivity' | 'executivePerformance' | 'agentCoaching' | 'loading';
+export type View = 'dashboard' | 'executiveDashboard' | 'callQueue' | 'winBack' | 'suppression' | 'products' | 'newOrder' | 'trackOrder' | 'orderStatus' | 'settings' | 'followUp' | 'userManagement' | 'uploadData' | 'auditLog' | 'dataManagement' | 'teamActivity' | 'executivePerformance' | 'agentCoaching' | 'loading';
 
 const isToday = (someDate: Date) => {
     const today = new Date();
@@ -262,6 +263,7 @@ const App: React.FC = () => {
     switch (activeView) {
       case 'loading': return <PageSpinner />;
       case 'callQueue': return <CallQueuePage currentUser={currentUser!} />;
+      case 'winBack': return <WinBackPage currentUser={currentUser!} />;
       case 'suppression': return <SuppressionPage />;
       case 'executiveDashboard': return <SalesExecutiveDashboard currentUser={currentUser!} stats={stats} outreachRange={outreachRange} target={outreachTarget} isLoading={isLoading} />;
       case 'dashboard': return <AdminDashboard setView={setActiveView} />;
