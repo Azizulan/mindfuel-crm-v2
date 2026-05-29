@@ -1,8 +1,8 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { UploadIcon } from './icons/UploadIcon';
 import * as api from '../services/apiService';
-import { getApiCredentials } from '../services/packzyApiService';
+import { getCredentialStatus } from '../services/packzyApiService';
 import { processAndAnalyzeData } from '../utils/dataProcessor';
 import { motion, AnimatePresence } from 'motion/react';
 import { XMarkIcon } from './icons/XMarkIcon';
@@ -63,8 +63,13 @@ const SteadfastSyncTab: React.FC = () => {
   } | null>(null);
   const [error, setError]             = useState<string | null>(null);
 
-  const creds = getApiCredentials();
-  const hasCredentials = !!(creds?.apiKey && creds?.secretKey);
+  const [hasCredentials, setHasCredentials] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    getCredentialStatus()
+      .then(s => setHasCredentials(s.configured))
+      .catch(() => setHasCredentials(false));
+  }, []);
 
   const handleSync = async () => {
     if (!hasCredentials) return;
@@ -76,7 +81,7 @@ const SteadfastSyncTab: React.FC = () => {
     setError(null);
     setResult(null);
     try {
-      const res = await api.syncSteadfast(creds!.apiKey, creds!.secretKey, start, end);
+      const res = await api.syncSteadfast(start, end);
       setResult(res);
     } catch (err: any) {
       setError(err.message || 'Sync failed. Check your API credentials in Settings.');
@@ -85,7 +90,7 @@ const SteadfastSyncTab: React.FC = () => {
     }
   };
 
-  if (!hasCredentials) {
+  if (hasCredentials === false) {
     return (
       <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center space-y-3">
         <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto border border-amber-200">

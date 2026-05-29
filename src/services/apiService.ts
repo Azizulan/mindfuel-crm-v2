@@ -187,9 +187,8 @@ export const getDashboardToday = (): Promise<any> => apiRequest('/dashboard/toda
 export const getDashboardMonth = (): Promise<any> => apiRequest('/dashboard/month');
 export const getDashboardAllTime = (): Promise<any> => apiRequest('/dashboard/alltime');
 
+// Tier 7.28: credentials are read server-side; the client no longer passes keys.
 export const syncSteadfast = (
-    apiKey: string,
-    secretKey: string,
     startDate?: string,
     endDate?: string,
 ): Promise<{
@@ -199,7 +198,7 @@ export const syncSteadfast = (
     alreadySynced: number;
     paymentsProcessed: number;
     errors: string[];
-}> => apiRequest('/sync/steadfast', 'POST', { apiKey, secretKey, startDate, endDate });
+}> => apiRequest('/sync/steadfast', 'POST', { startDate, endDate });
 
 // ─── RFM segment focus + admin maintenance (Tier 1.6 / 1.4 / 3.12) ──────────
 

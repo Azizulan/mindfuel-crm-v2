@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { getApiCredentials, saveApiCredentials } from '../services/packzyApiService';
+import { getCredentialStatus, saveApiCredentials } from '../services/packzyApiService';
 import {
     getOutreachTarget, setOutreachTarget,
     getOutreachRange, setOutreachRange,
@@ -121,6 +121,7 @@ const btnClass = (color: string) => `px-6 py-2.5 bg-${color}-600 text-white text
 const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpdate, currentUser }) => {
     const [apiKey, setApiKey] = useState('');
     const [secretKey, setSecretKey] = useState('');
+    const [credStatus, setCredStatus] = useState<{ configured: boolean; apiKeyPreview: string; secretKeyPreview: string } | null>(null);
     const [outreachGoal, setOutreachGoal] = useState(currentTarget.toString());
     const [rangeStart, setRangeStart] = useState('32');
     const [rangeEnd, setRangeEnd] = useState('28');
@@ -168,8 +169,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
     };
 
     useEffect(() => {
-        const creds = getApiCredentials();
-        if (creds) { setApiKey(creds.apiKey); setSecretKey(creds.secretKey); }
+        getCredentialStatus().then(setCredStatus).catch(() => setCredStatus({ configured: false, apiKeyPreview: '', secretKeyPreview: '' }));
         setOutreachGoal(currentTarget.toString());
         const fetchData = async () => {
             try {
@@ -237,9 +237,15 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
 
     const autoReset = (setter: (v: any) => void) => { setter('success'); setTimeout(() => setter('idle'), 3000); };
 
-    const handleCredentialsSubmit = (e: React.FormEvent) => {
+    const handleCredentialsSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        try { saveApiCredentials({ apiKey, secretKey }); autoReset(setSaveStatus); } catch { }
+        try {
+            await saveApiCredentials({ apiKey, secretKey });
+            autoReset(setSaveStatus);
+            setApiKey(''); setSecretKey('');
+            const status = await getCredentialStatus();
+            setCredStatus(status);
+        } catch { }
     };
 
     const handleGoalSubmit = async (e: React.FormEvent) => {
@@ -453,18 +459,26 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                     </form>
                 </Card>
 
-                <Card icon={CogIcon} title="Courier Integration" description="Packzy API keys for official consignments." status={saveStatus}>
+                <Card icon={CogIcon} title="Courier Integration" description="Packzy/Steadfast API keys. Stored encrypted server-side — never exposed to the browser." status={saveStatus}>
                     <form onSubmit={handleCredentialsSubmit} className="space-y-4">
+                        {credStatus?.configured && (
+                            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-100">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
+                                <p className="text-[11px] text-emerald-700 font-medium">
+                                    Configured · Key {credStatus.apiKeyPreview} · Secret {credStatus.secretKeyPreview}. Enter new values below to replace.
+                                </p>
+                            </div>
+                        )}
                         <div>
                             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">API Key</label>
-                            <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} className={inputClass} placeholder="••••••••" required />
+                            <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} className={inputClass} placeholder={credStatus?.configured ? 'Enter to replace' : '••••••••'} required={!credStatus?.configured} />
                         </div>
                         <div>
                             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Secret Key</label>
-                            <input type="password" value={secretKey} onChange={e => setSecretKey(e.target.value)} className={inputClass} placeholder="••••••••" required />
+                            <input type="password" value={secretKey} onChange={e => setSecretKey(e.target.value)} className={inputClass} placeholder={credStatus?.configured ? 'Enter to replace' : '••••••••'} required={!credStatus?.configured} />
                         </div>
                         <div className="flex justify-end">
-                            <button type="submit" className="px-6 py-2.5 bg-blue-600 text-white text-xs font-semibold uppercase rounded-xl hover:bg-blue-700 transition-all">Save Credentials</button>
+                            <button type="submit" disabled={!apiKey || !secretKey} className="px-6 py-2.5 bg-blue-600 text-white text-xs font-semibold uppercase rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all">Save Credentials</button>
                         </div>
                     </form>
                 </Card>

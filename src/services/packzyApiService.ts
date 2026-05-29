@@ -1,87 +1,46 @@
-import { ApiCredentials, OrderPayload, OrderSuccessResponse, TrackingStatusResponse, ApiErrorResponse, Order, OrdersResponse } from "../types";
+import { OrderPayload, OrderSuccessResponse, TrackingStatusResponse, OrdersResponse } from "../types";
 
-const BASE_URL = 'https://portal.packzy.com/api/v1';
-const CREDENTIALS_KEY = 'packzyApiCredentials';
+// Tier 7.28 — all Steadfast/Packzy traffic now goes through our own server
+// proxies (/api/courier/*). The browser NEVER holds the API keys; they live
+// encrypted server-side and are injected by the proxy routes. This file used
+// to call portal.packzy.com directly with keys from localStorage — that is
+// gone.
 
-// --- Credentials Management ---
+const API_BASE = '/api';
 
-export const saveApiCredentials = (credentials: ApiCredentials) => {
-    localStorage.setItem(CREDENTIALS_KEY, JSON.stringify(credentials));
-};
+async function proxyRequest(endpoint: string, method: string = 'GET', body: any = null) {
+  const options: RequestInit = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body) options.body = JSON.stringify(body);
+  const response = await fetch(`${API_BASE}${endpoint}`, options);
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || `Request failed (HTTP ${response.status})`);
+  return data;
+}
 
-export const getApiCredentials = (): ApiCredentials | null => {
-    const stored = localStorage.getItem(CREDENTIALS_KEY);
-    return stored ? JSON.parse(stored) : null;
-};
+// --- Credentials (server-side, status only) ---
 
-// --- API Helper ---
+export interface CredentialStatus {
+  configured: boolean;
+  apiKeyPreview: string;
+  secretKeyPreview: string;
+}
 
-const getHeaders = () => {
-    const creds = getApiCredentials();
-    if (!creds || !creds.apiKey || !creds.secretKey) {
-        throw new Error("API credentials are not set. Please configure them in Settings.");
-    }
-    return {
-        'Api-Key': creds.apiKey,
-        'Secret-Key': creds.secretKey,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    };
-};
+export const getCredentialStatus = (): Promise<CredentialStatus> =>
+  proxyRequest('/settings/steadfast-credentials');
 
-const handleApiResponse = async (response: Response) => {
-    const data = await response.json();
-    if (!response.ok) {
-        const errorData = data as ApiErrorResponse;
-        let errorMessage = errorData.message || `HTTP error! status: ${response.status}`;
-        if (errorData.errors) {
-           errorMessage += ' ' + Object.values(errorData.errors).flat().join(' ');
-        }
-        throw new Error(errorMessage);
-    }
-    return data;
-};
+export const saveApiCredentials = (creds: { apiKey: string; secretKey: string }): Promise<{ configured: boolean }> =>
+  proxyRequest('/settings/steadfast-credentials', 'POST', creds);
 
-// --- API Functions ---
+// --- API functions (proxied) ---
 
-export const createOrder = async (payload: OrderPayload): Promise<OrderSuccessResponse> => {
-    const response = await fetch(`${BASE_URL}/create_order`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(payload),
-    });
-    return handleApiResponse(response);
-};
+export const createOrder = (payload: OrderPayload): Promise<OrderSuccessResponse> =>
+  proxyRequest('/courier/create-order', 'POST', payload);
 
-export const getTrackingStatus = async (idType: 'consignment_id' | 'invoice' | 'tracking_code', idValue: string): Promise<TrackingStatusResponse> => {
-    let endpoint = '';
-    switch (idType) {
-        case 'consignment_id':
-            endpoint = `/status_by_cid/${idValue}`;
-            break;
-        case 'invoice':
-            endpoint = `/status_by_invoice/${idValue}`;
-            break;
-        case 'tracking_code':
-            endpoint = `/status_by_trackingcode/${idValue}`;
-            break;
-        default:
-            throw new Error('Invalid tracking ID type.');
-    }
+export const getTrackingStatus = (
+  idType: 'consignment_id' | 'invoice' | 'tracking_code',
+  idValue: string
+): Promise<TrackingStatusResponse> =>
+  proxyRequest('/courier/track', 'POST', { idType, idValue });
 
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
-        method: 'GET',
-        headers: getHeaders(),
-    });
-
-    return handleApiResponse(response);
-};
-
-
-export const getOrders = async (): Promise<OrdersResponse> => {
-    const response = await fetch(`${BASE_URL}/get_orders`, {
-        method: 'GET',
-        headers: getHeaders(),
-    });
-    return handleApiResponse(response);
-};
+export const getOrders = (): Promise<OrdersResponse> =>
+  proxyRequest('/courier/orders');

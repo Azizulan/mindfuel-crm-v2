@@ -1,20 +1,19 @@
 import { handleApi, err } from '@/app/lib/api-helper';
 import { Customer } from '@/app/lib/models';
 import { recalculateCustomerStats, normalizePhone } from '@/app/lib/helpers';
+import { getSteadfastCredentials, steadfastHeaders, PACKZY_BASE } from '@/app/lib/steadfast';
 
 export async function POST(req: Request) {
   return handleApi(async () => {
-    const { apiKey, secretKey, startDate, endDate } = await req.json();
-    if (!apiKey || !secretKey)
-      return err('Steadfast API credentials are required. Please add them in Settings → Courier Integration.');
+    const { startDate, endDate } = await req.json();
 
-    const PACKZY = 'https://portal.packzy.com/api/v1';
-    const sfHeaders: Record<string, string> = {
-      'Api-Key': apiKey,
-      'Secret-Key': secretKey,
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    };
+    // Tier 7.28: credentials are read server-side, never accepted from the client.
+    const creds = await getSteadfastCredentials();
+    if (!creds)
+      return err('Steadfast API credentials are not configured. Add them in Settings → Courier Integration.');
+
+    const PACKZY = PACKZY_BASE;
+    const sfHeaders = steadfastHeaders(creds);
 
     const rangeStart = startDate ? new Date(startDate + 'T00:00:00') : null;
     const rangeEnd   = endDate   ? new Date(endDate   + 'T23:59:59') : null;
