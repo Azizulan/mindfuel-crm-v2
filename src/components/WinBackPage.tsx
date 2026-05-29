@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { User, FollowUpNote } from '../types';
 import { getWinBackQueue, WinBackCustomer, addFollowUpNote } from '../services/apiService';
 import { motion, AnimatePresence } from 'motion/react';
+import CallScriptPanel from './CallScriptPanel';
 
 const bdt = (n: number) => `৳${Math.round(n).toLocaleString()}`;
 
@@ -134,6 +135,19 @@ const WinBackPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                         {expanded && (
                                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
                                                 <div className="px-5 pb-5 border-t border-gray-100 pt-4 bg-gray-50/50 space-y-3">
+                                                    <CallScriptPanel
+                                                        agentName={currentUser.name}
+                                                        input={{
+                                                            name: c.name,
+                                                            rfmSegment: c.rfmSegment,
+                                                            lastSentiment: c.lastSentiment,
+                                                            reorderStatus: c.daysOverCycle && c.daysOverCycle > 60 ? 'churn-risk' : 'overdue',
+                                                            recommendedProduct: c.recommendedProduct,
+                                                            lastProduct: c.lastProduct,
+                                                            bestCallSummary: c.bestCallSummary,
+                                                            predictedReorderDays: c.predictedReorderDays,
+                                                        }}
+                                                    />
                                                     <div className="flex flex-wrap gap-1.5">
                                                         {SENTIMENTS.map(s => (
                                                             <button key={s}

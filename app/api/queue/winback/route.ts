@@ -3,6 +3,17 @@ import { Customer } from '@/app/lib/models';
 
 export const dynamic = 'force-dynamic';
 
+function deriveLastProduct(purchases: any[]): string | null {
+  if (!purchases?.length) return null;
+  const sorted = [...purchases].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  for (const p of sorted) {
+    const name = String(p.product || '').trim();
+    const low = name.toLowerCase();
+    if (name && low !== 'steadfast delivery' && low !== 'unknown') return name;
+  }
+  return null;
+}
+
 // Tier 1.5 — Win-back / "Save Squad" queue.
 //
 // Surfaces the customers most worth saving: those in the actionable churning
@@ -22,7 +33,7 @@ export async function GET(req: Request) {
       rfmSegment: { $in: ['At Risk', "Can't Lose"] },
       $or: [{ suppressedUntil: null }, { suppressedUntil: { $lte: now } }],
     })
-      .select('id name phone totalSpending purchaseCount lastPurchaseDate predictedReorderDays rfmSegment rfmAction recommendedProduct recommendedProductReason followUpNotes bestCallSummary bestCallConfidence')
+      .select('id name phone totalSpending purchaseCount lastPurchaseDate predictedReorderDays rfmSegment rfmAction recommendedProduct recommendedProductReason followUpNotes purchases bestCallSummary bestCallConfidence')
       .lean();
 
     const customers = candidates.map((c: any) => {
@@ -49,6 +60,7 @@ export async function GET(req: Request) {
         recommendedProduct: c.recommendedProduct ?? null,
         recommendedProductReason: c.recommendedProductReason ?? null,
         bestCallSummary: (c.bestCallConfidence === 'high' || c.bestCallConfidence === 'medium') ? (c.bestCallSummary || '') : '',
+        lastProduct: deriveLastProduct(c.purchases),
         valueAtRisk: c.totalSpending || 0,
       };
     });

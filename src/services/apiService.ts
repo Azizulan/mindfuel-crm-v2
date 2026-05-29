@@ -182,7 +182,7 @@ export interface WinBackCustomer {
     daysSinceLastOrder: number | null; predictedReorderDays: number | null; daysOverCycle: number | null;
     lastSentiment: string | null; lastContactDays: number | null;
     recommendedProduct: string | null; recommendedProductReason: string | null;
-    bestCallSummary: string; valueAtRisk: number;
+    bestCallSummary: string; valueAtRisk: number; lastProduct: string | null;
 }
 export const getWinBackQueue = (size: number = 50): Promise<{
     customers: WinBackCustomer[]; count: number; cantLoseCount: number; totalValueAtRisk: number; generatedAt: string;

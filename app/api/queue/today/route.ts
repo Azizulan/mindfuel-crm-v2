@@ -4,6 +4,19 @@ import { scoreCustomer } from '@/app/lib/helpers';
 
 export const dynamic = 'force-dynamic';
 
+// Most recent real product (skips the generic Steadfast fallback) — used by
+// the in-call script panel for "আপনার <product>".
+function deriveLastProduct(purchases: any[]): string | null {
+  if (!purchases?.length) return null;
+  const sorted = [...purchases].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  for (const p of sorted) {
+    const name = String(p.product || '').trim();
+    const low = name.toLowerCase();
+    if (name && low !== 'steadfast delivery' && low !== 'unknown') return name;
+  }
+  return null;
+}
+
 export async function GET(req: Request) {
   return handleApi(async () => {
     const url = new URL(req.url);
@@ -48,7 +61,7 @@ export async function GET(req: Request) {
     if (focusSegments) baseQuery.rfmSegment = { $in: focusSegments };
 
     const candidates = await Customer.find(baseQuery)
-      .select('id name phone totalSpending purchaseCount lastPurchaseDate followUpNotes predictedReorderDays reorderConfidence nextOutreachDate rfmSegment rfmAction rScore fScore mScore bestCallHourStart bestCallHourEnd bestPickupRate bestCallConfidence bestCallSummary recommendedProduct recommendedProductReason recommendedProductLift')
+      .select('id name phone totalSpending purchaseCount lastPurchaseDate followUpNotes purchases predictedReorderDays reorderConfidence nextOutreachDate rfmSegment rfmAction rScore fScore mScore bestCallHourStart bestCallHourEnd bestPickupRate bestCallConfidence bestCallSummary recommendedProduct recommendedProductReason recommendedProductLift')
       .lean();
 
     let suppressed = 0;
@@ -111,6 +124,8 @@ export async function GET(req: Request) {
         recommendedProduct:       (doc as any).recommendedProduct       ?? null,
         recommendedProductReason: (doc as any).recommendedProductReason ?? null,
         recommendedProductLift:   (doc as any).recommendedProductLift   ?? 0,
+        // Most recent product — for the in-call script panel.
+        lastProduct:              deriveLastProduct((doc as any).purchases),
       });
     }
 

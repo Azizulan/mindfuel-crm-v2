@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { User, FollowUpNote } from '../types';
 import * as api from '../services/apiService';
 import { motion, AnimatePresence } from 'motion/react';
+import CallScriptPanel from './CallScriptPanel';
 
 interface QueueItem {
     id: string;
@@ -34,6 +35,8 @@ interface QueueItem {
     recommendedProductLift?: number;
     // Tier 1.2: expected value = P(convert) × avg order value
     expectedValue?: number;
+    // For the in-call script panel
+    lastProduct?: string | null;
 }
 
 interface QueueResponse {
@@ -368,23 +371,20 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                             className="overflow-hidden"
                                         >
                                             <div className="px-5 pb-5 border-t border-gray-100 pt-4 bg-gray-50/50">
-                                                {item.rfmAction && (
-                                                    <div className="mb-3 flex items-start gap-2 px-3 py-2 rounded-xl bg-blue-50 border border-blue-100">
-                                                        <span className="text-base flex-shrink-0">💡</span>
-                                                        <p className="text-xs text-blue-900 font-medium leading-relaxed">{item.rfmAction}</p>
-                                                    </div>
-                                                )}
-                                                {item.recommendedProduct && (
-                                                    <div className="mb-3 flex items-start gap-2 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-100">
-                                                        <span className="text-base flex-shrink-0">🎯</span>
-                                                        <p className="text-xs text-emerald-900 leading-relaxed">
-                                                            <span className="font-bold">Pitch: {item.recommendedProduct}</span>
-                                                            {item.recommendedProductReason && (
-                                                                <span className="font-normal text-emerald-700"> — {item.recommendedProductReason}</span>
-                                                            )}
-                                                        </p>
-                                                    </div>
-                                                )}
+                                                {/* In-call Bengali script, picked from this customer's signals */}
+                                                <CallScriptPanel
+                                                    agentName={currentUser.name}
+                                                    input={{
+                                                        name: item.name,
+                                                        rfmSegment: item.rfmSegment,
+                                                        lastSentiment: item.lastSentiment,
+                                                        reorderStatus: item.reorderStatus,
+                                                        recommendedProduct: item.recommendedProduct,
+                                                        lastProduct: item.lastProduct,
+                                                        bestCallSummary: item.bestCallSummary,
+                                                        predictedReorderDays: item.predictedReorderDays,
+                                                    }}
+                                                />
                                                 <div className="flex flex-col sm:flex-row gap-3">
                                                     <div className="flex-1 space-y-3">
                                                         {/* Sentiment */}
