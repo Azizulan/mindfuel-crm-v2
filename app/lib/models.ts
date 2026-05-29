@@ -9,6 +9,9 @@ const FollowUpNoteSchema = new mongoose.Schema({
   agent: { type: String, required: true },
   reminderDate: { type: Date },
   reminderStatus: { type: String, default: 'pending', enum: ['pending', 'completed'] },
+  // Tier 2.7 — true when the reminder was created automatically from a
+  // positive/neutral outcome (vs. a manual callback the agent set).
+  autoScheduled: { type: Boolean, default: false },
 });
 
 const PurchaseSchema = new mongoose.Schema({

@@ -99,6 +99,27 @@ export const getExecutivePerformance = (startDate?: string, endDate?: string): P
     return apiRequest(`/admin/executive-performance${query}`);
 };
 
+export interface AgentCoachingStat {
+    agent: string;
+    totalCalls: number;
+    happy: number; positive: number; neutral: number;
+    callBackLater: number; noAnswer: number; notInterested: number; angry: number;
+    contacted: number; orders: number; revenue: number;
+    contactRate: number; positiveRate: number; negativeRate: number;
+    conversionRate: number; revenuePerCall: number;
+    flags: string[];
+}
+export const getAgentCoaching = (startDate?: string, endDate?: string): Promise<{
+    agents: AgentCoachingStat[];
+    teamAverages: { conversionRate: number; positiveRate: number; negativeRate: number; revenuePerCall: number };
+}> => {
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', startDate);
+    if (endDate) params.set('endDate', endDate);
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/admin/agent-coaching${query}`);
+};
+
 export const getAuditLog = (search: string = '', page: number = 1, limit: number = 20): Promise<{data: AuditLogEntry[], total: number, page: number, totalPages: number}> => {
     const params = new URLSearchParams({ search, page: String(page), limit: String(limit) });
     return apiRequest(`/audit-log?${params.toString()}`);

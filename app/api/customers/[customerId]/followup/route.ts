@@ -2,6 +2,28 @@ import { handleApi, err } from '@/app/lib/api-helper';
 import { Customer } from '@/app/lib/models';
 import { computeBestCallTime } from '@/app/lib/helpers';
 
+// Tier 2.7 — when a call ends positively/neutrally and the agent didn't set a
+// manual callback, auto-schedule the next outreach so the warm lead doesn't
+// fall through the cracks. Prefers the customer's personal reorder cycle.
+function computeAutoReminderDate(customer: any, feedback: string, now: Date): Date {
+  // 1. Personal reorder date, if we already computed one and it's in the future.
+  if (customer.nextOutreachDate) {
+    const d = new Date(customer.nextOutreachDate);
+    if (d.getTime() > now.getTime()) return d;
+  }
+  // 2. Derive from the personal cycle when we trust it.
+  if (customer.predictedReorderDays && ['high', 'medium'].includes(customer.reorderConfidence)) {
+    const d = new Date(now);
+    d.setDate(d.getDate() + Math.round(customer.predictedReorderDays * 0.9));
+    return d;
+  }
+  // 3. Sensible default — tighter nurture for Neutral, longer for a happy buyer.
+  const days = feedback === 'Neutral' ? 14 : 30;
+  const d = new Date(now);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ customerId: string }> }
@@ -11,11 +33,20 @@ export async function POST(
     const customer = await Customer.findOne({ id: customerId });
     if (!customer) return err('Not found', 404);
     const newNote = await req.json();
-    if (newNote.reminderDate) newNote.reminderStatus = 'pending';
-    customer.followUpNotes.push(newNote);
 
     const now = new Date();
     const feedback = newNote.feedback;
+
+    // Tier 2.7: auto-schedule the next touch for positive/neutral outcomes
+    // when the agent left the callback blank. Negative outcomes are handled
+    // by suppression below; "Call Not Received" resurfaces via queue scoring.
+    if (!newNote.reminderDate && ['Happy', 'Positive', 'Neutral'].includes(feedback)) {
+      newNote.reminderDate = computeAutoReminderDate(customer, feedback, now);
+      newNote.autoScheduled = true;
+    }
+
+    if (newNote.reminderDate) newNote.reminderStatus = 'pending';
+    customer.followUpNotes.push(newNote);
 
     if (feedback === 'Angry') {
       const until = new Date(now); until.setDate(until.getDate() + 180);

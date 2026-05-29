@@ -24,6 +24,7 @@ const titles: Record<string, string> = {
   dataManagement: 'Data Management',
   teamActivity: 'Team Pulse',
   executivePerformance: 'Performance',
+  agentCoaching: 'Agent Coaching',
   loading: 'Loading...',
 };
 

@@ -24,6 +24,7 @@ const TeamActivityPage       = lazy(() => import('./components/TeamActivityPage'
 const ExecutivePerformancePage= lazy(() => import('./components/ExecutivePerformancePage'));
 const CallQueuePage          = lazy(() => import('./components/CallQueuePage'));
 const SuppressionPage        = lazy(() => import('./components/SuppressionPage'));
+const AgentCoachingPage      = lazy(() => import('./components/AgentCoachingPage'));
 
 const PageSpinner = () => (
   <div className="flex items-center justify-center py-20">
@@ -31,7 +32,7 @@ const PageSpinner = () => (
   </div>
 );
 
-export type View = 'dashboard' | 'executiveDashboard' | 'callQueue' | 'suppression' | 'products' | 'newOrder' | 'trackOrder' | 'orderStatus' | 'settings' | 'followUp' | 'userManagement' | 'uploadData' | 'auditLog' | 'dataManagement' | 'teamActivity' | 'executivePerformance' | 'loading';
+export type View = 'dashboard' | 'executiveDashboard' | 'callQueue' | 'suppression' | 'products' | 'newOrder' | 'trackOrder' | 'orderStatus' | 'settings' | 'followUp' | 'userManagement' | 'uploadData' | 'auditLog' | 'dataManagement' | 'teamActivity' | 'executivePerformance' | 'agentCoaching' | 'loading';
 
 const isToday = (someDate: Date) => {
     const today = new Date();
@@ -319,6 +320,7 @@ const App: React.FC = () => {
           />
       );
       case 'executivePerformance': return <ExecutivePerformancePage />;
+      case 'agentCoaching': return <AgentCoachingPage />;
       case 'products': return (
         <ProductsPage 
             products={products} 
