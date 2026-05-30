@@ -323,6 +323,36 @@ export const AuthComponent = ({
         .glass-input-wrap:focus-within .glass-input { backdrop-filter: blur(0.01em); box-shadow: inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 5%), inset 0 -0.125em 0.125em oklch(from var(--background) l c h / 50%), 0 0.15em 0.05em -0.1em oklch(from var(--foreground) l c h / 25%), 0 0 0.05em 0.1em inset oklch(from var(--background) l c h / 50%), 0 0 0 0 oklch(from var(--background) l c h); }
         .glass-input::after { content: ""; position: absolute; z-index: 1; inset: 0; border-radius: 9999px; width: calc(100% + clamp(1px, 0.0625em, 4px)); height: calc(100% + clamp(1px, 0.0625em, 4px)); top: calc(0% - clamp(1px, 0.0625em, 4px) / 2); left: calc(0% - clamp(1px, 0.0625em, 4px) / 2); padding: clamp(1px, 0.0625em, 4px); box-sizing: border-box; background: conic-gradient(from var(--angle-1) at 50% 50%, oklch(from var(--foreground) l c h / 50%) 0%, transparent 5% 40%, oklch(from var(--foreground) l c h / 50%) 50%, transparent 60% 95%, oklch(from var(--foreground) l c h / 50%) 100%), linear-gradient(180deg, oklch(from var(--background) l c h / 50%), oklch(from var(--background) l c h / 50%)); mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; transition: all 400ms cubic-bezier(0.25, 1, 0.5, 1), --angle-1 500ms ease; box-shadow: inset 0 0 0 calc(clamp(1px, 0.0625em, 4px) / 2) oklch(from var(--background) l c h / 50%); pointer-events: none; }
         .glass-input-wrap:focus-within .glass-input::after { --angle-1: -125deg; }
+
+        /* Glassmorphism card — frosted panel behind the form fields */
+        .glass-card {
+          position: relative;
+          background: linear-gradient(
+            135deg,
+            oklch(from var(--background) l c h / 0.55) 0%,
+            oklch(from var(--background) l c h / 0.35) 100%
+          );
+          backdrop-filter: blur(24px) saturate(160%);
+          -webkit-backdrop-filter: blur(24px) saturate(160%);
+          border: 1px solid oklch(from var(--foreground) l c h / 0.12);
+          box-shadow:
+            0 8px 32px oklch(from var(--foreground) l c h / 0.08),
+            0 1px 0 oklch(from var(--background) l c h / 0.6) inset,
+            0 -1px 0 oklch(from var(--foreground) l c h / 0.06) inset;
+        }
+        /* Subtle top highlight edge — mimics light catching glass */
+        .glass-card::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          background: linear-gradient(
+            180deg,
+            oklch(from var(--background) l c h / 0.25) 0%,
+            transparent 50%
+          );
+          pointer-events: none;
+        }
       `}</style>
 
       <Confetti ref={confettiRef} manualstart className="fixed top-0 left-0 w-full h-full pointer-events-none z-[999]" />
@@ -357,146 +387,143 @@ export const AuthComponent = ({
             )}
           </div>
 
-          {/*
-            Form — all fields rendered together so browser password managers
-            and autofill work. autoComplete attributes per WHATWG spec:
-              login  → current-password
-              signup → new-password
-          */}
-          <form
-            onSubmit={handleSubmit}
-            method="post"
-            className="w-full space-y-3"
-            autoComplete="on"
-          >
-            {/* NAME (signup only) */}
-            {mode === 'signup' && (
-              <BlurFade delay={0.3} className="w-full">
+          {/* Glassmorphism card wrapping the entire form */}
+          <BlurFade delay={0.3} className="w-full">
+            <div className="glass-card rounded-3xl p-6 w-full">
+              {/*
+                Form — all fields rendered together so browser password managers
+                and autofill work. autoComplete attributes per WHATWG spec:
+                  login  → current-password
+                  signup → new-password
+              */}
+              <form
+                onSubmit={handleSubmit}
+                method="post"
+                className="w-full space-y-3"
+                autoComplete="on"
+              >
+                {/* NAME (signup only) */}
+                {mode === 'signup' && (
+                  <div className="glass-input-wrap w-full"><div className="glass-input py-1.5">
+                    <div className="relative z-10 flex-shrink-0 flex items-center justify-center w-10 pl-2">
+                      <UserIcon className="h-5 w-5 text-foreground/80" />
+                    </div>
+                    <input
+                      type="text"
+                      name="name"
+                      autoComplete="name"
+                      placeholder="Full name"
+                      value={name}
+                      onChange={e => setName(e.target.value)}
+                      className="relative z-10 w-0 flex-grow bg-transparent text-foreground placeholder:text-foreground/60 focus:outline-none py-2 pr-3"
+                    />
+                  </div></div>
+                )}
+
+                {/* EMAIL */}
                 <div className="glass-input-wrap w-full"><div className="glass-input py-1.5">
                   <div className="relative z-10 flex-shrink-0 flex items-center justify-center w-10 pl-2">
-                    <UserIcon className="h-5 w-5 text-foreground/80" />
+                    <Mail className="h-5 w-5 text-foreground/80" />
                   </div>
                   <input
-                    type="text"
-                    name="name"
-                    autoComplete="name"
-                    placeholder="Full name"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
+                    type="email"
+                    name="email"
+                    autoComplete="email"
+                    placeholder="Email address"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    autoFocus={mode === 'login'}
                     className="relative z-10 w-0 flex-grow bg-transparent text-foreground placeholder:text-foreground/60 focus:outline-none py-2 pr-3"
                   />
                 </div></div>
-              </BlurFade>
-            )}
 
-            {/* EMAIL */}
-            <BlurFade delay={0.35} className="w-full">
-              <div className="glass-input-wrap w-full"><div className="glass-input py-1.5">
-                <div className="relative z-10 flex-shrink-0 flex items-center justify-center w-10 pl-2">
-                  <Mail className="h-5 w-5 text-foreground/80" />
-                </div>
-                <input
-                  type="email"
-                  name="email"
-                  autoComplete="email"
-                  placeholder="Email address"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  autoFocus={mode === 'login'}
-                  className="relative z-10 w-0 flex-grow bg-transparent text-foreground placeholder:text-foreground/60 focus:outline-none py-2 pr-3"
-                />
-              </div></div>
-            </BlurFade>
-
-            {/* PASSWORD */}
-            <BlurFade delay={0.4} className="w-full">
-              <div className="glass-input-wrap w-full"><div className="glass-input py-1.5">
-                <div className="relative z-10 flex-shrink-0 flex items-center justify-center w-10 pl-2">
-                  {password.length === 0 ? (
-                    <Lock className="h-5 w-5 text-foreground/80" />
-                  ) : (
-                    <button
-                      type="button"
-                      aria-label="Toggle password visibility"
-                      onClick={() => setShowPassword(p => !p)}
-                      className="text-foreground/80 hover:text-foreground transition-colors p-2 rounded-full"
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  )}
-                </div>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                  placeholder="Password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  className="relative z-10 w-0 flex-grow bg-transparent text-foreground placeholder:text-foreground/60 focus:outline-none py-2 pr-3"
-                />
-              </div></div>
-            </BlurFade>
-
-            {/* CONFIRM PASSWORD (signup only) */}
-            {mode === 'signup' && (
-              <BlurFade delay={0.45} className="w-full">
+                {/* PASSWORD */}
                 <div className="glass-input-wrap w-full"><div className="glass-input py-1.5">
                   <div className="relative z-10 flex-shrink-0 flex items-center justify-center w-10 pl-2">
-                    {confirmPassword.length === 0 ? (
+                    {password.length === 0 ? (
                       <Lock className="h-5 w-5 text-foreground/80" />
                     ) : (
                       <button
                         type="button"
-                        aria-label="Toggle confirm password visibility"
-                        onClick={() => setShowConfirmPassword(p => !p)}
+                        aria-label="Toggle password visibility"
+                        onClick={() => setShowPassword(p => !p)}
                         className="text-foreground/80 hover:text-foreground transition-colors p-2 rounded-full"
                       >
-                        {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     )}
                   </div>
                   <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    name="confirm-password"
-                    autoComplete="new-password"
-                    placeholder="Confirm password"
-                    value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                    placeholder="Password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
                     className="relative z-10 w-0 flex-grow bg-transparent text-foreground placeholder:text-foreground/60 focus:outline-none py-2 pr-3"
                   />
                 </div></div>
-              </BlurFade>
-            )}
 
-            {/* Submit button — full-width glass pill */}
-            <BlurFade delay={0.5} className="w-full pt-1">
-              <GlassButton
-                type="submit"
-                size="default"
-                aria-label={mode === 'login' ? 'Sign in' : 'Create account'}
-                className="w-full"
-                contentClassName={cn(
-                  'flex items-center justify-center gap-2 font-semibold',
-                  !canSubmit && 'opacity-50'
+                {/* CONFIRM PASSWORD (signup only) */}
+                {mode === 'signup' && (
+                  <div className="glass-input-wrap w-full"><div className="glass-input py-1.5">
+                    <div className="relative z-10 flex-shrink-0 flex items-center justify-center w-10 pl-2">
+                      {confirmPassword.length === 0 ? (
+                        <Lock className="h-5 w-5 text-foreground/80" />
+                      ) : (
+                        <button
+                          type="button"
+                          aria-label="Toggle confirm password visibility"
+                          onClick={() => setShowConfirmPassword(p => !p)}
+                          className="text-foreground/80 hover:text-foreground transition-colors p-2 rounded-full"
+                        >
+                          {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
+                      )}
+                    </div>
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      name="confirm-password"
+                      autoComplete="new-password"
+                      placeholder="Confirm password"
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                      className="relative z-10 w-0 flex-grow bg-transparent text-foreground placeholder:text-foreground/60 focus:outline-none py-2 pr-3"
+                    />
+                  </div></div>
                 )}
-              >
-                {mode === 'login' ? 'Sign In' : 'Create Account'}
-                <ArrowRight className="w-4 h-4" />
-              </GlassButton>
-            </BlurFade>
-          </form>
 
-          {/* Mode toggle */}
-          <p className="text-sm text-muted-foreground text-center">
-            {mode === 'login' ? "Don't have an account?" : 'Already have an account?'}{' '}
-            <button
-              type="button"
-              onClick={() => switchMode(mode === 'login' ? 'signup' : 'login')}
-              className="font-semibold text-foreground hover:underline"
-            >
-              {mode === 'login' ? 'Sign up' : 'Sign in'}
-            </button>
-          </p>
+                {/* Submit button — full-width glass pill */}
+                <div className="pt-1">
+                  <GlassButton
+                    type="submit"
+                    size="default"
+                    aria-label={mode === 'login' ? 'Sign in' : 'Create account'}
+                    className="w-full"
+                    contentClassName={cn(
+                      'flex items-center justify-center gap-2 font-semibold',
+                      !canSubmit && 'opacity-50'
+                    )}
+                  >
+                    {mode === 'login' ? 'Sign In' : 'Create Account'}
+                    <ArrowRight className="w-4 h-4" />
+                  </GlassButton>
+                </div>
+              </form>
+
+              {/* Mode toggle — inside the card */}
+              <p className="text-sm text-muted-foreground text-center mt-4">
+                {mode === 'login' ? "Don't have an account?" : 'Already have an account?'}{' '}
+                <button
+                  type="button"
+                  onClick={() => switchMode(mode === 'login' ? 'signup' : 'login')}
+                  className="font-semibold text-foreground hover:underline"
+                >
+                  {mode === 'login' ? 'Sign up' : 'Sign in'}
+                </button>
+              </p>
+            </div>
+          </BlurFade>
         </fieldset>
       </div>
     </div>
