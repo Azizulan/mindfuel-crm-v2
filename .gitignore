@@ -10,3 +10,4 @@ node_modules/
 migrated_prompt_history/
 
 # dist/ is intentionally NOT ignored — deployment needs the built files
+.next
