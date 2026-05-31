@@ -93,11 +93,11 @@ const WinBackPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex flex-wrap items-center gap-2 mb-1">
                                                 <span className="text-sm font-bold text-gray-900">{c.name}</span>
-                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${c.rfmSegment === "Can't Lose" ? 'bg-red-100 text-red-700 border-red-200' : 'bg-orange-100 text-orange-700 border-orange-200'}`}>
+                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${c.rfmSegment === "Can't Lose" ? 'glass-chip glass-chip-tint-red text-foreground/85' : 'glass-chip glass-chip-tint-orange text-foreground/85'}`}>
                                                     {c.rfmSegment}
                                                 </span>
                                                 {c.lastSentiment && (
-                                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">{c.lastSentiment}</span>
+                                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full glass-chip text-foreground/70">{c.lastSentiment}</span>
                                                 )}
                                             </div>
                                             <p className="text-xs text-gray-400 font-mono">{c.phone}</p>

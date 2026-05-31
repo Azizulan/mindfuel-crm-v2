@@ -844,11 +844,16 @@ const AdminDashboard: React.FC<{ setView: (v: View) => void }> = ({ setView }) =
     const [tab, setTab] = useState<Tab>('today');
     return (
         <div className="space-y-5">
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-1.5 flex gap-1">
+            {/* iOS segmented control — glass-pane container + glass-chip-selected for active. */}
+            <div className="glass-pane rounded-2xl p-1.5 flex gap-1">
                 {TABS.map(t => (
-                    <button key={t.id} onClick={() => setTab(t.id)} className={`flex-1 flex flex-col items-center py-2.5 px-2 rounded-xl transition-all ${tab === t.id ? 'bg-blue-600 shadow-sm' : 'hover:bg-gray-50'}`}>
-                        <span className={`text-sm font-bold ${tab === t.id ? 'text-white' : 'text-gray-700'}`}>{t.label}</span>
-                        <span className={`text-[10px] hidden sm:block mt-0.5 ${tab === t.id ? 'text-blue-200' : 'text-gray-400'}`}>{t.sub}</span>
+                    <button
+                        key={t.id}
+                        onClick={() => setTab(t.id)}
+                        className={`flex-1 flex flex-col items-center py-2.5 px-2 rounded-xl transition-all ${tab === t.id ? 'glass-chip-selected' : 'hover:bg-foreground/5'}`}
+                    >
+                        <span className={`text-sm font-semibold ${tab === t.id ? 'text-foreground' : 'text-foreground/55'}`}>{t.label}</span>
+                        <span className={`text-[10px] hidden sm:block mt-0.5 ${tab === t.id ? 'text-foreground/55' : 'text-foreground/35'}`}>{t.sub}</span>
                     </button>
                 ))}
             </div>

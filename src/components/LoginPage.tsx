@@ -10,7 +10,6 @@ interface LoginPageProps {
 // the actual UI to the shadcn-style AuthComponent in components/ui/sign-up.
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onRegister }) => (
     <AuthComponent
-        brandName="MINDFUEL CRM"
         onLogin={onLogin}
         onRegister={onRegister}
     />

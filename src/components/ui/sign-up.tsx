@@ -142,30 +142,18 @@ const GradientBackground = () => (
   </>
 );
 
-const DefaultLogo = () => (
-  <div className="bg-blue-600 text-white rounded-md p-1.5">
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
-    </svg>
-  </div>
-);
-
 // --- MAIN COMPONENT ---
 
 type AuthMode = 'login' | 'signup';
 type ModalStatus = 'closed' | 'loading' | 'error' | 'success';
 
 interface AuthComponentProps {
-  logo?: React.ReactNode;
-  brandName?: string;
   initialMode?: AuthMode;
   onLogin: (email: string, password: string) => Promise<string>;
   onRegister: (name: string, email: string, password: string) => Promise<string>;
 }
 
 export const AuthComponent = ({
-  logo = <DefaultLogo />,
-  brandName = "MINDFUEL CRM",
   initialMode = 'login',
   onLogin,
   onRegister,
@@ -307,29 +295,23 @@ export const AuthComponent = ({
       <Confetti ref={confettiRef} manualstart className="fixed top-0 left-0 w-full h-full pointer-events-none z-[999]" />
       <Modal />
 
-      {/* Brand chip */}
-      <div className={cn("fixed top-4 left-4 z-20 flex items-center gap-2", "md:left-1/2 md:-translate-x-1/2")}>
-        {logo}
-        <h1 className="text-base font-bold text-foreground">{brandName}</h1>
-      </div>
-
       <div className={cn("flex w-full flex-1 h-full items-center justify-center bg-card", "relative overflow-hidden")}>
         <div className="absolute inset-0 z-0"><GradientBackground /></div>
 
-        <fieldset disabled={modalStatus !== 'closed'} className="relative z-10 flex flex-col items-center gap-6 w-[340px] max-w-[90vw] mx-auto p-4">
-          {/* Heading */}
+        <fieldset disabled={modalStatus !== 'closed'} className="relative z-10 flex flex-col items-center gap-8 w-[360px] max-w-[92vw] mx-auto p-4">
+          {/* Heading — bigger editorial type, more breathing room */}
           <div className="w-full flex flex-col items-center text-center gap-3">
-            <BlurFade delay={0.1} className="w-full">
-              <p className="font-serif font-light text-4xl sm:text-5xl tracking-tight text-foreground whitespace-nowrap">
+            <BlurFade delay={0.05} className="w-full">
+              <p className="text-display text-5xl sm:text-6xl text-foreground">
                 {heading.title}
               </p>
             </BlurFade>
-            <BlurFade delay={0.25}>
-              <p className="text-sm font-medium text-muted-foreground">{heading.sub}</p>
+            <BlurFade delay={0.2}>
+              <p className="text-[15px] font-medium text-foreground/55 max-w-[280px]">{heading.sub}</p>
             </BlurFade>
             {persistentNotice && (
-              <BlurFade delay={0.4} className="w-full">
-                <p className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 leading-relaxed">
+              <BlurFade delay={0.35} className="w-full">
+                <p className="text-xs text-foreground/80 glass-chip glass-chip-tint-emerald rounded-2xl px-3 py-2 leading-relaxed">
                   {persistentNotice}
                 </p>
               </BlurFade>

@@ -277,21 +277,21 @@ const FollowUpPage: React.FC<FollowUpPageProps> = ({
 
                 {/* Tabs */}
                 <div className="px-6 pt-4 pb-0">
-                    <div className="flex gap-1 overflow-x-auto pb-3 scrollbar-hide">
+                    <div className="flex gap-1.5 overflow-x-auto pb-3 scrollbar-hide">
                         {tabs.map((tab) => (
                             <button
                                 key={tab.id}
                                 onClick={() => onTabChange(tab.id)}
-                                className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wide transition-all whitespace-nowrap border ${
+                                className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
                                     activeTab === tab.id
-                                        ? 'bg-blue-50 border-blue-200 text-blue-700'
-                                        : 'bg-transparent border-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                                        ? 'glass-chip-selected text-foreground'
+                                        : 'text-foreground/55 hover:text-foreground/85 hover:bg-foreground/5'
                                 }`}
                             >
-                                <tab.icon className={`w-3.5 h-3.5 ${activeTab === tab.id ? 'text-blue-600' : tab.color}`} />
+                                <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? 'text-foreground' : 'text-foreground/45'}`} />
                                 <span>{tab.name}</span>
-                                <span className={`ml-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold ${
-                                    activeTab === tab.id ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
+                                <span className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                                    activeTab === tab.id ? 'glass-chip text-foreground/85' : 'text-foreground/45'
                                 }`}>{tab.count}</span>
                             </button>
                         ))}
