@@ -302,12 +302,22 @@ export const AuthComponent = ({
           Contained video orb — floats centered against pure black. No glow,
           no drop shadow — just a clean rounded shape so the only visible
           element is the orb in the video itself.
+
+          Sizing is calibrated to always contain the signup form (4 fields +
+          button + heading + mode toggle ≈ 500px tall) with comfortable
+          padding on standard breakpoints:
+            - 720p (1280×720):  orb = 700×691 → ~95px padding around form
+            - 1080p (1920×1080): orb = 700×820 → very generous padding
+            - 4K (3840×2160):   orb caps at 720×860 (max cap)
+          clamp() height ensures the orb is never shorter than 680px so the
+          form is always fully enclosed — even on 720p displays where the
+          previous min(78vh, ...) collapsed the orb to 562px.
         */}
         <div
           className="absolute z-0 inset-0 m-auto overflow-hidden rounded-[3rem] pointer-events-none"
           style={{
-            width: 'min(72vw, 620px)',
-            height: 'min(78vh, 720px)',
+            width: 'min(86vw, 720px)',
+            height: 'clamp(680px, 96vh, 860px)',
           }}
         >
           <video
