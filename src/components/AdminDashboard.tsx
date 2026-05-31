@@ -91,11 +91,11 @@ interface KpiProps {
     sparkData?: number[]; sparkColor?: string;
     badge?: string; badgeColor?: string; loading: boolean; onClick?: () => void;
 }
-const KpiCard = ({ label, value, delta, sub, sparkData, sparkColor = '#6366f1', badge, badgeColor = 'bg-blue-50 text-blue-600', loading, onClick }: KpiProps) => (
-    <Card className={onClick ? 'cursor-pointer hover:border-blue-300 hover:shadow-md transition-all' : ''} >
+const KpiCard = ({ label, value, delta, sub, sparkData, sparkColor = '#6366f1', badge, badgeColor = 'glass-chip glass-chip-tint-blue text-foreground/80', loading, onClick }: KpiProps) => (
+    <Card className={onClick ? 'cursor-pointer hover:shadow-lg transition-all' : ''} >
         <div onClick={onClick} className="flex flex-col gap-3 h-full">
             <div className="flex items-start justify-between gap-2">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-tight">{label}</span>
+                <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest leading-tight">{label}</span>
                 {badge && <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0 ${badgeColor}`}>{badge}</span>}
             </div>
             {loading ? (
@@ -103,10 +103,10 @@ const KpiCard = ({ label, value, delta, sub, sparkData, sparkColor = '#6366f1', 
             ) : (
                 <div className="flex items-end justify-between gap-3">
                     <div className="min-w-0">
-                        <div className="text-[2rem] font-black text-gray-900 leading-none font-mono tracking-tight truncate">{value}</div>
+                        <div className="text-display text-4xl text-foreground leading-none truncate">{value}</div>
                         <div className="mt-1.5 space-y-0.5">
                             {delta !== undefined && <Delta delta={delta} />}
-                            {sub && <p className="text-[11px] text-gray-400 leading-tight">{sub}</p>}
+                            {sub && <p className="text-[11px] text-foreground/45 leading-tight">{sub}</p>}
                         </div>
                     </div>
                     {sparkData && sparkData.some(v => v > 0) && <Sparkline data={sparkData} color={sparkColor} />}
@@ -145,10 +145,12 @@ const SentimentBar = ({ data }: { data: { sentiment: string; count: number }[] }
 
 // ─── Action item config ───────────────────────────────────────────────────────
 
+// Severity styling — Liquid Glass: tinted glass wash instead of solid coloured boxes.
+// A small status dot conveys urgency; the rest stays in the system text colour.
 const SEV = {
-    critical: { dot: 'bg-red-500',   bg: 'bg-red-50',   border: 'border-red-100',   text: 'text-red-800',   btn: 'bg-red-600 hover:bg-red-700 text-white' },
-    warning:  { dot: 'bg-amber-500', bg: 'bg-amber-50', border: 'border-amber-100', text: 'text-amber-800', btn: 'bg-amber-500 hover:bg-amber-600 text-white' },
-    info:     { dot: 'bg-blue-500',  bg: 'bg-blue-50',  border: 'border-blue-100',  text: 'text-blue-800',  btn: 'bg-blue-600 hover:bg-blue-700 text-white' },
+    critical: { dot: 'bg-red-500',   bg: 'glass-chip-tint-red',     border: '',  text: 'text-foreground/90', btn: 'glass-cta-destructive' },
+    warning:  { dot: 'bg-amber-500', bg: 'glass-chip-tint-amber',   border: '',  text: 'text-foreground/90', btn: 'glass-cta-primary' },
+    info:     { dot: 'bg-blue-500',  bg: 'glass-chip-tint-blue',    border: '',  text: 'text-foreground/90', btn: 'glass-cta-primary' },
 } as const;
 
 // ─── Bar chart (CSS, for daily data) ─────────────────────────────────────────
@@ -410,15 +412,15 @@ const TodayTab = ({ setView }: { setView: (v: View) => void }) => {
         <div className="space-y-5">
             <div className="flex items-center justify-between text-[11px]">
                 <span className="text-gray-400">{updatedAt ? `Updated ${updatedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · auto-refreshes every 60s` : 'Loading…'}</span>
-                <button onClick={load} className="font-semibold text-blue-600 hover:text-blue-700 transition-colors">Refresh now</button>
+                <button onClick={load} className="font-semibold text-foreground/85 hover:text-foreground transition-colors">Refresh now</button>
             </div>
-            {error && <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 text-sm text-red-700 font-medium">{error}</div>}
+            {error && <div className="glass-chip glass-chip-tint-red rounded-xl px-4 py-3 text-sm text-foreground/85 font-medium">{error}</div>}
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <KpiCard label="Calls Today" value={data?.callsToday ?? 0} delta={data ? pct(data.callsToday, data.callsYesterday) : undefined} sparkData={data?.callsLast7Days?.map((d: any) => d.count)} sparkColor="#6366f1" loading={sk} />
                 <KpiCard label="Orders Today" value={data ? formatBDT(data.ordersTodayBDT) : '৳0'} delta={data ? pct(data.ordersTodayBDT, data.ordersYesterdayBDT) : undefined} sub={data?.ordersTodayBDT === 0 ? 'No CRM orders yet' : undefined} loading={sk} />
-                <KpiCard label="Hot Leads" value={data?.hotLeadsCount ?? 0} sub={data?.hotLeadsCount ? 'Happy/Positive, last call >3 days ago, no order since' : 'No warm leads waiting'} badge={data?.hotLeadsCount ? 'Call now →' : undefined} badgeColor="bg-emerald-50 text-emerald-600" loading={sk} onClick={data?.hotLeadsCount ? () => setView('callQueue') : undefined} />
-                <KpiCard label="Reminders Due" value={data?.remindersDueToday ?? 0} sub={data?.remindersDueToday ? 'Pending, due today or earlier' : 'All clear'} badge={data?.remindersDueToday ? 'View →' : undefined} badgeColor="bg-violet-50 text-violet-600" loading={sk} onClick={data?.remindersDueToday ? () => setView('followUp') : undefined} />
+                <KpiCard label="Hot Leads" value={data?.hotLeadsCount ?? 0} sub={data?.hotLeadsCount ? 'Happy/Positive, last call >3 days ago, no order since' : 'No warm leads waiting'} badge={data?.hotLeadsCount ? 'Call now →' : undefined} badgeColor="glass-chip glass-chip-tint-emerald text-foreground/80" loading={sk} onClick={data?.hotLeadsCount ? () => setView('callQueue') : undefined} />
+                <KpiCard label="Reminders Due" value={data?.remindersDueToday ?? 0} sub={data?.remindersDueToday ? 'Pending, due today or earlier' : 'All clear'} badge={data?.remindersDueToday ? 'View →' : undefined} badgeColor="glass-chip glass-chip-tint-violet text-foreground/80" loading={sk} onClick={data?.remindersDueToday ? () => setView('followUp') : undefined} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -474,12 +476,12 @@ const TodayTab = ({ setView }: { setView: (v: View) => void }) => {
                         {data.actionItems.map((item: any) => {
                             const cfg = SEV[item.severity as keyof typeof SEV];
                             return (
-                                <div key={item.id} className={`flex items-center justify-between gap-4 px-4 py-3.5 rounded-xl border ${cfg.bg} ${cfg.border}`}>
+                                <div key={item.id} className={`flex items-center justify-between gap-4 px-4 py-3.5 rounded-xl glass-chip ${cfg.bg}`}>
                                     <div className="flex items-center gap-3 min-w-0">
                                         <span className={`w-2 h-2 rounded-full flex-shrink-0 ${cfg.dot}`} />
                                         <p className={`text-sm font-semibold leading-snug ${cfg.text}`}>{item.message}</p>
                                     </div>
-                                    <button onClick={() => setView(item.ctaView as View)} className={`flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${cfg.btn}`}>{item.cta}</button>
+                                    <button onClick={() => setView(item.ctaView as View)} className={`flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${cfg.btn}`}>{item.cta}</button>
                                 </div>
                             );
                         })}
@@ -510,9 +512,9 @@ const MonthTab = ({ setView }: { setView: (v: View) => void }) => {
         <div className="space-y-5">
             <div className="flex items-center justify-between text-[11px]">
                 <span className="text-gray-500 font-medium">{data?.monthLabel ?? '...'}</span>
-                <button onClick={load} className="font-semibold text-blue-600 hover:text-blue-700 transition-colors">Refresh</button>
+                <button onClick={load} className="font-semibold text-foreground/85 hover:text-foreground transition-colors">Refresh</button>
             </div>
-            {error && <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 text-sm text-red-700 font-medium">{error}</div>}
+            {error && <div className="glass-chip glass-chip-tint-red rounded-xl px-4 py-3 text-sm text-foreground/85 font-medium">{error}</div>}
 
             {/* Row 1 — Goal KPIs */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -617,7 +619,7 @@ const MonthTab = ({ setView }: { setView: (v: View) => void }) => {
                         {data.anomalies.map((item: any) => {
                             const cfg = SEV[item.severity as keyof typeof SEV] ?? SEV.info;
                             return (
-                                <div key={item.id} className={`flex items-center gap-3 px-4 py-3 rounded-xl border ${cfg.bg} ${cfg.border}`}>
+                                <div key={item.id} className={`flex items-center gap-3 px-4 py-3 rounded-xl glass-chip ${cfg.bg}`}>
                                     <span className={`w-2 h-2 rounded-full flex-shrink-0 ${cfg.dot}`} />
                                     <p className={`text-sm font-semibold ${cfg.text}`}>{item.message}</p>
                                 </div>
@@ -668,9 +670,9 @@ const AllTimeTab = () => {
     return (
         <div className="space-y-5">
             <div className="flex items-center justify-end text-[11px]">
-                <button onClick={load} className="font-semibold text-blue-600 hover:text-blue-700 transition-colors">Refresh</button>
+                <button onClick={load} className="font-semibold text-foreground/85 hover:text-foreground transition-colors">Refresh</button>
             </div>
-            {error && <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 text-sm text-red-700 font-medium">{error}</div>}
+            {error && <div className="glass-chip glass-chip-tint-red rounded-xl px-4 py-3 text-sm text-foreground/85 font-medium">{error}</div>}
 
             {/* Row 1 — KPI cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -680,32 +682,50 @@ const AllTimeTab = () => {
                 <KpiCard label="Avg Reorder Cycle" value={data?.avgReorderCycle ? `${data.avgReorderCycle}d` : '—'} sub="Avg days between orders" loading={sk} />
             </div>
 
-            {/* Tier 2.9 — Revenue at risk */}
+            {/* Tier 2.9 — Revenue at risk. iOS 26 Liquid Glass: glass cards with a
+                subtle tint wash for semantic meaning (urgent / critical / muted),
+                not flat coloured panels. Severity is conveyed by the small
+                indicator dot in the corner, not the whole card. */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="border-amber-200 bg-amber-50/40">
-                    <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Revenue at Risk (recoverable)</span>
-                    {sk ? <div className="mt-3"><Sk className="h-10 w-32" /></div> : (
-                        <div className="mt-2">
-                            <div className="text-[2rem] font-black text-amber-700 leading-none font-mono">{data ? formatBDT(data.revenueAtRisk?.recoverableValue ?? 0) : '—'}</div>
-                            <p className="text-[11px] text-amber-600/80 mt-1.5">{data?.revenueAtRisk?.recoverableCount ?? 0} At-Risk + Can't-Lose customers — still saveable with a call</p>
+                <Card className="relative overflow-hidden">
+                    <div className="absolute inset-0 glass-chip-tint-amber pointer-events-none" />
+                    <div className="relative">
+                        <div className="flex items-center justify-between mb-1">
+                            <span className="text-[10px] font-bold text-foreground/55 uppercase tracking-widest">Revenue at Risk (recoverable)</span>
+                            <span className="w-2 h-2 rounded-full bg-amber-500/80" />
                         </div>
-                    )}
+                        {sk ? <div className="mt-3"><Sk className="h-10 w-32" /></div> : (
+                            <div className="mt-2">
+                                <div className="text-display text-4xl text-foreground leading-none">{data ? formatBDT(data.revenueAtRisk?.recoverableValue ?? 0) : '—'}</div>
+                                <p className="text-[11px] text-foreground/55 mt-2">{data?.revenueAtRisk?.recoverableCount ?? 0} At-Risk + Can't-Lose customers — still saveable with a call</p>
+                            </div>
+                        )}
+                    </div>
                 </Card>
-                <Card className="border-red-200 bg-red-50/40">
-                    <span className="text-[10px] font-bold text-red-600 uppercase tracking-widest">Can't-Lose Value</span>
-                    {sk ? <div className="mt-3"><Sk className="h-10 w-32" /></div> : (
-                        <div className="mt-2">
-                            <div className="text-[2rem] font-black text-red-700 leading-none font-mono">{data ? formatBDT(data.revenueAtRisk?.cantLoseValue ?? 0) : '—'}</div>
-                            <p className="text-[11px] text-red-600/80 mt-1.5">{data?.revenueAtRisk?.cantLoseCount ?? 0} high-value customers lapsing now — call today</p>
+                <Card className="relative overflow-hidden">
+                    <div className="absolute inset-0 glass-chip-tint-red pointer-events-none" />
+                    <div className="relative">
+                        <div className="flex items-center justify-between mb-1">
+                            <span className="text-[10px] font-bold text-foreground/55 uppercase tracking-widest">Can't-Lose Value</span>
+                            <span className="w-2 h-2 rounded-full bg-red-500/80 animate-pulse" />
                         </div>
-                    )}
+                        {sk ? <div className="mt-3"><Sk className="h-10 w-32" /></div> : (
+                            <div className="mt-2">
+                                <div className="text-display text-4xl text-foreground leading-none">{data ? formatBDT(data.revenueAtRisk?.cantLoseValue ?? 0) : '—'}</div>
+                                <p className="text-[11px] text-foreground/55 mt-2">{data?.revenueAtRisk?.cantLoseCount ?? 0} high-value customers lapsing now — call today</p>
+                            </div>
+                        )}
+                    </div>
                 </Card>
                 <Card>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Already Lost</span>
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">Already Lost</span>
+                        <span className="w-2 h-2 rounded-full bg-foreground/20" />
+                    </div>
                     {sk ? <div className="mt-3"><Sk className="h-10 w-32" /></div> : (
                         <div className="mt-2">
-                            <div className="text-[2rem] font-black text-gray-500 leading-none font-mono">{data ? formatBDT(data.revenueAtRisk?.lostValue ?? 0) : '—'}</div>
-                            <p className="text-[11px] text-gray-400 mt-1.5">{data?.revenueAtRisk?.lostCount ?? 0} customers gone 6+ months — cheap recapture only</p>
+                            <div className="text-display text-4xl text-foreground/55 leading-none">{data ? formatBDT(data.revenueAtRisk?.lostValue ?? 0) : '—'}</div>
+                            <p className="text-[11px] text-foreground/40 mt-2">{data?.revenueAtRisk?.lostCount ?? 0} customers gone 6+ months — cheap recapture only</p>
                         </div>
                     )}
                 </Card>
