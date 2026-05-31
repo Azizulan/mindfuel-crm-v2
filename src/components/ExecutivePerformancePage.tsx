@@ -85,7 +85,7 @@ const ExecutivePerformancePage: React.FC = () => {
         <div className="space-y-6 pb-12">
 
             {/* Date range filter */}
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 flex flex-wrap items-center gap-3">
+            <div className="glass-surface p-4 flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-widest flex-shrink-0">
                     <CalendarIcon className="w-3.5 h-3.5" />
                     Period
@@ -139,7 +139,7 @@ const ExecutivePerformancePage: React.FC = () => {
                         { label: 'Total Orders',    value: totalOrders.toLocaleString(),          color: 'text-emerald-600', bg: 'bg-emerald-50', icon: <StarIcon className="w-4 h-4" /> },
                         { label: 'Active Execs',    value: data.length.toString(),                color: 'text-violet-600',  bg: 'bg-violet-50',  icon: <UsersIcon className="w-4 h-4" /> },
                     ].map(stat => (
-                        <div key={stat.label} className="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 flex items-center gap-3">
+                        <div key={stat.label} className="glass-surface p-4 flex items-center gap-3">
                             <div className={`w-9 h-9 rounded-xl ${stat.bg} ${stat.color} flex items-center justify-center flex-shrink-0`}>{stat.icon}</div>
                             <div>
                                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">{stat.label}</p>

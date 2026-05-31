@@ -4,6 +4,7 @@ import { Customer, Product, FollowUpNote, User, DashboardStats, AuditLogEntry } 
 import Sidebar from './components/Sidebar';
 import LoginPage from './components/LoginPage';
 import Header from './components/Header';
+import GlassBackground from './components/ui/GlassBackground';
 import * as api from './services/apiService';
 
 // Lazy-loaded page components — each becomes its own chunk
@@ -363,16 +364,24 @@ const App: React.FC = () => {
   if (!currentUser) return <LoginPage onLogin={handleLogin} onRegister={handleRegister} />;
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900 md:flex font-sans">
-      <Sidebar user={currentUser} activeView={activeView} setView={setActiveView} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} onLogout={() => { setCurrentUser(null); setActiveView('loading'); }} />
-      <main className="flex-1 p-4 md:p-10 overflow-y-auto">
-        <Header title={activeView} onMenuClick={() => setIsSidebarOpen(true)} reminders={[]} onReminderClick={() => setActiveView('followUp')} />
-        {error && <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg text-red-700 text-sm font-bold">{error}</div>}
-        <Suspense fallback={<PageSpinner />}>
-          {renderView()}
-        </Suspense>
-      </main>
-    </div>
+    <>
+      {/* Global glass backdrop — sits behind every page. The whole app surfaces frost over it. */}
+      <GlassBackground />
+      <div className="min-h-screen text-foreground md:flex font-sans relative">
+        <Sidebar user={currentUser} activeView={activeView} setView={setActiveView} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} onLogout={() => { setCurrentUser(null); setActiveView('loading'); }} />
+        <main className="flex-1 p-4 md:p-10 overflow-y-auto">
+          <Header title={activeView} onMenuClick={() => setIsSidebarOpen(true)} reminders={[]} onReminderClick={() => setActiveView('followUp')} />
+          {error && (
+            <div className="mb-6 px-4 py-3 rounded-2xl text-red-700 text-sm font-medium glass-surface border-red-200/40">
+              {error}
+            </div>
+          )}
+          <Suspense fallback={<PageSpinner />}>
+            {renderView()}
+          </Suspense>
+        </main>
+      </div>
+    </>
   );
 };
 

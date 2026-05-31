@@ -207,7 +207,7 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
     return (
         <div className="space-y-5 pb-12">
             {/* Header */}
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="glass-surface px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-lg font-bold text-gray-900">Today's Call Queue</h2>
                     {data && (
@@ -238,7 +238,7 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
 
             {/* Queue list */}
             {visibleQueue.length === 0 && !loading && (
-                <div className="bg-white border border-gray-200 rounded-2xl shadow-sm px-6 py-16 text-center">
+                <div className="glass-surface px-6 py-16 text-center">
                     <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-3">
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-emerald-500" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
@@ -265,7 +265,7 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, x: 40, height: 0, marginBottom: 0 }}
                                 transition={{ duration: 0.2 }}
-                                className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden"
+                                className="glass-surface overflow-hidden"
                             >
                                 {/* Main row */}
                                 <div className="flex items-start gap-4 px-5 py-4">

@@ -26,7 +26,7 @@ const CallScriptPanel: React.FC<{ input: ScriptInput; agentName: string }> = ({ 
     };
 
     return (
-        <div className={`rounded-xl border-l-4 ${accent.bar} bg-white border border-gray-200 p-4 mb-3`}>
+        <div className={`rounded-xl border-l-4 ${accent.bar} glass-surface p-4 mb-3`}>
             {/* Header */}
             <div className="flex items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">

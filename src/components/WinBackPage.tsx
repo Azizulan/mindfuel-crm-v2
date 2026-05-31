@@ -54,10 +54,10 @@ const WinBackPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
     return (
         <div className="space-y-5 pb-12">
             {/* Header / value at risk */}
-            <div className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-6 shadow-sm text-white">
-                <p className="text-xs font-semibold text-amber-100 uppercase tracking-widest">Revenue at Risk — Save Squad</p>
-                <p className="text-4xl font-black mt-2 tracking-tight">{data ? bdt(data.totalValueAtRisk) : '—'}</p>
-                <p className="text-amber-100 text-sm mt-1">
+            <div className="glass-surface p-6">
+                <p className="text-xs font-semibold text-foreground/50 uppercase tracking-widest">Revenue at Risk — Save Squad</p>
+                <p className="text-display text-5xl text-foreground mt-2">{data ? bdt(data.totalValueAtRisk) : '—'}</p>
+                <p className="text-foreground/60 text-sm mt-1">
                     {data?.count ?? 0} lapsing customers · {data?.cantLoseCount ?? 0} are high-value "Can't Lose"
                 </p>
             </div>
@@ -71,7 +71,7 @@ const WinBackPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             {loading ? (
                 <div className="py-16 text-center text-gray-400 italic">Building win-back list…</div>
             ) : visible.length === 0 ? (
-                <div className="bg-white border border-gray-200 rounded-2xl shadow-sm px-6 py-16 text-center">
+                <div className="glass-surface px-6 py-16 text-center">
                     <p className="text-sm font-bold text-gray-700">No customers at risk right now 🎉</p>
                     <p className="text-xs text-gray-400 mt-1">Your retention is healthy — nobody valuable is lapsing.</p>
                 </div>
@@ -87,7 +87,7 @@ const WinBackPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                     key={c.id} layout
                                     initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, x: 40, height: 0 }} transition={{ duration: 0.2 }}
-                                    className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden"
+                                    className="glass-surface overflow-hidden"
                                 >
                                     <div className="flex items-start gap-4 px-5 py-4">
                                         <div className="flex-1 min-w-0">

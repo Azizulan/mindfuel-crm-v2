@@ -28,25 +28,25 @@ const activeRecently = (ts: string | null) =>
 // ─── Shared primitives ────────────────────────────────────────────────────────
 
 const Sk = ({ className = '' }: { className?: string }) => (
-    <div className={`animate-pulse bg-gray-200 rounded-xl ${className}`} />
+    <div className={`animate-pulse bg-foreground/10 rounded-xl ${className}`} />
 );
 
 const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-    <div className={`bg-white border border-gray-200 rounded-2xl shadow-sm p-5 ${className}`}>{children}</div>
+    <div className={`glass-surface p-5 ${className}`}>{children}</div>
 );
 
 const CardHeader = ({ title, right }: { title: string; right?: React.ReactNode }) => (
     <div className="flex items-center justify-between mb-4">
-        <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{title}</h3>
+        <h3 className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{title}</h3>
         {right}
     </div>
 );
 
 const EmptyState = ({ message, cta, onCta }: { message: string; cta?: string; onCta?: () => void }) => (
     <div className="py-10 text-center space-y-2">
-        <p className="text-sm font-bold text-gray-600">{message}</p>
+        <p className="text-sm font-bold text-foreground/70">{message}</p>
         {cta && onCta && (
-            <button onClick={onCta} className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors">{cta}</button>
+            <button onClick={onCta} className="text-xs font-semibold text-foreground hover:underline transition-colors">{cta}</button>
         )}
     </div>
 );

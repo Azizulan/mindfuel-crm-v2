@@ -64,7 +64,7 @@ const AgentCoachingPage: React.FC = () => {
     return (
         <div className="space-y-5 pb-12">
             {/* Period filter */}
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 flex flex-wrap items-center gap-3">
+            <div className="glass-surface p-4 flex flex-wrap items-center gap-3">
                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Period</span>
                 <div className="flex flex-wrap gap-1.5">
                     {PRESETS.map(p => (
@@ -85,7 +85,7 @@ const AgentCoachingPage: React.FC = () => {
                         { label: 'Avg Negative Rate', value: pct(team.negativeRate), sub: 'not-interested+angry ÷ contacted' },
                         { label: 'Avg Revenue / Call', value: bdt(team.revenuePerCall), sub: 'order BDT ÷ total calls' },
                     ].map(s => (
-                        <div key={s.label} className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+                        <div key={s.label} className="glass-surface p-5">
                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{s.label}</p>
                             <p className="text-2xl font-black text-gray-900 mt-1 font-mono">{s.value}</p>
                             <p className="text-[11px] text-gray-400 mt-1">{s.sub}</p>
@@ -95,7 +95,7 @@ const AgentCoachingPage: React.FC = () => {
             )}
 
             {/* Agent table */}
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            <div className="glass-surface overflow-hidden">
                 <div className="px-5 py-4 border-b border-gray-100">
                     <h3 className="text-sm font-bold text-gray-800">Agent Quality — ranked by conversion</h3>
                     <p className="text-[11px] text-gray-400 mt-0.5">Coaching flags compare each agent to the team average (agents with ≥10 calls).</p>

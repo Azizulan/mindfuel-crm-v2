@@ -94,7 +94,7 @@ const Toggle: React.FC<{checked: boolean, onChange: () => void}> = ({ checked, o
 );
 
 const Card: React.FC<{icon: any, title: string, description: string, status?: string, statusText?: string, children: React.ReactNode}> = ({ icon: Icon, title, description, status, statusText, children }) => (
-    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 space-y-5">
+    <div className="glass-surface p-6 space-y-5">
         <div className="flex items-start justify-between">
             <div className="flex items-start gap-4">
                 <div className="bg-gray-50 p-2.5 rounded-xl text-blue-600 border border-gray-200">
