@@ -297,26 +297,36 @@ export const AuthComponent = ({
 
       <div className={cn("flex w-full flex-1 h-full items-center justify-center bg-card", "relative overflow-hidden")}>
         {/*
-          Video background.
-          - poster: first-frame JPG (24KB) shows instantly while video loads,
-            so the page isn't blank waiting on the MP4.
-          - preload="metadata": don't burn bandwidth eagerly fetching the whole
-            file — the browser pulls it once render starts.
-          - 1280-wide, 24fps, H.264 CRF 28 → 696KB (down from 7MB source).
+          Contained video tile — floats centered in the viewport instead of
+          covering the whole screen. Size scales with the viewport but stays
+          inside sensible bounds. The glass form sits in front of it.
         */}
-        <video
-          src="/login-bg.mp4"
-          poster="/login-bg-poster.jpg"
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="metadata"
-          aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover z-0"
-        />
-        {/* Subtle vignette so the glass form reads against any video frame. */}
-        <div className="absolute inset-0 z-0 bg-gradient-to-t from-background/35 via-transparent to-background/15 pointer-events-none" />
+        <div
+          className="absolute z-0 inset-0 m-auto overflow-hidden rounded-[3rem] pointer-events-none"
+          style={{
+            width: 'min(72vw, 620px)',
+            height: 'min(78vh, 720px)',
+            boxShadow:
+              // Soft ambient halo + crisp drop shadow — makes the tile look
+              // like it's emitting light into the surrounding background.
+              '0 0 120px 10px rgba(120, 100, 240, 0.18),' +
+              '0 30px 90px -10px rgba(15, 15, 25, 0.30)',
+          }}
+        >
+          <video
+            src="/login-bg.mp4"
+            poster="/login-bg-poster.jpg"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+            className="w-full h-full object-cover"
+          />
+          {/* Inner vignette over the video so the glass form reads on top. */}
+          <div className="absolute inset-0 bg-gradient-to-t from-background/45 via-transparent to-background/10 pointer-events-none" />
+        </div>
 
         <fieldset disabled={modalStatus !== 'closed'} className="relative z-10 flex flex-col items-center gap-8 w-[360px] max-w-[92vw] mx-auto p-4">
           {/* Heading — bigger editorial type, more breathing room */}
