@@ -116,112 +116,103 @@
 .glass-bg-blob-2 { animation: glass-float-2 28s ease-in-out infinite; }
 
 /* ─── iOS 26 "Liquid Glass" — Apple's Regular Material ────────────────────
-   Layered approach: backdrop-filter for the frost + saturation, plus a
-   stack of inset shadows for the bevel, plus a ::after specular highlight
-   for the bright reflective edge along the top.
+   Uses literal rgba() values because the project's CSS vars
+   (--background: 0 0% 100%) are bare HSL components, not colours —
+   so oklch(from var(--background) ...) would resolve to invalid syntax
+   and the browser would silently drop the entire rule. rgba() is
+   guaranteed to work everywhere.
    ───────────────────────────────────────────────────────────────────────── */
 
-/* Main card primitive — frosted regular material, floats on the gradient. */
-.glass-surface {
-  position: relative;
-  isolation: isolate;
-  background: linear-gradient(
-    180deg,
-    oklch(from var(--background) l c h / 0.88) 0%,
-    oklch(from var(--background) l c h / 0.74) 100%
-  );
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border-radius: 1.75rem;
-  box-shadow:
-    /* outer drop shadow — soft and a bit lifted */
-    0 1px 2px oklch(from var(--foreground) l c h / 0.06),
-    0 8px 24px oklch(from var(--foreground) l c h / 0.08),
-    0 24px 48px oklch(from var(--foreground) l c h / 0.04),
-    /* bevel — bright top edge + faint dark bottom edge */
-    inset 0 0.5px 0 oklch(from var(--background) l c h / 0.95),
-    inset 0 -0.5px 0 oklch(from var(--foreground) l c h / 0.05),
-    /* thin glass rim — like a 1px painted-on border */
-    inset 0 0 0 0.5px oklch(from var(--foreground) l c h / 0.08);
-}
-/* Soft top diffuse highlight (gives the glass depth + a sense of light). */
-.glass-surface::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(180deg, oklch(from var(--background) l c h / 0.35) 0%, transparent 45%);
-  pointer-events: none;
-  z-index: 0;
-}
-/* The signature iOS specular line — a bright fast highlight just under the top edge.
-   Sits on top of children (z-index 2) so it always catches light. */
-.glass-surface::after {
-  content: '';
-  position: absolute;
-  top: 1.5px;
-  left: 8%;
-  right: 8%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, oklch(from var(--background) l c h / 0.95) 30%, oklch(from var(--background) l c h / 0.95) 70%, transparent);
-  pointer-events: none;
-  z-index: 2;
-  border-radius: inherit;
-}
-.glass-surface > * { position: relative; z-index: 1; }
+@layer components {
 
-/* Floating chrome panel — sidebars, toolbars, headers.
-   Same material as glass-surface, slightly sharper corners for nav semantics. */
-.glass-pane {
-  position: relative;
-  isolation: isolate;
-  background: linear-gradient(180deg, oklch(from var(--background) l c h / 0.85) 0%, oklch(from var(--background) l c h / 0.70) 100%);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  box-shadow:
-    0 1px 2px oklch(from var(--foreground) l c h / 0.05),
-    0 8px 32px oklch(from var(--foreground) l c h / 0.06),
-    inset 0 0.5px 0 oklch(from var(--background) l c h / 0.95),
-    inset 0 0 0 0.5px oklch(from var(--foreground) l c h / 0.06);
-}
-.glass-pane::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(180deg, oklch(from var(--background) l c h / 0.25) 0%, transparent 30%);
-  pointer-events: none;
-  z-index: 0;
-}
-.glass-pane > * { position: relative; z-index: 1; }
+  /* Main card primitive — frosted Apple "regular material". */
+  .glass-surface {
+    position: relative;
+    isolation: isolate;
+    background-color: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border-radius: 1.75rem;
+    box-shadow:
+      0 1px 2px rgba(15, 15, 25, 0.06),
+      0 8px 24px rgba(15, 15, 25, 0.08),
+      0 24px 48px rgba(15, 15, 25, 0.04),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7),
+      inset 0 -1px 0 rgba(15, 15, 25, 0.04),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  }
+  /* Soft top diffuse highlight — gives depth + sense of light. */
+  .glass-surface::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 45%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  /* The signature iOS specular line — bright fast highlight along the top edge. */
+  .glass-surface::after {
+    content: '';
+    position: absolute;
+    top: 1.5px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.95) 30%, rgba(255, 255, 255, 0.95) 70%, transparent);
+    pointer-events: none;
+    z-index: 2;
+    border-radius: inherit;
+  }
+  .glass-surface > * { position: relative; z-index: 1; }
 
-/* Small glass capsule — badges, tags, status pills, nav items.
-   Higher opacity + tighter blur so small elements read crisp. */
-.glass-chip {
-  position: relative;
-  background: linear-gradient(180deg, oklch(from var(--background) l c h / 0.90), oklch(from var(--background) l c h / 0.78));
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  box-shadow:
-    0 1px 2px oklch(from var(--foreground) l c h / 0.04),
-    0 2px 8px oklch(from var(--foreground) l c h / 0.04),
-    inset 0 0.5px 0 oklch(from var(--background) l c h / 0.9),
-    inset 0 -0.5px 0 oklch(from var(--foreground) l c h / 0.04),
-    inset 0 0 0 0.5px oklch(from var(--foreground) l c h / 0.06);
-}
+  /* Floating chrome — sidebars, toolbars, headers. */
+  .glass-pane {
+    position: relative;
+    isolation: isolate;
+    background-color: rgba(255, 255, 255, 0.70);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    box-shadow:
+      0 1px 2px rgba(15, 15, 25, 0.05),
+      0 8px 32px rgba(15, 15, 25, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+  }
+  .glass-pane::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, transparent 30%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .glass-pane > * { position: relative; z-index: 1; }
 
-/* Tinted-glass variants — pick up segment/sentiment colour while staying frosted.
-   Used for status pills that need semantic colour. */
-.glass-chip-tint-red    { background: linear-gradient(180deg, oklch(from var(--color-destructive) l c h / 0.18), oklch(from var(--color-destructive) l c h / 0.10)); }
-.glass-chip-tint-amber  { background: linear-gradient(180deg, oklch(from var(--color-chart-5) l c h / 0.20), oklch(from var(--color-chart-5) l c h / 0.12)); }
-.glass-chip-tint-emerald{ background: linear-gradient(180deg, oklch(from var(--color-chart-4) l c h / 0.22), oklch(from var(--color-chart-4) l c h / 0.14)); }
-.glass-chip-tint-blue   { background: linear-gradient(180deg, oklch(from var(--color-chart-1) l c h / 0.20), oklch(from var(--color-chart-1) l c h / 0.12)); }
-.glass-chip-tint-violet { background: linear-gradient(180deg, oklch(from var(--color-chart-2) l c h / 0.20), oklch(from var(--color-chart-2) l c h / 0.12)); }
+  /* Small glass capsule — badges, tags, status pills, nav items. */
+  .glass-chip {
+    position: relative;
+    background-color: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow:
+      0 1px 2px rgba(15, 15, 25, 0.04),
+      0 2px 8px rgba(15, 15, 25, 0.04),
+      inset 0 0.5px 0 rgba(255, 255, 255, 0.9),
+      inset 0 -0.5px 0 rgba(15, 15, 25, 0.04),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  }
 
-/* Floating chrome — adds outer rounded radius + margin treatment.
-   Used to detach chrome from screen edges (true iOS 26 floating look). */
-.glass-floating {
-  border-radius: 1.75rem;
+  /* Tinted-glass variants — semantic colour while staying frosted. */
+  .glass-chip-tint-red    { background-color: rgba(220, 38, 38, 0.16); }
+  .glass-chip-tint-amber  { background-color: rgba(245, 158, 11, 0.18); }
+  .glass-chip-tint-emerald{ background-color: rgba(16, 185, 129, 0.18); }
+  .glass-chip-tint-blue   { background-color: rgba(37, 99, 235, 0.16); }
+  .glass-chip-tint-violet { background-color: rgba(139, 92, 246, 0.18); }
+
+  /* Floating chrome — adds rounded outer radius. */
+  .glass-floating { border-radius: 1.75rem; }
 }
 
 /* ── Editorial serif headline utility ───────────────────────────────────── */
@@ -232,32 +223,52 @@
   line-height: 1.05;
 }
 
-/* ── Glass button (the original from sign-up.tsx, now globally available) ── */
-.glass-button-wrap { --anim-time: 400ms; --anim-ease: cubic-bezier(0.25, 1, 0.5, 1); --border-width: clamp(1px, 0.0625em, 4px); position: relative; z-index: 2; transform-style: preserve-3d; transition: transform var(--anim-time) var(--anim-ease); }
-.glass-button-wrap:has(.glass-button:active) { transform: rotateX(25deg); }
-.glass-button-shadow { --shadow-cutoff-fix: 2em; position: absolute; width: calc(100% + var(--shadow-cutoff-fix)); height: calc(100% + var(--shadow-cutoff-fix)); top: calc(0% - var(--shadow-cutoff-fix) / 2); left: calc(0% - var(--shadow-cutoff-fix) / 2); filter: blur(clamp(2px, 0.125em, 12px)); transition: filter var(--anim-time) var(--anim-ease); pointer-events: none; z-index: 0; }
-.glass-button-shadow::after { content: ""; position: absolute; inset: 0; border-radius: 9999px; background: linear-gradient(180deg, oklch(from var(--foreground) l c h / 20%), oklch(from var(--foreground) l c h / 10%)); width: calc(100% - var(--shadow-cutoff-fix) - 0.25em); height: calc(100% - var(--shadow-cutoff-fix) - 0.25em); top: calc(var(--shadow-cutoff-fix) - 0.5em); left: calc(var(--shadow-cutoff-fix) - 0.875em); padding: 0.125em; box-sizing: border-box; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; transition: all var(--anim-time) var(--anim-ease); opacity: 1; }
-.glass-button { -webkit-tap-highlight-color: transparent; backdrop-filter: blur(clamp(1px, 0.125em, 4px)); transition: all var(--anim-time) var(--anim-ease); background: linear-gradient(-75deg, oklch(from var(--background) l c h / 5%), oklch(from var(--background) l c h / 20%), oklch(from var(--background) l c h / 5%)); box-shadow: inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 5%), inset 0 -0.125em 0.125em oklch(from var(--background) l c h / 50%), 0 0.25em 0.125em -0.125em oklch(from var(--foreground) l c h / 20%), 0 0 0.1em 0.25em inset oklch(from var(--background) l c h / 20%), 0 0 0 0 oklch(from var(--background) l c h); }
-.glass-button:hover { transform: scale(0.975); backdrop-filter: blur(0.01em); box-shadow: inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 5%), inset 0 -0.125em 0.125em oklch(from var(--background) l c h / 50%), 0 0.15em 0.05em -0.1em oklch(from var(--foreground) l c h / 25%), 0 0 0.05em 0.1em inset oklch(from var(--background) l c h / 50%), 0 0 0 0 oklch(from var(--background) l c h); }
-.glass-button-text { color: oklch(from var(--foreground) l c h / 90%); text-shadow: 0em 0.25em 0.05em oklch(from var(--foreground) l c h / 10%); transition: all var(--anim-time) var(--anim-ease); }
-.glass-button:hover .glass-button-text { text-shadow: 0.025em 0.025em 0.025em oklch(from var(--foreground) l c h / 12%); }
-.glass-button-text::after { content: ""; display: block; position: absolute; width: calc(100% - var(--border-width)); height: calc(100% - var(--border-width)); top: calc(0% + var(--border-width) / 2); left: calc(0% + var(--border-width) / 2); box-sizing: border-box; border-radius: 9999px; overflow: clip; background: linear-gradient(var(--angle-2), transparent 0%, oklch(from var(--background) l c h / 50%) 40% 50%, transparent 55%); z-index: 3; mix-blend-mode: screen; pointer-events: none; background-size: 200% 200%; background-position: 0% 50%; transition: background-position calc(var(--anim-time) * 1.25) var(--anim-ease), --angle-2 calc(var(--anim-time) * 1.25) var(--anim-ease); }
-.glass-button:hover .glass-button-text::after { background-position: 25% 50%; }
-.glass-button:active .glass-button-text::after { background-position: 50% 15%; --angle-2: -15deg; }
-.glass-button::after { content: ""; position: absolute; z-index: 1; inset: 0; border-radius: 9999px; width: calc(100% + var(--border-width)); height: calc(100% + var(--border-width)); top: calc(0% - var(--border-width) / 2); left: calc(0% - var(--border-width) / 2); padding: var(--border-width); box-sizing: border-box; background: conic-gradient(from var(--angle-1) at 50% 50%, oklch(from var(--foreground) l c h / 50%) 0%, transparent 5% 40%, oklch(from var(--foreground) l c h / 50%) 50%, transparent 60% 95%, oklch(from var(--foreground) l c h / 50%) 100%), linear-gradient(180deg, oklch(from var(--background) l c h / 50%), oklch(from var(--background) l c h / 50%)); mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; transition: all var(--anim-time) var(--anim-ease), --angle-1 500ms ease; box-shadow: inset 0 0 0 calc(var(--border-width) / 2) oklch(from var(--background) l c h / 50%); pointer-events: none; }
-.glass-button:hover::after { --angle-1: -125deg; }
-.glass-button:active::after { --angle-1: -75deg; }
+/* ── Glass button (the original from sign-up.tsx, now globally available)
+   Rewritten with rgba so it works outside the auth screen too. ──────────── */
+@layer components {
+  .glass-button-wrap { --anim-time: 400ms; --anim-ease: cubic-bezier(0.25, 1, 0.5, 1); --border-width: 1.5px; position: relative; z-index: 2; transform-style: preserve-3d; transition: transform var(--anim-time) var(--anim-ease); }
+  .glass-button-wrap:has(.glass-button:active) { transform: rotateX(25deg); }
+  .glass-button {
+    -webkit-tap-highlight-color: transparent;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    transition: all var(--anim-time) var(--anim-ease);
+    background-color: rgba(255, 255, 255, 0.78);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      inset 0 -1px 0 rgba(15, 15, 25, 0.04),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.4),
+      0 1px 2px rgba(15, 15, 25, 0.04),
+      0 4px 12px rgba(15, 15, 25, 0.08);
+  }
+  .glass-button:hover { transform: scale(0.98); background-color: rgba(255, 255, 255, 0.88); }
+  .glass-button-text { color: rgba(15, 15, 25, 0.9); transition: all var(--anim-time) var(--anim-ease); }
 
-/* ── Glass input (the original from sign-up.tsx, now globally available) ── */
-.glass-input-wrap { position: relative; z-index: 2; transform-style: preserve-3d; border-radius: 9999px; }
-.glass-input { display: flex; position: relative; width: 100%; align-items: center; gap: 0.5rem; border-radius: 9999px; padding: 0.25rem; -webkit-tap-highlight-color: transparent; backdrop-filter: blur(clamp(1px, 0.125em, 4px)); transition: all 400ms cubic-bezier(0.25, 1, 0.5, 1); background: linear-gradient(-75deg, oklch(from var(--background) l c h / 5%), oklch(from var(--background) l c h / 20%), oklch(from var(--background) l c h / 5%)); box-shadow: inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 5%), inset 0 -0.125em 0.125em oklch(from var(--background) l c h / 50%), 0 0.25em 0.125em -0.125em oklch(from var(--foreground) l c h / 20%), 0 0 0.1em 0.25em inset oklch(from var(--background) l c h / 20%); }
-.glass-input-wrap:focus-within .glass-input { box-shadow: inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 5%), inset 0 -0.125em 0.125em oklch(from var(--background) l c h / 50%), 0 0.15em 0.05em -0.1em oklch(from var(--foreground) l c h / 25%), 0 0 0.05em 0.1em inset oklch(from var(--background) l c h / 50%); }
-.glass-input::after { content: ""; position: absolute; z-index: 1; inset: 0; border-radius: 9999px; width: calc(100% + clamp(1px, 0.0625em, 4px)); height: calc(100% + clamp(1px, 0.0625em, 4px)); top: calc(0% - clamp(1px, 0.0625em, 4px) / 2); left: calc(0% - clamp(1px, 0.0625em, 4px) / 2); padding: clamp(1px, 0.0625em, 4px); box-sizing: border-box; background: conic-gradient(from var(--angle-1) at 50% 50%, oklch(from var(--foreground) l c h / 50%) 0%, transparent 5% 40%, oklch(from var(--foreground) l c h / 50%) 50%, transparent 60% 95%, oklch(from var(--foreground) l c h / 50%) 100%), linear-gradient(180deg, oklch(from var(--background) l c h / 50%), oklch(from var(--background) l c h / 50%)); mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; transition: all 400ms cubic-bezier(0.25, 1, 0.5, 1), --angle-1 500ms ease; box-shadow: inset 0 0 0 calc(clamp(1px, 0.0625em, 4px) / 2) oklch(from var(--background) l c h / 50%); pointer-events: none; }
-.glass-input-wrap:focus-within .glass-input::after { --angle-1: -125deg; }
-.glass-input-shadow { --shadow-cutoff-fix: 2em; position: absolute; width: calc(100% + var(--shadow-cutoff-fix)); height: calc(100% + var(--shadow-cutoff-fix)); top: calc(0% - var(--shadow-cutoff-fix) / 2); left: calc(0% - var(--shadow-cutoff-fix) / 2); filter: blur(clamp(2px, 0.125em, 12px)); transition: filter 400ms cubic-bezier(0.25, 1, 0.5, 1); pointer-events: none; z-index: 0; }
-.glass-input-shadow::after { content: ""; position: absolute; inset: 0; border-radius: 9999px; background: linear-gradient(180deg, oklch(from var(--foreground) l c h / 20%), oklch(from var(--foreground) l c h / 10%)); width: calc(100% - var(--shadow-cutoff-fix) - 0.25em); height: calc(100% - var(--shadow-cutoff-fix) - 0.25em); top: calc(var(--shadow-cutoff-fix) - 0.5em); left: calc(var(--shadow-cutoff-fix) - 0.875em); padding: 0.125em; box-sizing: border-box; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; transition: all 400ms cubic-bezier(0.25, 1, 0.5, 1); opacity: 1; }
-.glass-input-text-area { position: absolute; inset: 0; border-radius: 9999px; pointer-events: none; }
-.glass-input-text-area::after { content: ""; display: block; position: absolute; width: calc(100% - clamp(1px, 0.0625em, 4px)); height: calc(100% - clamp(1px, 0.0625em, 4px)); top: calc(0% + clamp(1px, 0.0625em, 4px) / 2); left: calc(0% + clamp(1px, 0.0625em, 4px) / 2); box-sizing: border-box; border-radius: 9999px; overflow: clip; background: linear-gradient(var(--angle-2), transparent 0%, oklch(from var(--background) l c h / 50%) 40% 50%, transparent 55%); z-index: 3; mix-blend-mode: screen; pointer-events: none; background-size: 200% 200%; background-position: 0% 50%; transition: background-position 500ms cubic-bezier(0.25, 1, 0.5, 1), --angle-2 500ms cubic-bezier(0.25, 1, 0.5, 1); }
+  /* ── Glass input ───────────────────────────────────────────────────────── */
+  .glass-input-wrap { position: relative; z-index: 2; border-radius: 9999px; }
+  .glass-input {
+    display: flex;
+    position: relative;
+    width: 100%;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    padding: 0.25rem;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    transition: all 400ms cubic-bezier(0.25, 1, 0.5, 1);
+    background-color: rgba(255, 255, 255, 0.78);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      inset 0 -1px 0 rgba(15, 15, 25, 0.04),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.4),
+      0 1px 2px rgba(15, 15, 25, 0.04),
+      0 4px 12px rgba(15, 15, 25, 0.06);
+  }
+  .glass-input-wrap:focus-within .glass-input { background-color: rgba(255, 255, 255, 0.92); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 0 0 1.5px rgba(37, 99, 235, 0.4), 0 4px 16px rgba(37, 99, 235, 0.15); }
+  .glass-input-shadow { display: none; } /* Drop the original heavy halo — modern iOS doesn't use it. */
+  .glass-input-text-area { display: none; }
+}
 
 /* Autofill — keep transparent so the glass effect stays visible. */
 input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
