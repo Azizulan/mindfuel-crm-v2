@@ -1,8 +1,9 @@
 name: Build & Deploy to cPanel
 
+# Manual-only — Vercel handles auto-deploys on push.
+# To deploy to cPanel: go to Actions → "Build & Deploy to cPanel" → "Run workflow".
 on:
-  push:
-    branches: [main]   # triggers on every push to main branch
+  workflow_dispatch:
 
 jobs:
   deploy:
