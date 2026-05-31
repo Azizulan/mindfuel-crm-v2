@@ -324,35 +324,62 @@ export const AuthComponent = ({
         .glass-input::after { content: ""; position: absolute; z-index: 1; inset: 0; border-radius: 9999px; width: calc(100% + clamp(1px, 0.0625em, 4px)); height: calc(100% + clamp(1px, 0.0625em, 4px)); top: calc(0% - clamp(1px, 0.0625em, 4px) / 2); left: calc(0% - clamp(1px, 0.0625em, 4px) / 2); padding: clamp(1px, 0.0625em, 4px); box-sizing: border-box; background: conic-gradient(from var(--angle-1) at 50% 50%, oklch(from var(--foreground) l c h / 50%) 0%, transparent 5% 40%, oklch(from var(--foreground) l c h / 50%) 50%, transparent 60% 95%, oklch(from var(--foreground) l c h / 50%) 100%), linear-gradient(180deg, oklch(from var(--background) l c h / 50%), oklch(from var(--background) l c h / 50%)); mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; transition: all 400ms cubic-bezier(0.25, 1, 0.5, 1), --angle-1 500ms ease; box-shadow: inset 0 0 0 calc(clamp(1px, 0.0625em, 4px) / 2) oklch(from var(--background) l c h / 50%); pointer-events: none; }
         .glass-input-wrap:focus-within .glass-input::after { --angle-1: -125deg; }
 
-        /* Glassmorphism card — frosted panel behind the form fields */
-        .glass-card {
-          position: relative;
-          background: linear-gradient(
-            135deg,
-            oklch(from var(--background) l c h / 0.55) 0%,
-            oklch(from var(--background) l c h / 0.35) 100%
-          );
-          backdrop-filter: blur(24px) saturate(160%);
-          -webkit-backdrop-filter: blur(24px) saturate(160%);
-          border: 1px solid oklch(from var(--foreground) l c h / 0.12);
-          box-shadow:
-            0 8px 32px oklch(from var(--foreground) l c h / 0.08),
-            0 1px 0 oklch(from var(--background) l c h / 0.6) inset,
-            0 -1px 0 oklch(from var(--foreground) l c h / 0.06) inset;
+        /* Floating drop-shadow for input pills — mirrors .glass-button-shadow so the
+           input pills look like the Google/GitHub GlassButtons from the original. */
+        .glass-input-shadow {
+          --shadow-cutoff-fix: 2em;
+          position: absolute;
+          width: calc(100% + var(--shadow-cutoff-fix));
+          height: calc(100% + var(--shadow-cutoff-fix));
+          top: calc(0% - var(--shadow-cutoff-fix) / 2);
+          left: calc(0% - var(--shadow-cutoff-fix) / 2);
+          filter: blur(clamp(2px, 0.125em, 12px));
+          transition: filter 400ms cubic-bezier(0.25, 1, 0.5, 1);
+          pointer-events: none;
+          z-index: 0;
         }
-        /* Subtle top highlight edge — mimics light catching glass */
-        .glass-card::before {
-          content: '';
+        .glass-input-shadow::after {
+          content: "";
           position: absolute;
           inset: 0;
-          border-radius: inherit;
-          background: linear-gradient(
-            180deg,
-            oklch(from var(--background) l c h / 0.25) 0%,
-            transparent 50%
-          );
-          pointer-events: none;
+          border-radius: 9999px;
+          background: linear-gradient(180deg, oklch(from var(--foreground) l c h / 20%), oklch(from var(--foreground) l c h / 10%));
+          width: calc(100% - var(--shadow-cutoff-fix) - 0.25em);
+          height: calc(100% - var(--shadow-cutoff-fix) - 0.25em);
+          top: calc(var(--shadow-cutoff-fix) - 0.5em);
+          left: calc(var(--shadow-cutoff-fix) - 0.875em);
+          padding: 0.125em;
+          box-sizing: border-box;
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask-composite: exclude;
+          transition: all 400ms cubic-bezier(0.25, 1, 0.5, 1);
+          opacity: 1;
         }
+        .glass-input-wrap:focus-within .glass-input-shadow { filter: blur(clamp(2px, 0.0625em, 6px)); }
+        .glass-input-wrap:focus-within .glass-input-shadow::after { top: calc(var(--shadow-cutoff-fix) - 0.875em); }
+
+        /* Moving sheen highlight inside the pill — mirrors .glass-button-text::after */
+        .glass-input-text-area { position: absolute; inset: 0; border-radius: 9999px; pointer-events: none; }
+        .glass-input-text-area::after {
+          content: "";
+          display: block;
+          position: absolute;
+          width: calc(100% - clamp(1px, 0.0625em, 4px));
+          height: calc(100% - clamp(1px, 0.0625em, 4px));
+          top: calc(0% + clamp(1px, 0.0625em, 4px) / 2);
+          left: calc(0% + clamp(1px, 0.0625em, 4px) / 2);
+          box-sizing: border-box;
+          border-radius: 9999px;
+          overflow: clip;
+          background: linear-gradient(var(--angle-2), transparent 0%, oklch(from var(--background) l c h / 50%) 40% 50%, transparent 55%);
+          z-index: 3;
+          mix-blend-mode: screen;
+          pointer-events: none;
+          background-size: 200% 200%;
+          background-position: 0% 50%;
+          transition: background-position 500ms cubic-bezier(0.25, 1, 0.5, 1), --angle-2 500ms cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .glass-input-wrap:focus-within .glass-input-text-area::after { background-position: 25% 50%; }
       `}</style>
 
       <Confetti ref={confettiRef} manualstart className="fixed top-0 left-0 w-full h-full pointer-events-none z-[999]" />
@@ -387,24 +414,28 @@ export const AuthComponent = ({
             )}
           </div>
 
-          {/* Glassmorphism card wrapping the entire form */}
-          <BlurFade delay={0.3} className="w-full">
-            <div className="glass-card rounded-3xl p-6 w-full">
-              {/*
-                Form — all fields rendered together so browser password managers
-                and autofill work. autoComplete attributes per WHATWG spec:
-                  login  → current-password
-                  signup → new-password
-              */}
-              <form
-                onSubmit={handleSubmit}
-                method="post"
-                className="w-full space-y-3"
-                autoComplete="on"
-              >
-                {/* NAME (signup only) */}
-                {mode === 'signup' && (
-                  <div className="glass-input-wrap w-full"><div className="glass-input py-1.5">
+          {/*
+            Form — all fields rendered together so browser password managers
+            and autofill work. autoComplete attributes per WHATWG spec:
+              login  → current-password
+              signup → new-password
+            Each pill renders as a floating glass orb (same treatment as the
+            original GlassButton): the .glass-input pill, plus a sibling
+            .glass-input-shadow drop-shadow, plus a .glass-input-text-area
+            sheen layer for the moving highlight.
+          */}
+          <form
+            onSubmit={handleSubmit}
+            method="post"
+            className="w-full space-y-4"
+            autoComplete="on"
+          >
+            {/* NAME (signup only) */}
+            {mode === 'signup' && (
+              <BlurFade delay={0.3} className="w-full">
+                <div className="glass-input-wrap w-full">
+                  <div className="glass-input py-1.5">
+                    <span className="glass-input-text-area"></span>
                     <div className="relative z-10 flex-shrink-0 flex items-center justify-center w-10 pl-2">
                       <UserIcon className="h-5 w-5 text-foreground/80" />
                     </div>
@@ -417,11 +448,17 @@ export const AuthComponent = ({
                       onChange={e => setName(e.target.value)}
                       className="relative z-10 w-0 flex-grow bg-transparent text-foreground placeholder:text-foreground/60 focus:outline-none py-2 pr-3"
                     />
-                  </div></div>
-                )}
+                  </div>
+                  <div className="glass-input-shadow rounded-full pointer-events-none"></div>
+                </div>
+              </BlurFade>
+            )}
 
-                {/* EMAIL */}
-                <div className="glass-input-wrap w-full"><div className="glass-input py-1.5">
+            {/* EMAIL */}
+            <BlurFade delay={0.35} className="w-full">
+              <div className="glass-input-wrap w-full">
+                <div className="glass-input py-1.5">
+                  <span className="glass-input-text-area"></span>
                   <div className="relative z-10 flex-shrink-0 flex items-center justify-center w-10 pl-2">
                     <Mail className="h-5 w-5 text-foreground/80" />
                   </div>
@@ -435,10 +472,16 @@ export const AuthComponent = ({
                     autoFocus={mode === 'login'}
                     className="relative z-10 w-0 flex-grow bg-transparent text-foreground placeholder:text-foreground/60 focus:outline-none py-2 pr-3"
                   />
-                </div></div>
+                </div>
+                <div className="glass-input-shadow rounded-full pointer-events-none"></div>
+              </div>
+            </BlurFade>
 
-                {/* PASSWORD */}
-                <div className="glass-input-wrap w-full"><div className="glass-input py-1.5">
+            {/* PASSWORD */}
+            <BlurFade delay={0.4} className="w-full">
+              <div className="glass-input-wrap w-full">
+                <div className="glass-input py-1.5">
+                  <span className="glass-input-text-area"></span>
                   <div className="relative z-10 flex-shrink-0 flex items-center justify-center w-10 pl-2">
                     {password.length === 0 ? (
                       <Lock className="h-5 w-5 text-foreground/80" />
@@ -462,11 +505,17 @@ export const AuthComponent = ({
                     onChange={e => setPassword(e.target.value)}
                     className="relative z-10 w-0 flex-grow bg-transparent text-foreground placeholder:text-foreground/60 focus:outline-none py-2 pr-3"
                   />
-                </div></div>
+                </div>
+                <div className="glass-input-shadow rounded-full pointer-events-none"></div>
+              </div>
+            </BlurFade>
 
-                {/* CONFIRM PASSWORD (signup only) */}
-                {mode === 'signup' && (
-                  <div className="glass-input-wrap w-full"><div className="glass-input py-1.5">
+            {/* CONFIRM PASSWORD (signup only) */}
+            {mode === 'signup' && (
+              <BlurFade delay={0.45} className="w-full">
+                <div className="glass-input-wrap w-full">
+                  <div className="glass-input py-1.5">
+                    <span className="glass-input-text-area"></span>
                     <div className="relative z-10 flex-shrink-0 flex items-center justify-center w-10 pl-2">
                       {confirmPassword.length === 0 ? (
                         <Lock className="h-5 w-5 text-foreground/80" />
@@ -490,40 +539,41 @@ export const AuthComponent = ({
                       onChange={e => setConfirmPassword(e.target.value)}
                       className="relative z-10 w-0 flex-grow bg-transparent text-foreground placeholder:text-foreground/60 focus:outline-none py-2 pr-3"
                     />
-                  </div></div>
-                )}
-
-                {/* Submit button — full-width glass pill */}
-                <div className="pt-1">
-                  <GlassButton
-                    type="submit"
-                    size="default"
-                    aria-label={mode === 'login' ? 'Sign in' : 'Create account'}
-                    className="w-full"
-                    contentClassName={cn(
-                      'flex items-center justify-center gap-2 font-semibold',
-                      !canSubmit && 'opacity-50'
-                    )}
-                  >
-                    {mode === 'login' ? 'Sign In' : 'Create Account'}
-                    <ArrowRight className="w-4 h-4" />
-                  </GlassButton>
+                  </div>
+                  <div className="glass-input-shadow rounded-full pointer-events-none"></div>
                 </div>
-              </form>
+              </BlurFade>
+            )}
 
-              {/* Mode toggle — inside the card */}
-              <p className="text-sm text-muted-foreground text-center mt-4">
-                {mode === 'login' ? "Don't have an account?" : 'Already have an account?'}{' '}
-                <button
-                  type="button"
-                  onClick={() => switchMode(mode === 'login' ? 'signup' : 'login')}
-                  className="font-semibold text-foreground hover:underline"
-                >
-                  {mode === 'login' ? 'Sign up' : 'Sign in'}
-                </button>
-              </p>
-            </div>
-          </BlurFade>
+            {/* Submit button — full-width glass pill */}
+            <BlurFade delay={0.5} className="w-full pt-2">
+              <GlassButton
+                type="submit"
+                size="default"
+                aria-label={mode === 'login' ? 'Sign in' : 'Create account'}
+                className="w-full"
+                contentClassName={cn(
+                  'flex items-center justify-center gap-2 font-semibold',
+                  !canSubmit && 'opacity-50'
+                )}
+              >
+                {mode === 'login' ? 'Sign In' : 'Create Account'}
+                <ArrowRight className="w-4 h-4" />
+              </GlassButton>
+            </BlurFade>
+          </form>
+
+          {/* Mode toggle — sits below the form */}
+          <p className="text-sm text-muted-foreground text-center">
+            {mode === 'login' ? "Don't have an account?" : 'Already have an account?'}{' '}
+            <button
+              type="button"
+              onClick={() => switchMode(mode === 'login' ? 'signup' : 'login')}
+              className="font-semibold text-foreground hover:underline"
+            >
+              {mode === 'login' ? 'Sign up' : 'Sign in'}
+            </button>
+          </p>
         </fieldset>
       </div>
     </div>
