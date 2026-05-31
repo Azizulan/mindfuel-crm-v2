@@ -372,6 +372,16 @@
   line-height: 1.05;
 }
 
+/* iOS-style display — SF Pro on Apple devices, Inter elsewhere.
+   Use for hero text on screens that want the native iOS typography
+   instead of the editorial serif look. */
+.text-ios-display {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1.0;
+}
+
 /* ── Glass button (the original from sign-up.tsx, now globally available)
    Rewritten with rgba so it works outside the auth screen too. ──────────── */
 @layer components {

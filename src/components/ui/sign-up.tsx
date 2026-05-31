@@ -285,7 +285,9 @@ export const AuthComponent = ({
   );
 
   return (
-    <div className="bg-background min-h-screen w-screen flex flex-col">
+    // .dark scope so the dark-glass styles apply on this screen even when the
+    // app is in light mode — the auth screen is always set against pure black.
+    <div className="dark bg-black min-h-screen w-screen flex flex-col">
       {/* Glass styles are in globals.css now — this kept only the password reveal/autofill rules. */}
       <style>{`
         input[type="password"]::-ms-reveal, input[type="password"]::-ms-clear { display: none !important; }
@@ -295,22 +297,17 @@ export const AuthComponent = ({
       <Confetti ref={confettiRef} manualstart className="fixed top-0 left-0 w-full h-full pointer-events-none z-[999]" />
       <Modal />
 
-      <div className={cn("flex w-full flex-1 h-full items-center justify-center bg-card", "relative overflow-hidden")}>
+      <div className={cn("flex w-full flex-1 h-full items-center justify-center bg-black", "relative overflow-hidden")}>
         {/*
-          Contained video tile — floats centered in the viewport instead of
-          covering the whole screen. Size scales with the viewport but stays
-          inside sensible bounds. The glass form sits in front of it.
+          Contained video orb — floats centered against pure black. No glow,
+          no drop shadow — just a clean rounded shape so the only visible
+          element is the orb in the video itself.
         */}
         <div
           className="absolute z-0 inset-0 m-auto overflow-hidden rounded-[3rem] pointer-events-none"
           style={{
             width: 'min(72vw, 620px)',
             height: 'min(78vh, 720px)',
-            boxShadow:
-              // Soft ambient halo + crisp drop shadow — makes the tile look
-              // like it's emitting light into the surrounding background.
-              '0 0 120px 10px rgba(120, 100, 240, 0.18),' +
-              '0 30px 90px -10px rgba(15, 15, 25, 0.30)',
           }}
         >
           <video
@@ -324,20 +321,18 @@ export const AuthComponent = ({
             aria-hidden="true"
             className="w-full h-full object-cover"
           />
-          {/* Inner vignette over the video so the glass form reads on top. */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background/45 via-transparent to-background/10 pointer-events-none" />
         </div>
 
         <fieldset disabled={modalStatus !== 'closed'} className="relative z-10 flex flex-col items-center gap-8 w-[360px] max-w-[92vw] mx-auto p-4">
-          {/* Heading — bigger editorial type, more breathing room */}
+          {/* Heading — SF Pro Display style (or system fallback). */}
           <div className="w-full flex flex-col items-center text-center gap-3">
             <BlurFade delay={0.05} className="w-full">
-              <p className="text-display text-5xl sm:text-6xl text-foreground">
+              <p className="text-ios-display text-4xl sm:text-5xl text-white">
                 {heading.title}
               </p>
             </BlurFade>
             <BlurFade delay={0.2}>
-              <p className="text-[15px] font-medium text-foreground/55 max-w-[280px]">{heading.sub}</p>
+              <p className="text-[15px] font-medium text-white/55 max-w-[280px]">{heading.sub}</p>
             </BlurFade>
             {persistentNotice && (
               <BlurFade delay={0.35} className="w-full">
