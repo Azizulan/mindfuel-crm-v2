@@ -26,16 +26,16 @@ const TeamActivityPage: React.FC<TeamActivityPageProps> = ({ teamActivity, isLoa
     return (
         <div className="space-y-6 pb-12">
 
-            {/* Controls */}
-            <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm p-4 flex flex-wrap items-center gap-3">
-                <div className="flex bg-foreground/[0.08] p-1 rounded-xl">
+            {/* Controls — glass surface, segmented control for date toggle */}
+            <div className="glass-surface p-4 flex flex-wrap items-center gap-3">
+                <div className="flex glass-pane p-1 rounded-xl gap-1">
                     <button
                         onClick={() => onDateChange(todayStr)}
-                        className={`px-4 py-1.5 text-xs font-semibold uppercase rounded-lg transition-all ${selectedDate === todayStr ? 'bg-card shadow-sm text-foreground/90' : 'text-foreground/45 hover:text-foreground/70'}`}
+                        className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${selectedDate === todayStr ? 'glass-chip-selected text-foreground' : 'text-foreground/55 hover:text-foreground/85'}`}
                     >Today</button>
                     <button
                         onClick={() => onDateChange(yesterdayStr)}
-                        className={`px-4 py-1.5 text-xs font-semibold uppercase rounded-lg transition-all ${selectedDate === yesterdayStr ? 'bg-card shadow-sm text-foreground/90' : 'text-foreground/45 hover:text-foreground/70'}`}
+                        className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${selectedDate === yesterdayStr ? 'glass-chip-selected text-foreground' : 'text-foreground/55 hover:text-foreground/85'}`}
                     >Yesterday</button>
                 </div>
                 <input
@@ -43,11 +43,11 @@ const TeamActivityPage: React.FC<TeamActivityPageProps> = ({ teamActivity, isLoa
                     value={selectedDate}
                     onChange={(e) => onDateChange(e.target.value)}
                     max={todayStr}
-                    className="bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl px-3 py-1.5 text-xs font-medium text-foreground/85 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                    className="glass-chip rounded-xl px-3 py-1.5 text-xs font-medium text-foreground/85 outline-none focus:ring-2 focus:ring-foreground/20"
                 />
                 <button
                     onClick={onRefresh}
-                    className="p-2 bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/60 rounded-xl border border-foreground/[0.12] transition-all"
+                    className="p-2 glass-chip rounded-xl text-foreground/65 hover:text-foreground transition-all"
                     title="Refresh"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -55,9 +55,9 @@ const TeamActivityPage: React.FC<TeamActivityPageProps> = ({ teamActivity, isLoa
                     </svg>
                 </button>
                 <div className="ml-auto flex items-center gap-4 text-[10px] font-semibold text-foreground/45 uppercase tracking-widest">
-                    <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Healthy (10+)</div>
-                    <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Under Target</div>
-                    <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-foreground/[0.12]"></span> No Activity</div>
+                    <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500"></span> Healthy (10+)</div>
+                    <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-rose-500"></span> Under Target</div>
+                    <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-foreground/20"></span> No Activity</div>
                 </div>
             </div>
 
@@ -68,25 +68,26 @@ const TeamActivityPage: React.FC<TeamActivityPageProps> = ({ teamActivity, isLoa
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className="bg-card rounded-2xl shadow-sm border border-foreground/[0.12] overflow-hidden"
+                        className="glass-surface overflow-hidden"
                     >
-                        <div className="px-5 py-4 bg-foreground/[0.04] border-b border-foreground/[0.08] flex justify-between items-center">
+                        <div className="px-5 py-4 border-b border-foreground/[0.08] flex justify-between items-center">
                             <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-xl flex items-center justify-center font-bold text-white text-sm shadow-sm">
+                                <div className="w-10 h-10 glass-chip rounded-xl flex items-center justify-center font-semibold text-foreground/85 text-sm">
                                     {agent.agentName.charAt(0)}
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-foreground/90 text-sm">{agent.agentName}</h4>
+                                    <h4 className="font-semibold text-foreground text-sm">{agent.agentName}</h4>
                                     {agent.isCurrentlyLow && (
-                                        <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wide animate-pulse">
-                                            Low Activity Warning
+                                        <span className="inline-flex items-center gap-1.5 mt-1 text-[10px] font-semibold glass-chip glass-chip-tint-red text-foreground/85 px-2 py-0.5 rounded-full">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                                            Low Activity
                                         </span>
                                     )}
                                 </div>
                             </div>
                             <div className="text-right">
                                 <p className="text-[10px] font-semibold text-foreground/45 uppercase tracking-widest">Total Today</p>
-                                <p className="text-xl font-bold text-foreground">{agent.totalToday}</p>
+                                <p className="text-display text-3xl text-foreground leading-tight">{agent.totalToday}</p>
                             </div>
                         </div>
                         <div className="p-5">
@@ -119,7 +120,7 @@ const TeamActivityPage: React.FC<TeamActivityPageProps> = ({ teamActivity, isLoa
                                                     <p>Interactions: <span className="text-emerald-400">{stat.count}</span></p>
                                                     {isLow && <p className="text-rose-400 mt-0.5 font-bold">LOW OUTPUT</p>}
                                                 </div>
-                                                <span className={`text-[8px] font-semibold mt-1.5 ${isShowingToday && stat.hour === currentHour ? 'text-blue-600' : 'text-foreground/45'}`}>
+                                                <span className={`text-[9px] font-semibold mt-1.5 ${isShowingToday && stat.hour === currentHour ? 'text-foreground' : 'text-foreground/40'}`}>
                                                     {stat.hour > 12 ? `${stat.hour - 12}p` : stat.hour === 12 ? '12p' : `${stat.hour}a`}
                                                 </span>
                                             </div>
@@ -129,7 +130,7 @@ const TeamActivityPage: React.FC<TeamActivityPageProps> = ({ teamActivity, isLoa
                         </div>
                     </motion.div>
                 )) : (
-                    <div className="p-16 text-center text-foreground/45 italic bg-card rounded-2xl border border-dashed border-foreground/[0.15]">
+                    <div className="p-16 text-center text-foreground/45 italic glass-surface">
                         {isLoading ? 'Loading activity data…' : 'No activity logs for this date.'}
                     </div>
                 )}

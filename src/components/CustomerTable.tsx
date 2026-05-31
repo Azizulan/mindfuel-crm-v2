@@ -14,15 +14,15 @@ interface CustomSortHeaderProps {
 }
 
 const CustomSortHeader = ({ field, label, align = 'left', sortField, currentSortOrder, onSort }: CustomSortHeaderProps) => (
-    <th 
-        className={`px-6 py-3 text-${align} text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors`}
+    <th
+        className={`px-5 py-3 text-${align} text-[10px] font-semibold text-foreground/45 uppercase tracking-widest cursor-pointer hover:text-foreground/70 transition-colors`}
         onClick={() => onSort?.(field)}
     >
-        <div className={`flex items-center gap-1 ${align === 'right' ? 'justify-end' : align === 'center' ? 'justify-center' : ''}`}>
+        <div className={`flex items-center gap-1.5 ${align === 'right' ? 'justify-end' : align === 'center' ? 'justify-center' : ''}`}>
             {label}
-            <ChevronUpDownIcon 
-                className="h-3 w-3" 
-                direction={sortField === field ? (currentSortOrder === 'asc' ? 'ascending' : 'descending') : 'none'} 
+            <ChevronUpDownIcon
+                className="h-3 w-3 opacity-60"
+                direction={sortField === field ? (currentSortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}
             />
         </div>
     </th>
@@ -58,12 +58,19 @@ const isToday = (someDate: Date) => {
            d.getFullYear() === today.getFullYear();
 }
 
-const CustomerTable: React.FC<CustomerTableProps> = ({ 
-    customers, 
-    onAddFollowUpNote, 
-    products, 
-    currentUser, 
-    displayMode = 'dashboard', 
+// iOS Liquid Glass — value rating maps to a soft tinted glass capsule.
+const ratingTint = (rating: Customer['valueRating']) => {
+    if (rating === 'High')   return 'glass-chip glass-chip-tint-emerald text-foreground/85';
+    if (rating === 'Medium') return 'glass-chip glass-chip-tint-amber text-foreground/85';
+    return 'glass-chip glass-chip-tint-red text-foreground/85';
+};
+
+const CustomerTable: React.FC<CustomerTableProps> = ({
+    customers,
+    onAddFollowUpNote,
+    products,
+    currentUser,
+    displayMode = 'dashboard',
     onMarkReminderDone,
     onUpdatePurchaseDate,
     totalCount = 0,
@@ -80,7 +87,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
 }) => {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [activeReminderId, setActiveReminderId] = useState<string | undefined>(undefined);
-  
+
   const handleOpenProfile = (customer: Customer) => {
     const reminderNote = displayMode === 'followup'
       ? customer.followUpNotes?.find(note =>
@@ -91,49 +98,50 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
     setSelectedCustomer(customer);
   };
 
-  const ratingStyles = { High: 'bg-green-100 text-green-800', Medium: 'bg-yellow-100 text-yellow-800', Low: 'bg-red-100 text-red-800' };
-
   const currentSortOrder = sortOrder || 'desc';
+  const totalPages = Math.ceil(totalCount / pageSize) || 1;
 
   return (
     <div className="space-y-4">
+      {/* Dashboard mode — top search + rows control */}
       {displayMode === 'dashboard' && (
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card p-4 rounded-lg shadow-sm border border-slate-200">
-            <div className="relative w-full sm:w-64">
-            <input 
-                type="text" 
-                placeholder="Search name/phone..." 
-                className="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 outline-none text-slate-900"
-                onChange={(e) => onSearchChange?.(e.target.value)}
-            />
+        <div className="glass-surface p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="relative w-full sm:w-72">
+              <input
+                  type="text"
+                  placeholder="Search name or phone…"
+                  className="w-full pl-4 pr-3 py-2.5 glass-chip rounded-xl text-sm text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                  onChange={(e) => onSearchChange?.(e.target.value)}
+              />
             </div>
-            <div className="flex items-center gap-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+            <div className="flex items-center gap-4 text-[10px] font-bold text-foreground/45 uppercase tracking-widest">
                 <div className="flex items-center gap-2">
-                    <span>Rows:</span>
-                    <select 
+                    <span>Rows</span>
+                    <select
                         value={pageSize}
                         onChange={(e) => onPageSizeChange?.(Number(e.target.value))}
-                        className="bg-slate-50 border border-slate-300 rounded px-1 py-0.5 focus:ring-1 focus:ring-blue-500 outline-none text-slate-700"
+                        className="glass-chip rounded-lg px-2 py-1 text-foreground/85 outline-none focus:ring-2 focus:ring-foreground/20"
                     >
                         <option value={10}>10</option>
                         <option value={20}>20</option>
                         <option value={50}>50</option>
                     </select>
                 </div>
-                <span>{totalCount} Total Records</span>
+                <span className="text-foreground/55">{totalCount.toLocaleString()} total</span>
             </div>
         </div>
       )}
-      
+
+      {/* Follow-up mode — segment data list header */}
       {displayMode === 'followup' && (
-          <div className="flex justify-between items-center bg-slate-50 p-3 rounded-t-lg border-x border-t border-slate-200">
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Segment Data List</span>
+          <div className="flex justify-between items-center px-4 py-3 glass-pane rounded-t-2xl border-b border-foreground/[0.08]">
+              <span className="text-[10px] font-bold text-foreground/55 uppercase tracking-widest">Segment Data List</span>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold text-slate-500 uppercase">Per Page:</span>
-                <select 
+                <span className="text-[10px] font-semibold text-foreground/45 uppercase tracking-widest">Per Page</span>
+                <select
                     value={pageSize}
                     onChange={(e) => onPageSizeChange?.(Number(e.target.value))}
-                    className="bg-card border border-slate-300 rounded text-[10px] px-1 py-0.5 focus:ring-1 focus:ring-blue-500 outline-none text-slate-700"
+                    className="glass-chip rounded-lg text-[11px] px-2 py-1 text-foreground/85 outline-none focus:ring-2 focus:ring-foreground/20"
                 >
                     <option value={10}>10</option>
                     <option value={20}>20</option>
@@ -143,71 +151,72 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
           </div>
       )}
 
-      <div className="bg-card shadow-sm rounded-lg overflow-hidden border border-slate-200">
+      {/* The table itself, in a glass surface */}
+      <div className={`${displayMode === 'followup' ? 'glass-surface rounded-t-none' : 'glass-surface'} overflow-hidden`}>
         <div className={`overflow-x-auto ${isLoading ? 'opacity-50 pointer-events-none transition-opacity' : ''}`}>
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
+          <table className="min-w-full">
+            <thead className="border-b border-foreground/[0.08]">
               <tr>
                 <CustomSortHeader field="name" label="Customer" sortField={sortField} currentSortOrder={currentSortOrder} onSort={onSort} />
                 <CustomSortHeader field="lastPurchaseDate" label="Last Activity" sortField={sortField} currentSortOrder={currentSortOrder} onSort={onSort} />
                 {!hideInteractionColumn && <CustomSortHeader field="lastInteractionDate" label="Last Interaction" sortField={sortField} currentSortOrder={currentSortOrder} onSort={onSort} />}
                 <CustomSortHeader field="valueRating" label="Status" sortField={sortField} currentSortOrder={currentSortOrder} onSort={onSort} />
                 <CustomSortHeader field="totalSpending" label="Revenue" align="right" sortField={sortField} currentSortOrder={currentSortOrder} onSort={onSort} />
-                <th className="px-6 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
+                <th className="px-5 py-3 text-center text-[10px] font-semibold text-foreground/45 uppercase tracking-widest">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-card divide-y divide-slate-200">
+            <tbody className="divide-y divide-foreground/[0.05]">
               {customers.length > 0 ? customers.map((customer) => {
-                const latestNote = customer.followUpNotes && customer.followUpNotes.length > 0 
+                const latestNote = customer.followUpNotes && customer.followUpNotes.length > 0
                   ? [...customer.followUpNotes].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
                   : null;
-                
+
                 return (
-                  <tr key={customer.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-bold text-slate-900">{customer.name}</div>
-                      <div className="text-[10px] text-slate-400 font-mono">{customer.phone}</div>
+                  <tr key={customer.id} className="hover:bg-foreground/[0.03] transition-colors">
+                    <td className="px-5 py-4 whitespace-nowrap">
+                      <div className="text-sm font-semibold text-foreground">{customer.name}</div>
+                      <div className="text-[11px] text-foreground/40 font-mono mt-0.5">{customer.phone}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                    <td className="px-5 py-4 whitespace-nowrap text-sm text-foreground/60">
                       {customer.lastPurchaseDate ? new Date(customer.lastPurchaseDate).toLocaleDateString() : 'No history'}
                     </td>
                     {!hideInteractionColumn && (
-                        <td className="px-6 py-4 max-w-xs">
+                        <td className="px-5 py-4 max-w-xs">
                             {latestNote ? (
-                            <div>
-                                <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                                <span className="text-[9px] font-black uppercase text-slate-400">{new Date(latestNote.date).toLocaleDateString()}</span>
-                                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded uppercase tracking-tighter">{latestNote.feedback}</span>
-                                {latestNote.reminderDate && latestNote.reminderStatus === 'pending' && (
-                                    <span className="text-[9px] font-black text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100 animate-pulse">
-                                        Due: {new Date(latestNote.reminderDate).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}
-                                    </span>
-                                )}
+                            <div className="space-y-1.5">
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground/40">{new Date(latestNote.date).toLocaleDateString()}</span>
+                                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full glass-chip glass-chip-tint-blue text-foreground/80">{latestNote.feedback}</span>
+                                  {latestNote.reminderDate && latestNote.reminderStatus === 'pending' && (
+                                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full glass-chip glass-chip-tint-violet text-foreground/85 animate-pulse">
+                                          Due {new Date(latestNote.reminderDate).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}
+                                      </span>
+                                  )}
                                 </div>
-                                <p className="text-sm text-slate-900 font-semibold line-clamp-2 leading-relaxed italic">"{latestNote.notes}"</p>
+                                <p className="text-sm text-foreground/85 line-clamp-2 leading-snug italic">"{latestNote.notes}"</p>
                             </div>
                             ) : (
-                            <span className="text-[10px] text-slate-300 italic">No outreach logs yet.</span>
+                            <span className="text-[11px] text-foreground/30 italic">No outreach logs yet.</span>
                             )}
                         </td>
                     )}
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-5 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
-                        <span className={`px-2 py-0.5 text-[9px] font-black rounded-full uppercase border ${ratingStyles[customer.valueRating]}`}>
+                        <span className={`px-2 py-0.5 text-[10px] font-semibold rounded-full uppercase tracking-wide ${ratingTint(customer.valueRating)}`}>
                           {customer.valueRating}
                         </span>
                         {customer.purchaseCount > 1 && (
-                          <span className="px-2 py-0.5 text-[9px] font-black rounded-full uppercase bg-indigo-50 text-indigo-700 border border-indigo-100">
+                          <span className="px-2 py-0.5 text-[10px] font-semibold rounded-full uppercase tracking-wide glass-chip glass-chip-tint-violet text-foreground/80">
                             Repeat ({customer.purchaseCount})
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-slate-700 text-right">
-                      ৳{customer.totalSpending.toLocaleString('bn-BD')}
+                    <td className="px-5 py-4 whitespace-nowrap text-right">
+                      <span className="text-display text-lg text-foreground">৳{customer.totalSpending.toLocaleString('bn-BD')}</span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <button onClick={() => handleOpenProfile(customer)} className="text-blue-600 hover:text-blue-800 font-black text-[10px] uppercase border border-blue-100 bg-blue-50 px-3 py-1.5 rounded-md hover:bg-blue-100 transition-colors">
+                    <td className="px-5 py-4 whitespace-nowrap text-center">
+                      <button onClick={() => handleOpenProfile(customer)} className="text-[11px] font-semibold uppercase tracking-wide glass-cta-primary px-3.5 py-1.5 rounded-lg transition-all">
                         Profile
                       </button>
                     </td>
@@ -215,45 +224,47 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
                 );
               }) : (
                 <tr>
-                    <td colSpan={hideInteractionColumn ? 5 : 6} className="px-6 py-12 text-center text-slate-400 italic text-sm">
-                        {isLoading ? 'Syncing...' : 'No results matching criteria.'}
+                    <td colSpan={hideInteractionColumn ? 5 : 6} className="px-5 py-16 text-center text-foreground/40 italic text-sm">
+                        {isLoading ? 'Syncing…' : 'No results matching criteria.'}
                     </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-        
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
-            <div className="text-xs text-slate-500 font-bold uppercase tracking-widest">
-                Page {currentPage} of {Math.ceil(totalCount / pageSize) || 1}
+
+        <div className="px-5 py-3.5 border-t border-foreground/[0.08] flex items-center justify-between">
+            <div className="text-[10px] text-foreground/55 font-semibold uppercase tracking-widest">
+                Page {currentPage} of {totalPages}
             </div>
             <div className="flex gap-2">
-                <button 
-                    disabled={currentPage === 1 || isLoading} 
+                <button
+                    disabled={currentPage === 1 || isLoading}
                     onClick={() => onPageChange?.(currentPage - 1)}
-                    className="p-2 border border-slate-300 rounded bg-card disabled:opacity-30 hover:bg-slate-50"
+                    className="p-2 glass-chip rounded-lg disabled:opacity-30 text-foreground/70 hover:text-foreground transition-colors"
+                    aria-label="Previous page"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <button 
-                    disabled={currentPage * pageSize >= totalCount || isLoading} 
+                <button
+                    disabled={currentPage * pageSize >= totalCount || isLoading}
                     onClick={() => onPageChange?.(currentPage + 1)}
-                    className="p-2 border border-slate-300 rounded bg-card disabled:opacity-30 hover:bg-slate-50"
+                    className="p-2 glass-chip rounded-lg disabled:opacity-30 text-foreground/70 hover:text-foreground transition-colors"
+                    aria-label="Next page"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                 </button>
             </div>
         </div>
       </div>
-      {selectedCustomer && <CustomerProfileModal 
-        customer={selectedCustomer} 
-        onClose={() => setSelectedCustomer(null)} 
+      {selectedCustomer && <CustomerProfileModal
+        customer={selectedCustomer}
+        onClose={() => setSelectedCustomer(null)}
         onAddFollowUpNote={onAddFollowUpNote}
         onMarkReminderDone={onMarkReminderDone}
         activeReminderId={activeReminderId}
-        products={products} 
-        currentUser={currentUser} 
+        products={products}
+        currentUser={currentUser}
         onUpdatePurchaseDate={onUpdatePurchaseDate}
       />}
     </div>
