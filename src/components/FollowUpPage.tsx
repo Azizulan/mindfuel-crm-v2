@@ -49,23 +49,23 @@ const isToday = (someDate: Date) => {
            d.getFullYear() === today.getFullYear();
 }
 
-const CollapsibleSection: React.FC<{title: string, count: number, isOpen: boolean, setIsOpen: (v: boolean) => void, children: React.ReactNode, accent?: string}> = ({ title, count, isOpen, setIsOpen, children, accent = 'text-amber-600' }) => (
-    <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm overflow-hidden">
+const CollapsibleSection: React.FC<{title: string, count: number, isOpen: boolean, setIsOpen: (v: boolean) => void, children: React.ReactNode}> = ({ title, count, isOpen, setIsOpen, children }) => (
+    <div className="glass-surface overflow-hidden">
         <button
             onClick={() => setIsOpen(!isOpen)}
             className="w-full flex justify-between items-center px-5 py-4 text-left hover:bg-foreground/[0.04] transition-colors"
         >
             <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center">
-                    <ClockIcon className={`w-4 h-4 ${accent}`} />
+                <div className="w-9 h-9 rounded-xl glass-chip glass-chip-tint-amber flex items-center justify-center">
+                    <ClockIcon className="w-4 h-4 text-foreground/80" />
                 </div>
                 <div>
-                    <h3 className="text-sm font-bold text-foreground/90">{title}</h3>
-                    <p className="text-[10px] text-foreground/45 font-semibold uppercase tracking-widest">{count} records</p>
+                    <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+                    <p className="text-[10px] text-foreground/45 font-semibold uppercase tracking-widest mt-0.5">{count} records</p>
                 </div>
             </div>
             <div className="flex items-center gap-3">
-                <span className="bg-amber-50 text-amber-600 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-100 uppercase">{count}</span>
+                <span className="glass-chip glass-chip-tint-amber text-foreground/85 text-[10px] font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wide">{count}</span>
                 <ChevronDownIcon className={`h-4 w-4 text-foreground/45 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
             </div>
         </button>
@@ -164,31 +164,31 @@ const FollowUpPage: React.FC<FollowUpPageProps> = ({
     return (
         <div className="space-y-6 pb-12">
 
-            {/* Search & Filter Bar */}
-            <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm p-4 flex flex-col lg:flex-row items-center gap-4">
+            {/* Search & Filter Bar — glass-surface so it picks up the gradient backdrop */}
+            <div className="glass-surface p-4 flex flex-col lg:flex-row items-center gap-4">
                 <div className="relative w-full lg:w-80">
-                    <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-foreground/45" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                    <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center z-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-foreground/50" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                         </svg>
                     </div>
                     <input
                         type="text"
-                        placeholder="Search by name or phone..."
-                        className="w-full pl-9 pr-4 py-2.5 bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl text-sm text-foreground/90 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all"
+                        placeholder="Search by name or phone…"
+                        className="w-full pl-9 pr-4 py-2.5 glass-chip rounded-xl text-sm text-foreground placeholder:text-foreground/40 outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
                         onChange={(e) => onSearchChange(e.target.value)}
                     />
                 </div>
 
                 {isExecutive && (
-                    <div className="flex flex-wrap items-center gap-3 lg:border-l lg:border-foreground/[0.12] lg:pl-4 w-full lg:w-auto">
-                        <span className="text-[10px] font-bold text-foreground/45 uppercase tracking-widest whitespace-nowrap">Refine Window:</span>
+                    <div className="flex flex-wrap items-center gap-3 lg:border-l lg:border-foreground/[0.08] lg:pl-4 w-full lg:w-auto">
+                        <span className="text-[10px] font-semibold text-foreground/45 uppercase tracking-widest whitespace-nowrap">Refine Window</span>
                         <div className="flex items-center gap-2">
                             <input
                                 type="number"
                                 value={localRefinedStart}
                                 onChange={e => setLocalRefinedStart(e.target.value)}
-                                className="w-16 bg-foreground/[0.04] border border-foreground/[0.12] rounded-lg px-2 py-1.5 text-xs font-bold text-center text-foreground/90 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                                className="w-16 glass-chip rounded-lg px-2 py-1.5 text-xs font-semibold text-center text-foreground outline-none focus:ring-2 focus:ring-foreground/20"
                                 placeholder="Start"
                             />
                             <span className="text-foreground/45 text-xs">to</span>
@@ -196,12 +196,12 @@ const FollowUpPage: React.FC<FollowUpPageProps> = ({
                                 type="number"
                                 value={localRefinedEnd}
                                 onChange={e => setLocalRefinedEnd(e.target.value)}
-                                className="w-16 bg-foreground/[0.04] border border-foreground/[0.12] rounded-lg px-2 py-1.5 text-xs font-bold text-center text-foreground/90 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                                className="w-16 glass-chip rounded-lg px-2 py-1.5 text-xs font-semibold text-center text-foreground outline-none focus:ring-2 focus:ring-foreground/20"
                                 placeholder="End"
                             />
                             <button
                                 onClick={handleApplyRefinement}
-                                className="bg-blue-600 text-white text-xs font-semibold px-4 py-1.5 rounded-lg hover:bg-blue-700 transition-all"
+                                className="glass-cta-primary text-xs font-semibold px-4 py-1.5 rounded-lg transition-all"
                             >Apply</button>
                             {(userRefinedRange?.start || userRefinedRange?.end) && (
                                 <button
@@ -214,9 +214,9 @@ const FollowUpPage: React.FC<FollowUpPageProps> = ({
                 )}
 
                 {isLoading && (
-                    <div className="ml-auto flex items-center gap-2">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-ping" />
-                        <span className="text-[10px] text-blue-500 font-semibold uppercase tracking-widest">Loading</span>
+                    <div className="ml-auto inline-flex items-center gap-2 glass-chip px-3 py-1.5 rounded-full">
+                        <div className="w-1.5 h-1.5 bg-foreground/60 rounded-full animate-ping" />
+                        <span className="text-[10px] text-foreground/70 font-semibold uppercase tracking-widest">Loading</span>
                     </div>
                 )}
             </div>
@@ -256,22 +256,22 @@ const FollowUpPage: React.FC<FollowUpPageProps> = ({
                 </div>
             )}
 
-            {/* Retention Segments */}
-            <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm overflow-hidden">
+            {/* Retention Segments — full glass-surface, not opaque bg-card */}
+            <div className="glass-surface overflow-hidden">
                 <div className="px-6 py-5 border-b border-foreground/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                        <h3 className="text-base font-bold text-foreground">
+                        <h3 className="text-base font-semibold text-foreground">
                             {activeTab === 'all' ? 'Activity History' : 'Retention Pool'}
                         </h3>
-                        <p className="text-xs text-foreground/45 mt-0.5">
+                        <p className="text-xs text-foreground/55 mt-1">
                             {activeTab === 'all'
                                 ? 'All interactions in the last 10 days.'
                                 : `Customers within the ${userRefinedRange?.end || outreachRange.end}–${userRefinedRange?.start || outreachRange.start} day window.`}
                         </p>
                     </div>
-                    <div className="flex items-center gap-2 bg-foreground/[0.04] px-3 py-1.5 rounded-xl border border-foreground/[0.12]">
-                        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                        <span className="text-[10px] font-semibold text-foreground/60 uppercase tracking-widest">{totalCount} records</span>
+                    <div className="inline-flex items-center gap-2 glass-chip px-3 py-1.5 rounded-full self-start">
+                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                        <span className="text-[10px] font-semibold text-foreground/70 uppercase tracking-widest">{totalCount} records</span>
                     </div>
                 </div>
 
