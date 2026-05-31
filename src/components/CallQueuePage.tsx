@@ -50,27 +50,29 @@ const SENTIMENTS: FollowUpNote['feedback'][] = [
     'Happy', 'Positive', 'Neutral', 'Call Back Later', 'Call Not Received', 'Not Interested', 'Angry'
 ];
 
-// iOS 26 — every status pill is a glass capsule, optionally tinted with the semantic colour.
+// iOS 26 Liquid Glass — frosted capsules with subtle colour tint + dim foreground text.
+// Bright saturated text (text-emerald-700) on tinted glass looked like a coloured
+// sticker; foreground/85 reads as a proper translucent capsule.
 const SENTIMENT_COLORS: Record<string, string> = {
-    Happy:               'glass-chip glass-chip-tint-emerald text-emerald-700',
-    Positive:            'glass-chip glass-chip-tint-emerald text-emerald-700',
+    Happy:               'glass-chip glass-chip-tint-emerald text-foreground/80',
+    Positive:            'glass-chip glass-chip-tint-emerald text-foreground/80',
     Neutral:             'glass-chip text-foreground/70',
-    'Call Back Later':   'glass-chip glass-chip-tint-blue text-blue-700',
-    'Call Not Received': 'glass-chip glass-chip-tint-red text-rose-600',
-    'Not Interested':    'glass-chip glass-chip-tint-amber text-orange-700',
-    Angry:               'glass-chip glass-chip-tint-red text-red-700',
+    'Call Back Later':   'glass-chip glass-chip-tint-blue text-foreground/80',
+    'Call Not Received': 'glass-chip glass-chip-tint-red text-foreground/80',
+    'Not Interested':    'glass-chip glass-chip-tint-amber text-foreground/80',
+    Angry:               'glass-chip glass-chip-tint-red text-foreground/85',
 };
 
 const scoreColor = (score: number) => {
-    if (score >= 180) return 'glass-chip glass-chip-tint-emerald text-emerald-700';
-    if (score >= 100) return 'glass-chip glass-chip-tint-amber text-amber-700';
+    if (score >= 180) return 'glass-chip glass-chip-tint-emerald text-foreground/80';
+    if (score >= 100) return 'glass-chip glass-chip-tint-amber text-foreground/80';
     return 'glass-chip text-foreground/60';
 };
 
 const segmentLabel = (purchaseCount: number) => {
-    if (purchaseCount >= 5) return { label: 'VIP',      color: 'glass-chip glass-chip-tint-violet text-violet-700' };
-    if (purchaseCount >= 3) return { label: 'Loyal',    color: 'glass-chip glass-chip-tint-blue text-blue-700' };
-    if (purchaseCount === 2) return { label: 'Repeat',  color: 'glass-chip glass-chip-tint-blue text-sky-700' };
+    if (purchaseCount >= 5) return { label: 'VIP',      color: 'glass-chip glass-chip-tint-violet text-foreground/80' };
+    if (purchaseCount >= 3) return { label: 'Loyal',    color: 'glass-chip glass-chip-tint-blue text-foreground/80' };
+    if (purchaseCount === 2) return { label: 'Repeat',  color: 'glass-chip glass-chip-tint-sky text-foreground/80' };
     if (purchaseCount === 1) return { label: '1× Buyer',color: 'glass-chip text-foreground/70' };
     return                       { label: 'Outreach',   color: 'glass-chip text-foreground/60' };
 };
@@ -79,10 +81,10 @@ const segmentLabel = (purchaseCount: number) => {
 // customer is in their personal buying window. "Ripe" = highest conversion EV.
 const reorderBadge = (status: QueueItem['reorderStatus'], daysVs: number | null | undefined, predicted: number | null | undefined) => {
     if (!status || predicted == null) return null;
-    if (status === 'ripe')        return { label: `Ripe now · ~${predicted}d cycle`,         color: 'glass-chip glass-chip-tint-emerald text-emerald-700' };
-    if (status === 'early')       return { label: `${Math.abs(daysVs ?? 0)}d early · ~${predicted}d cycle`, color: 'glass-chip glass-chip-tint-blue text-sky-700' };
-    if (status === 'overdue')     return { label: `${daysVs}d overdue · ~${predicted}d cycle`, color: 'glass-chip glass-chip-tint-amber text-amber-800' };
-    if (status === 'churn-risk')  return { label: `${daysVs}d past cycle · churn risk`,        color: 'glass-chip glass-chip-tint-red text-red-700' };
+    if (status === 'ripe')        return { label: `Ripe now · ~${predicted}d cycle`,         color: 'glass-chip glass-chip-tint-emerald text-foreground/85' };
+    if (status === 'early')       return { label: `${Math.abs(daysVs ?? 0)}d early · ~${predicted}d cycle`, color: 'glass-chip glass-chip-tint-sky text-foreground/75' };
+    if (status === 'overdue')     return { label: `${daysVs}d overdue · ~${predicted}d cycle`, color: 'glass-chip glass-chip-tint-amber text-foreground/85' };
+    if (status === 'churn-risk')  return { label: `${daysVs}d past cycle · churn risk`,        color: 'glass-chip glass-chip-tint-red text-foreground/85' };
     return null;
 };
 
@@ -225,7 +227,7 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     )}
                     <button
                         onClick={fetch}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-all"
+                        className="flex items-center gap-2 px-4 py-2 glass-cta-primary text-sm font-semibold rounded-xl transition-all"
                     >
                         <RefreshIcon />
                         Refresh
@@ -350,8 +352,8 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                 onClick={() => toggleExpand(item.id)}
                                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                                                     isExpanded
-                                                        ? 'bg-blue-600 text-white'
-                                                        : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                                                        ? 'glass-chip-selected text-foreground'
+                                                        : 'glass-chip glass-chip-tint-blue text-foreground/80 hover:text-foreground'
                                                 }`}
                                             >
                                                 <PhoneIcon />
@@ -396,10 +398,10 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                                     <button
                                                                         key={s}
                                                                         onClick={() => updateForm(item.id, { feedback: s })}
-                                                                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+                                                                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                                                                             form.feedback === s
-                                                                                ? 'bg-blue-600 text-white border-blue-600'
-                                                                                : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'
+                                                                                ? 'glass-chip-selected text-foreground'
+                                                                                : 'glass-chip text-foreground/70 hover:text-foreground'
                                                                         }`}
                                                                     >
                                                                         {s}
@@ -434,7 +436,7 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                         <button
                                                             onClick={() => submitLog(item)}
                                                             disabled={form.submitting}
-                                                            className="w-full bg-blue-600 text-white text-sm font-semibold py-2.5 rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                                            className="w-full glass-cta-primary text-sm font-semibold py-2.5 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                                         >
                                                             {form.submitting ? 'Saving...' : 'Save & Next'}
                                                         </button>

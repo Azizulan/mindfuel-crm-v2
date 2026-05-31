@@ -204,12 +204,58 @@
       inset 0 0 0 1px rgba(255, 255, 255, 0.4);
   }
 
-  /* Tinted-glass variants — semantic colour while staying frosted. */
-  .glass-chip-tint-red    { background-color: rgba(220, 38, 38, 0.16); }
-  .glass-chip-tint-amber  { background-color: rgba(245, 158, 11, 0.18); }
-  .glass-chip-tint-emerald{ background-color: rgba(16, 185, 129, 0.18); }
-  .glass-chip-tint-blue   { background-color: rgba(37, 99, 235, 0.16); }
-  .glass-chip-tint-violet { background-color: rgba(139, 92, 246, 0.18); }
+  /* Tinted-glass variants — semantic colour as a frosted wash.
+     iOS uses very subtle tints (~10%) so the underlying material reads first.
+     The previous values (18%) looked like coloured stickers, not glass. */
+  .glass-chip-tint-red    { background-color: rgba(220, 38, 38, 0.10); }
+  .glass-chip-tint-amber  { background-color: rgba(245, 158, 11, 0.12); }
+  .glass-chip-tint-emerald{ background-color: rgba(16, 185, 129, 0.12); }
+  .glass-chip-tint-blue   { background-color: rgba(37, 99, 235, 0.10); }
+  .glass-chip-tint-violet { background-color: rgba(139, 92, 246, 0.12); }
+  .glass-chip-tint-sky    { background-color: rgba(14, 165, 233, 0.10); }
+  .glass-chip-tint-orange { background-color: rgba(234, 88, 12, 0.10); }
+
+  /* Selected / active state — neutral darker glass (iOS segmented-control look).
+     Use for active tabs, selected nav items, "currently in this mode" indicators. */
+  .glass-chip-selected {
+    background-color: rgba(15, 15, 25, 0.07);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      inset 0 -1px 0 rgba(15, 15, 25, 0.04),
+      inset 0 0 0 1px rgba(15, 15, 25, 0.08),
+      0 1px 2px rgba(15, 15, 25, 0.05);
+  }
+
+  /* Primary CTA glass — replaces solid bg-blue-600. Tinted blue glass with
+     stronger contrast than a chip-tint so it reads as the dominant action. */
+  .glass-cta-primary {
+    background-color: rgba(37, 99, 235, 0.16);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    color: rgb(29, 78, 216);
+    transition: background-color 200ms, transform 200ms, box-shadow 200ms;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -1px 0 rgba(37, 99, 235, 0.15),
+      inset 0 0 0 1px rgba(37, 99, 235, 0.22),
+      0 1px 2px rgba(37, 99, 235, 0.08),
+      0 4px 12px rgba(37, 99, 235, 0.12);
+  }
+  .glass-cta-primary:hover { background-color: rgba(37, 99, 235, 0.22); }
+  .glass-cta-primary:active { transform: scale(0.98); }
+  .glass-cta-primary:disabled { opacity: 0.5; }
+
+  /* Destructive CTA glass — for "Delete", "Clear database", etc. */
+  .glass-cta-destructive {
+    background-color: rgba(220, 38, 38, 0.16);
+    backdrop-filter: blur(20px) saturate(180%);
+    color: rgb(185, 28, 28);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 0 0 1px rgba(220, 38, 38, 0.22),
+      0 1px 2px rgba(220, 38, 38, 0.08);
+  }
+  .glass-cta-destructive:hover { background-color: rgba(220, 38, 38, 0.22); }
 
   /* Floating chrome — adds rounded outer radius. */
   .glass-floating { border-radius: 1.75rem; }

@@ -63,7 +63,7 @@ const WinBackPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             </div>
 
             <div className="flex justify-end">
-                <button onClick={load} className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-all">
+                <button onClick={load} className="px-4 py-2 glass-cta-primary text-sm font-semibold rounded-xl transition-all">
                     Refresh
                 </button>
             </div>
@@ -124,7 +124,7 @@ const WinBackPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                     setExpandedId(expanded ? null : c.id);
                                                     if (!forms[c.id]) setForms(p => ({ ...p, [c.id]: { feedback: 'Neutral', notes: '', submitting: false } }));
                                                 }}
-                                                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${expanded ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}`}
+                                                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${expanded ? 'glass-chip-selected text-foreground' : 'glass-chip glass-chip-tint-blue text-foreground/80 hover:bg-foreground/5'}`}
                                             >
                                                 Log Call
                                             </button>
@@ -152,7 +152,7 @@ const WinBackPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                         {SENTIMENTS.map(s => (
                                                             <button key={s}
                                                                 onClick={() => setForms(p => ({ ...p, [c.id]: { ...form, feedback: s } }))}
-                                                                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${form.feedback === s ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'}`}
+                                                                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${form.feedback === s ? 'glass-chip-selected text-foreground' : 'glass-chip text-foreground/70 hover:text-foreground'}`}
                                                             >{s}</button>
                                                         ))}
                                                     </div>
@@ -163,7 +163,7 @@ const WinBackPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                         className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 resize-none"
                                                     />
                                                     <button onClick={() => submitLog(c)} disabled={form.submitting}
-                                                        className="w-full bg-blue-600 text-white text-sm font-semibold py-2.5 rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all">
+                                                        className="w-full glass-cta-primary text-sm font-semibold py-2.5 rounded-xl disabled:opacity-50 transition-all">
                                                         {form.submitting ? 'Saving…' : 'Save & Next'}
                                                     </button>
                                                 </div>

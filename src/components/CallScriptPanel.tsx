@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { buildCallScript, ScriptInput } from '../lib/callScript';
 
+// iOS 26 Liquid Glass — accent rendered as a soft tinted glass chip + a thin
+// matching left-border on the panel. No flat saturated chips.
 const ACCENT: Record<string, { bar: string; chip: string; head: string }> = {
-    red:     { bar: 'border-red-300',     chip: 'bg-red-100 text-red-700',         head: 'text-red-700' },
-    amber:   { bar: 'border-amber-300',   chip: 'bg-amber-100 text-amber-800',     head: 'text-amber-700' },
-    emerald: { bar: 'border-emerald-300', chip: 'bg-emerald-100 text-emerald-700', head: 'text-emerald-700' },
-    blue:    { bar: 'border-blue-300',    chip: 'bg-blue-100 text-blue-700',       head: 'text-blue-700' },
-    teal:    { bar: 'border-teal-300',    chip: 'bg-teal-100 text-teal-700',       head: 'text-teal-700' },
-    sky:     { bar: 'border-sky-300',     chip: 'bg-sky-100 text-sky-700',         head: 'text-sky-700' },
-    violet:  { bar: 'border-violet-300',  chip: 'bg-violet-100 text-violet-700',   head: 'text-violet-700' },
-    gray:    { bar: 'border-gray-300',    chip: 'bg-gray-100 text-gray-600',       head: 'text-gray-700' },
+    red:     { bar: 'border-red-300/60',     chip: 'glass-chip glass-chip-tint-red text-foreground/85',     head: 'text-foreground/90' },
+    amber:   { bar: 'border-amber-300/60',   chip: 'glass-chip glass-chip-tint-amber text-foreground/85',   head: 'text-foreground/90' },
+    emerald: { bar: 'border-emerald-300/60', chip: 'glass-chip glass-chip-tint-emerald text-foreground/85', head: 'text-foreground/90' },
+    blue:    { bar: 'border-blue-300/60',    chip: 'glass-chip glass-chip-tint-blue text-foreground/85',    head: 'text-foreground/90' },
+    teal:    { bar: 'border-teal-300/60',    chip: 'glass-chip glass-chip-tint-emerald text-foreground/85', head: 'text-foreground/90' },
+    sky:     { bar: 'border-sky-300/60',     chip: 'glass-chip glass-chip-tint-sky text-foreground/85',     head: 'text-foreground/90' },
+    violet:  { bar: 'border-violet-300/60',  chip: 'glass-chip glass-chip-tint-violet text-foreground/85',  head: 'text-foreground/90' },
+    gray:    { bar: 'border-foreground/15',  chip: 'glass-chip text-foreground/75',                          head: 'text-foreground/85' },
 };
 
 const CallScriptPanel: React.FC<{ input: ScriptInput; agentName: string }> = ({ input, agentName }) => {

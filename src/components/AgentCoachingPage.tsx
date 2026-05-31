@@ -69,7 +69,7 @@ const AgentCoachingPage: React.FC = () => {
                 <div className="flex flex-wrap gap-1.5">
                     {PRESETS.map(p => (
                         <button key={p.id} onClick={() => setPreset(p.id)}
-                            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${preset === p.id ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
+                            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${preset === p.id ? 'glass-chip-selected text-foreground' : 'text-foreground/55 hover:text-foreground/85 hover:bg-foreground/5'}`}>
                             {p.label}
                         </button>
                     ))}

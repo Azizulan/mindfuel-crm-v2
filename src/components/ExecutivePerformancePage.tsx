@@ -97,8 +97,8 @@ const ExecutivePerformancePage: React.FC = () => {
                             onClick={() => setPreset(p.id)}
                             className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                                 preset === p.id
-                                    ? 'bg-blue-600 text-white shadow-sm'
-                                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                                    ? 'glass-chip-selected text-foreground'
+                                    : 'text-foreground/55 hover:text-foreground/85 hover:bg-foreground/5'
                             }`}
                         >
                             {p.label}
@@ -123,7 +123,7 @@ const ExecutivePerformancePage: React.FC = () => {
                         <button
                             onClick={handleCustomApply}
                             disabled={!customStart || !customEnd}
-                            className="px-4 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                            className="px-4 py-1.5 glass-cta-primary text-xs font-semibold rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                         >
                             Apply
                         </button>

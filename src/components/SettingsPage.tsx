@@ -332,7 +332,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                             <button
                                 onClick={saveFocusSegments}
                                 disabled={focusStatus === 'saving'}
-                                className="px-6 py-2.5 bg-blue-600 text-white text-xs font-semibold uppercase rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all"
+                                className="px-6 py-2.5 glass-cta-primary text-xs font-semibold uppercase rounded-xl disabled:opacity-50 transition-all"
                             >
                                 {focusStatus === 'saving' ? 'Saving…' : 'Save Focus'}
                             </button>
@@ -362,7 +362,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                             <button
                                 onClick={runRecompute}
                                 disabled={recomputeStatus === 'running'}
-                                className="flex-shrink-0 px-5 py-2.5 bg-indigo-600 text-white text-xs font-semibold rounded-xl hover:bg-indigo-700 disabled:opacity-50 transition-all"
+                                className="flex-shrink-0 px-5 py-2.5 glass-cta-primary text-xs font-semibold rounded-xl disabled:opacity-50 transition-all"
                             >
                                 {recomputeStatus === 'running' ? 'Running…' : 'Recompute Now'}
                             </button>
@@ -380,7 +380,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                             <button
                                 onClick={runNormalize}
                                 disabled={normalizeStatus === 'running'}
-                                className="flex-shrink-0 px-5 py-2.5 bg-teal-600 text-white text-xs font-semibold rounded-xl hover:bg-teal-700 disabled:opacity-50 transition-all"
+                                className="flex-shrink-0 px-5 py-2.5 glass-cta-primary text-xs font-semibold rounded-xl disabled:opacity-50 transition-all"
                             >
                                 {normalizeStatus === 'running' ? 'Running…' : 'Normalise Now'}
                             </button>
@@ -395,7 +395,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                             <input type="number" step="0.5" value={gmtOffset} onChange={e => setGmtOffsetVal(e.target.value)} className={inputClass} placeholder="6" required />
                         </div>
                         <div className="flex justify-end">
-                            <button type="submit" className="px-6 py-2.5 bg-emerald-600 text-white text-xs font-semibold uppercase rounded-xl hover:bg-emerald-700 transition-all">Update Timezone</button>
+                            <button type="submit" className="px-6 py-2.5 glass-cta-primary text-xs font-semibold uppercase rounded-xl transition-all">Update Timezone</button>
                         </div>
                     </form>
                 </Card>
@@ -435,7 +435,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                             <input type="number" value={outreachGoal} onChange={e => setOutreachGoal(e.target.value)} className={inputClass} placeholder="100" required />
                         </div>
                         <div className="flex justify-end">
-                            <button type="submit" className="px-6 py-2.5 bg-amber-600 text-white text-xs font-semibold uppercase rounded-xl hover:bg-amber-700 transition-all">Update Target</button>
+                            <button type="submit" className="px-6 py-2.5 glass-cta-primary text-xs font-semibold uppercase rounded-xl transition-all">Update Target</button>
                         </div>
                     </form>
                 </Card>
@@ -454,7 +454,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                         </div>
                         <p className="text-[10px] text-gray-400 italic">Example: 32 and 28 will show customers who bought between 28 and 32 days ago.</p>
                         <div className="flex justify-end">
-                            <button type="submit" className="px-6 py-2.5 bg-violet-600 text-white text-xs font-semibold uppercase rounded-xl hover:bg-violet-700 transition-all">Update Range</button>
+                            <button type="submit" className="px-6 py-2.5 glass-cta-primary text-xs font-semibold uppercase rounded-xl transition-all">Update Range</button>
                         </div>
                     </form>
                 </Card>
@@ -478,7 +478,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                             <input type="password" value={secretKey} onChange={e => setSecretKey(e.target.value)} className={inputClass} placeholder={credStatus?.configured ? 'Enter to replace' : '••••••••'} required={!credStatus?.configured} />
                         </div>
                         <div className="flex justify-end">
-                            <button type="submit" disabled={!apiKey || !secretKey} className="px-6 py-2.5 bg-blue-600 text-white text-xs font-semibold uppercase rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all">Save Credentials</button>
+                            <button type="submit" disabled={!apiKey || !secretKey} className="px-6 py-2.5 glass-cta-primary text-xs font-semibold uppercase rounded-xl disabled:opacity-50 transition-all">Save Credentials</button>
                         </div>
                     </form>
                 </Card>

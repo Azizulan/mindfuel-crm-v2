@@ -120,8 +120,8 @@ const SteadfastSyncTab: React.FC = () => {
               onClick={() => setPreset(p.id)}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                 preset === p.id
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                  ? 'glass-chip-selected text-foreground'
+                  : 'text-foreground/55 hover:text-foreground/85 hover:bg-foreground/5'
               }`}
             >
               {p.label}
@@ -151,7 +151,7 @@ const SteadfastSyncTab: React.FC = () => {
       <button
         onClick={handleSync}
         disabled={isLoading || (preset === 'custom' && (!customStart || !customEnd))}
-        className="w-full py-3.5 bg-blue-600 text-white text-sm font-bold rounded-2xl hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5"
+        className="w-full py-3.5 glass-cta-primary text-sm font-bold rounded-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5"
       >
         {isLoading ? (
           <>
@@ -365,7 +365,7 @@ const CsvUploadTab: React.FC<{ onUploadSuccess: () => void }> = ({ onUploadSucce
                 </div>
               </div>
             )}
-            <button onClick={handleFinalUpload} disabled={isLoading} className="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 text-sm">
+            <button onClick={handleFinalUpload} disabled={isLoading} className="w-full glass-cta-primary font-semibold py-2.5 rounded-xl transition-all disabled:opacity-50 text-sm">
               {isLoading ? `Syncing ${progress?.current || 0}/${progress?.total || '...'}` : 'Confirm & Sync to Database'}
             </button>
           </motion.div>
@@ -420,12 +420,12 @@ const DataUploadPage: React.FC<DataUploadPageProps> = ({ onUploadSuccess }) => {
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl transition-all ${tab === t.id ? 'bg-blue-600 shadow-sm' : 'hover:bg-gray-50'}`}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl transition-all ${tab === t.id ? 'glass-chip-selected' : 'hover:bg-foreground/5'}`}
             >
-              <span className={tab === t.id ? 'text-white' : 'text-gray-400'}>{t.icon}</span>
+              <span className={tab === t.id ? 'text-foreground' : 'text-foreground/40'}>{t.icon}</span>
               <div className="text-left">
-                <p className={`text-xs font-bold leading-tight ${tab === t.id ? 'text-white' : 'text-gray-700'}`}>{t.label}</p>
-                <p className={`text-[10px] hidden sm:block ${tab === t.id ? 'text-blue-200' : 'text-gray-400'}`}>{t.sub}</p>
+                <p className={`text-xs font-bold leading-tight ${tab === t.id ? 'text-foreground' : 'text-foreground/70'}`}>{t.label}</p>
+                <p className={`text-[10px] hidden sm:block ${tab === t.id ? 'text-foreground/55' : 'text-foreground/40'}`}>{t.sub}</p>
               </div>
             </button>
           ))}
