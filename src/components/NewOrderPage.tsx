@@ -135,7 +135,7 @@ const NewOrderPage: React.FC<NewOrderPageProps> = ({ customers, products, setVie
         }
     };
 
-    const inputCls = "w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400";
+    const inputCls = "w-full px-4 py-3 bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl text-sm text-foreground/90 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all placeholder:text-foreground/45";
 
     return (
         <div className="space-y-6 pb-12">
@@ -163,8 +163,8 @@ const NewOrderPage: React.FC<NewOrderPageProps> = ({ customers, products, setVie
                         <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-5 border border-emerald-200">
                             <CheckCircleIcon className="w-8 h-8 text-emerald-600" />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-800 mb-2">Order Submitted</h3>
-                        <p className="text-sm text-gray-500 mb-6">{successMessage}</p>
+                        <h3 className="text-xl font-bold text-foreground/90 mb-2">Order Submitted</h3>
+                        <p className="text-sm text-foreground/60 mb-6">{successMessage}</p>
                         <button
                             onClick={() => setSuccessMessage(null)}
                             className="px-6 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-xl hover:bg-emerald-700 transition-colors"
@@ -178,20 +178,20 @@ const NewOrderPage: React.FC<NewOrderPageProps> = ({ customers, products, setVie
             {!successMessage && (
                 <form onSubmit={handleSubmit} className="space-y-5">
                     {/* Step 1: Customer Details */}
-                    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-                        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-3 bg-gray-50">
+                    <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm overflow-hidden">
+                        <div className="px-6 py-4 border-b border-foreground/[0.08] flex items-center gap-3 bg-foreground/[0.04]">
                             <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
                                 <UserIcon className="w-4 h-4" />
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold text-gray-800">Customer Details</h3>
-                                <p className="text-[10px] text-gray-400 uppercase tracking-widest">Step 1 of 3</p>
+                                <h3 className="text-sm font-bold text-foreground/90">Customer Details</h3>
+                                <p className="text-[10px] text-foreground/45 uppercase tracking-widest">Step 1 of 3</p>
                             </div>
                         </div>
                         <div className="p-6 space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Phone Number</label>
+                                    <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Phone Number</label>
                                     <div className="relative">
                                         <input
                                             type="tel"
@@ -218,16 +218,16 @@ const NewOrderPage: React.FC<NewOrderPageProps> = ({ customers, products, setVie
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Full Name</label>
+                                    <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Full Name</label>
                                     <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} className={inputCls} placeholder="Customer Name" required />
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Shipping Address</label>
+                                <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Shipping Address</label>
                                 <textarea rows={2} value={shippingAddress} onChange={e => setShippingAddress(e.target.value)} className={inputCls + " resize-none"} placeholder="Complete delivery address..." required />
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Internal Note</label>
+                                <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Internal Note</label>
                                 <input type="text" value={note} onChange={e => setNote(e.target.value)} className={inputCls} placeholder="Special instructions or customer context..." />
                             </div>
                             {customerStats && (
@@ -237,30 +237,30 @@ const NewOrderPage: React.FC<NewOrderPageProps> = ({ customers, products, setVie
                                     className="p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-center justify-between"
                                 >
                                     <p className="text-xs font-semibold text-blue-700">Returning Customer</p>
-                                    <span className="text-xs font-bold text-blue-600 bg-white border border-blue-200 px-3 py-1 rounded-full">{customerStats.purchaseCount} Previous Orders</span>
+                                    <span className="text-xs font-bold text-blue-600 bg-card border border-blue-200 px-3 py-1 rounded-full">{customerStats.purchaseCount} Previous Orders</span>
                                 </motion.div>
                             )}
                         </div>
                     </div>
 
                     {/* Step 2: Products */}
-                    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-                        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                    <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm overflow-hidden">
+                        <div className="px-6 py-4 border-b border-foreground/[0.08] flex items-center justify-between bg-foreground/[0.04]">
                             <div className="flex items-center gap-3">
                                 <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600">
                                     <ShoppingBagIcon className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-bold text-gray-800">Inventory Selection</h3>
-                                    <p className="text-[10px] text-gray-400 uppercase tracking-widest">Step 2 of 3</p>
+                                    <h3 className="text-sm font-bold text-foreground/90">Inventory Selection</h3>
+                                    <p className="text-[10px] text-foreground/45 uppercase tracking-widest">Step 2 of 3</p>
                                 </div>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setIsAddProductOpen(!isAddProductOpen)}
-                                className="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
+                                className="w-8 h-8 bg-card border border-foreground/[0.12] rounded-lg flex items-center justify-center hover:bg-foreground/[0.04] transition-colors"
                             >
-                                <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${isAddProductOpen ? 'rotate-180' : ''}`} />
+                                <ChevronDownIcon className={`w-4 h-4 text-foreground/45 transition-transform duration-300 ${isAddProductOpen ? 'rotate-180' : ''}`} />
                             </button>
                         </div>
                         <div className="p-6">
@@ -274,7 +274,7 @@ const NewOrderPage: React.FC<NewOrderPageProps> = ({ customers, products, setVie
                                     >
                                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-6">
                                             <div className="md:col-span-2">
-                                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Select Product</label>
+                                                <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Select Product</label>
                                                 <div className="relative">
                                                     <select
                                                         value={selectedProductId}
@@ -288,13 +288,13 @@ const NewOrderPage: React.FC<NewOrderPageProps> = ({ customers, products, setVie
                                                             </option>
                                                         ))}
                                                     </select>
-                                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-foreground/45">
                                                         <ChevronDownIcon className="w-4 h-4" />
                                                     </div>
                                                 </div>
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Quantity</label>
+                                                <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Quantity</label>
                                                 <input
                                                     type="number"
                                                     value={quantityToAdd}
@@ -317,11 +317,11 @@ const NewOrderPage: React.FC<NewOrderPageProps> = ({ customers, products, setVie
                             </AnimatePresence>
 
                             {orderItems.length === 0 ? (
-                                <div className="py-12 border-2 border-dashed border-gray-200 rounded-2xl text-center">
-                                    <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3 text-gray-300">
+                                <div className="py-12 border-2 border-dashed border-foreground/[0.12] rounded-2xl text-center">
+                                    <div className="w-10 h-10 bg-foreground/[0.08] rounded-xl flex items-center justify-center mx-auto mb-3 text-foreground/30">
                                         <ShoppingBagIcon className="w-5 h-5" />
                                     </div>
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Cart is empty</p>
+                                    <p className="text-xs font-semibold text-foreground/45 uppercase tracking-widest">Cart is empty</p>
                                 </div>
                             ) : (
                                 <div className="space-y-3">
@@ -330,24 +330,24 @@ const NewOrderPage: React.FC<NewOrderPageProps> = ({ customers, products, setVie
                                             key={String(item.id)}
                                             initial={{ opacity: 0, x: -10 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            className="p-4 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-between"
+                                            className="p-4 bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl flex items-center justify-between"
                                         >
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-white rounded-xl border border-gray-200 flex items-center justify-center text-gray-400">
+                                                <div className="w-10 h-10 bg-card rounded-xl border border-foreground/[0.12] flex items-center justify-center text-foreground/45">
                                                     <ShoppingBagIcon className="w-4 h-4" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-semibold text-gray-800">{item.name}</p>
+                                                    <p className="text-sm font-semibold text-foreground/90">{item.name}</p>
                                                     <p className="text-xs font-semibold text-emerald-600">৳{item.price.toLocaleString()}</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-3">
-                                                <div className="flex items-center bg-white rounded-xl border border-gray-200 p-1">
-                                                    <button type="button" onClick={() => handleQuantityChange(String(item.id), item.quantity - 1)} className="w-7 h-7 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors text-gray-500">
+                                                <div className="flex items-center bg-card rounded-xl border border-foreground/[0.12] p-1">
+                                                    <button type="button" onClick={() => handleQuantityChange(String(item.id), item.quantity - 1)} className="w-7 h-7 flex items-center justify-center hover:bg-foreground/[0.08] rounded-lg transition-colors text-foreground/60">
                                                         <MinusIcon className="w-3 h-3" />
                                                     </button>
-                                                    <span className="w-10 text-center text-sm font-bold text-gray-800">{item.quantity}</span>
-                                                    <button type="button" onClick={() => handleQuantityChange(String(item.id), item.quantity + 1)} className="w-7 h-7 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors text-gray-500">
+                                                    <span className="w-10 text-center text-sm font-bold text-foreground/90">{item.quantity}</span>
+                                                    <button type="button" onClick={() => handleQuantityChange(String(item.id), item.quantity + 1)} className="w-7 h-7 flex items-center justify-center hover:bg-foreground/[0.08] rounded-lg transition-colors text-foreground/60">
                                                         <PlusIcon className="w-3 h-3" />
                                                     </button>
                                                 </div>
@@ -363,43 +363,43 @@ const NewOrderPage: React.FC<NewOrderPageProps> = ({ customers, products, setVie
                     </div>
 
                     {/* Step 3: Summary */}
-                    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-                        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-3 bg-gray-50">
+                    <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm overflow-hidden">
+                        <div className="px-6 py-4 border-b border-foreground/[0.08] flex items-center gap-3 bg-foreground/[0.04]">
                             <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
                                 <CreditCardIcon className="w-4 h-4" />
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold text-gray-800">Financial Summary</h3>
-                                <p className="text-[10px] text-gray-400 uppercase tracking-widest">Step 3 of 3</p>
+                                <h3 className="text-sm font-bold text-foreground/90">Financial Summary</h3>
+                                <p className="text-[10px] text-foreground/45 uppercase tracking-widest">Step 3 of 3</p>
                             </div>
                         </div>
                         <div className="p-6 space-y-5">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Discount (৳)</label>
+                                    <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Discount (৳)</label>
                                     <input type="number" value={discount} onChange={e => setDiscount(e.target.value)} className={inputCls + " text-right"} placeholder="0" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Delivery Charge (৳)</label>
+                                    <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Delivery Charge (৳)</label>
                                     <input type="number" value={deliveryCharge} onChange={e => setDeliveryCharge(e.target.value)} className={inputCls + " text-right"} placeholder="0" />
                                 </div>
                             </div>
 
-                            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-3">
-                                <div className="flex justify-between text-sm text-gray-600">
+                            <div className="bg-foreground/[0.04] border border-foreground/[0.12] rounded-2xl p-5 space-y-3">
+                                <div className="flex justify-between text-sm text-foreground/70">
                                     <span>Subtotal</span>
                                     <span className="font-semibold">৳{subtotal.toLocaleString()}</span>
                                 </div>
-                                <div className="flex justify-between text-sm text-gray-600">
+                                <div className="flex justify-between text-sm text-foreground/70">
                                     <span>Discount</span>
                                     <span className="font-semibold text-red-500">-৳{parseFloat(discount || '0').toLocaleString()}</span>
                                 </div>
-                                <div className="flex justify-between text-sm text-gray-600">
+                                <div className="flex justify-between text-sm text-foreground/70">
                                     <span>Delivery</span>
                                     <span className="font-semibold text-blue-600">+৳{parseFloat(deliveryCharge || '0').toLocaleString()}</span>
                                 </div>
-                                <div className="border-t border-gray-200 pt-3 flex justify-between items-center">
-                                    <span className="text-sm font-semibold text-gray-700">Net Payable</span>
+                                <div className="border-t border-foreground/[0.12] pt-3 flex justify-between items-center">
+                                    <span className="text-sm font-semibold text-foreground/85">Net Payable</span>
                                     <span className="text-2xl font-bold text-emerald-600">৳{finalPrice.toLocaleString()}</span>
                                 </div>
                             </div>

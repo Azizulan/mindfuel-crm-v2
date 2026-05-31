@@ -76,7 +76,7 @@ const Sparkline = ({ data, color = '#6366f1' }: { data: number[]; color?: string
 // ─── Delta ────────────────────────────────────────────────────────────────────
 
 const Delta = ({ delta }: { delta: number }) => {
-    if (delta === 0) return <span className="text-[11px] text-gray-400">No change vs yesterday</span>;
+    if (delta === 0) return <span className="text-[11px] text-foreground/45">No change vs yesterday</span>;
     return (
         <span className={`text-[11px] font-bold ${delta > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
             {delta > 0 ? '+' : ''}{delta}% vs yesterday
@@ -131,11 +131,11 @@ const SentimentBar = ({ data }: { data: { sentiment: string; count: number }[] }
             </div>
             <div className="flex flex-wrap gap-x-4 gap-y-1.5">
                 {active.map(d => (
-                    <span key={d.sentiment} className="flex items-center gap-1.5 text-[11px] text-gray-600 font-medium">
+                    <span key={d.sentiment} className="flex items-center gap-1.5 text-[11px] text-foreground/70 font-medium">
                         <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: SENT_COLORS[d.sentiment] ?? '#94a3b8' }} />
-                        {d.sentiment} <span className="text-gray-400">{d.count}</span>
-                        <span className="text-gray-300">·</span>
-                        <span className="text-gray-400">{((d.count / total) * 100).toFixed(0)}%</span>
+                        {d.sentiment} <span className="text-foreground/45">{d.count}</span>
+                        <span className="text-foreground/30">·</span>
+                        <span className="text-foreground/45">{((d.count / total) * 100).toFixed(0)}%</span>
                     </span>
                 ))}
             </div>
@@ -182,7 +182,7 @@ const DailyBarChart = ({ data, targetPerDay, valueKey, color = '#6366f1cc' }: {
                     );
                 })}
             </div>
-            <div className="flex justify-between text-[9px] text-gray-400 px-0.5">
+            <div className="flex justify-between text-[9px] text-foreground/45 px-0.5">
                 <span>1</span>
                 {targetPct !== null && <span className="text-amber-500">— daily target</span>}
                 <span>{data.length}</span>
@@ -239,22 +239,22 @@ const GoalCard = ({ label, value, numericValue, target, formattedTarget, dayOfMo
     const projected = dayOfMonth > 0 ? Math.round((numericValue / dayOfMonth) * daysInMonth) : 0;
     const barColor = isAhead ? 'bg-emerald-500' : onTrack ? 'bg-emerald-400' : 'bg-amber-400';
     let statusText = target === 0 ? 'No target set' : isAhead ? `On track — projecting ${formatBDT(projected)}` : onTrack ? `On track — projecting ${formatBDT(projected)}` : `Behind — projecting ${formatBDT(projected)}`;
-    const statusColor = target === 0 ? 'text-gray-400' : (isAhead || onTrack) ? 'text-emerald-600' : 'text-amber-600';
+    const statusColor = target === 0 ? 'text-foreground/45' : (isAhead || onTrack) ? 'text-emerald-600' : 'text-amber-600';
     return (
         <Card>
             <div className="flex flex-col gap-3">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{label}</span>
+                <span className="text-[10px] font-bold text-foreground/45 uppercase tracking-widest">{label}</span>
                 {loading ? (
                     <div className="space-y-2"><Sk className="h-10 w-24" /><Sk className="h-2 w-full" /><Sk className="h-3 w-32" /></div>
                 ) : (
                     <>
                         <div>
-                            <div className="text-[2rem] font-black text-gray-900 leading-none font-mono tracking-tight">{value}</div>
-                            {target > 0 && <p className="text-[11px] text-gray-400 mt-1">of {formattedTarget} target · day {dayOfMonth}/{daysInMonth}</p>}
+                            <div className="text-[2rem] font-black text-foreground leading-none font-mono tracking-tight">{value}</div>
+                            {target > 0 && <p className="text-[11px] text-foreground/45 mt-1">of {formattedTarget} target · day {dayOfMonth}/{daysInMonth}</p>}
                         </div>
                         {target > 0 && (
                             <div className="space-y-1.5">
-                                <div className="relative h-1.5 bg-gray-100 rounded-full overflow-visible">
+                                <div className="relative h-1.5 bg-foreground/[0.08] rounded-full overflow-visible">
                                     <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${fillPct}%` }} />
                                     <div className="absolute top-1/2 -translate-y-1/2 w-px h-3 bg-gray-500/60 rounded" style={{ left: `min(${pacerPct}%, calc(100% - 1px))` }} title="Expected by today" />
                                 </div>
@@ -273,7 +273,7 @@ const GoalCard = ({ label, value, numericValue, target, formattedTarget, dayOfMo
 const FunnelVis = ({ label, totalCalls, positiveCalls, ordersPlaced, convRate }: {
     label: string; totalCalls: number; positiveCalls: number; ordersPlaced?: number; convRate: number;
 }) => {
-    if (!totalCalls) return <div className="text-xs text-gray-400 italic py-4">No data</div>;
+    if (!totalCalls) return <div className="text-xs text-foreground/45 italic py-4">No data</div>;
     const stages = [
         { label: 'Total Calls', count: totalCalls, color: 'bg-blue-500', width: 100 },
         { label: 'Happy / Positive', count: positiveCalls, color: 'bg-emerald-500', width: totalCalls > 0 ? (positiveCalls / totalCalls) * 100 : 0 },
@@ -281,23 +281,23 @@ const FunnelVis = ({ label, totalCalls, positiveCalls, ordersPlaced, convRate }:
     ];
     return (
         <div className="space-y-2">
-            <p className="text-[11px] font-bold text-gray-500 mb-3">{label}</p>
+            <p className="text-[11px] font-bold text-foreground/60 mb-3">{label}</p>
             {stages.map((s, i) => (
                 <div key={s.label} className="space-y-0.5">
-                    <div className="flex justify-between text-[10px] text-gray-500">
+                    <div className="flex justify-between text-[10px] text-foreground/60">
                         <span>{s.label}</span>
-                        <span className="font-bold text-gray-700">{s.count.toLocaleString()}
+                        <span className="font-bold text-foreground/85">{s.count.toLocaleString()}
                             {i > 0 && stages[i - 1].count > 0 && (
-                                <span className="text-gray-400 font-normal"> ({((s.count / stages[i - 1].count) * 100).toFixed(1)}%)</span>
+                                <span className="text-foreground/45 font-normal"> ({((s.count / stages[i - 1].count) * 100).toFixed(1)}%)</span>
                             )}
                         </span>
                     </div>
-                    <div className="h-5 bg-gray-100 rounded overflow-hidden">
+                    <div className="h-5 bg-foreground/[0.08] rounded overflow-hidden">
                         <div className={`h-full rounded ${s.color} transition-all`} style={{ width: `${Math.max(s.width, s.count > 0 ? 1 : 0)}%` }} />
                     </div>
                 </div>
             ))}
-            <p className="text-[10px] text-gray-400 pt-1">Positive rate: <span className="font-bold text-gray-600">{convRate}%</span></p>
+            <p className="text-[10px] text-foreground/45 pt-1">Positive rate: <span className="font-bold text-foreground/70">{convRate}%</span></p>
         </div>
     );
 };
@@ -348,10 +348,10 @@ const ConcentrationBars = ({ data }: { data: { pct: number; customerCount: numbe
         {data.map(d => (
             <div key={d.pct} className="space-y-1">
                 <div className="flex justify-between text-xs">
-                    <span className="text-gray-600 font-medium">Top {d.pct}% ({d.customerCount.toLocaleString()} customers)</span>
-                    <span className="font-bold text-gray-900">{d.revenueShare}% of revenue</span>
+                    <span className="text-foreground/70 font-medium">Top {d.pct}% ({d.customerCount.toLocaleString()} customers)</span>
+                    <span className="font-bold text-foreground">{d.revenueShare}% of revenue</span>
                 </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-2 bg-foreground/[0.08] rounded-full overflow-hidden">
                     <div className="h-full rounded-full bg-violet-500 transition-all" style={{ width: `${d.revenueShare}%` }} />
                 </div>
             </div>
@@ -374,12 +374,12 @@ const LifecyclePyramid = ({ data }: { data: { label: string; count: number; colo
                 return (
                     <div key={d.label} className="space-y-1">
                         <div className="flex justify-between text-[11px]">
-                            <span className="font-semibold text-gray-700">{d.label}</span>
-                            <span className="font-mono text-gray-900">{d.count.toLocaleString()}
+                            <span className="font-semibold text-foreground/85">{d.label}</span>
+                            <span className="font-mono text-foreground">{d.count.toLocaleString()}
                                 {dropoff && <span className="text-red-400 font-normal ml-1">↓{dropoff}%</span>}
                             </span>
                         </div>
-                        <div className="h-6 bg-gray-100 rounded overflow-hidden flex items-center">
+                        <div className="h-6 bg-foreground/[0.08] rounded overflow-hidden flex items-center">
                             <div className={`h-full ${d.bg} flex items-center justify-end pr-2 transition-all`} style={{ width: `${widthPct}%` }}>
                                 {d.count > 0 && <span className={`text-[9px] font-bold ${d.color}`}>{pctOfTotal}%</span>}
                             </div>
@@ -411,7 +411,7 @@ const TodayTab = ({ setView }: { setView: (v: View) => void }) => {
     return (
         <div className="space-y-5">
             <div className="flex items-center justify-between text-[11px]">
-                <span className="text-gray-400">{updatedAt ? `Updated ${updatedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · auto-refreshes every 60s` : 'Loading…'}</span>
+                <span className="text-foreground/45">{updatedAt ? `Updated ${updatedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · auto-refreshes every 60s` : 'Loading…'}</span>
                 <button onClick={load} className="font-semibold text-foreground/85 hover:text-foreground transition-colors">Refresh now</button>
             </div>
             {error && <div className="glass-chip glass-chip-tint-red rounded-xl px-4 py-3 text-sm text-foreground/85 font-medium">{error}</div>}
@@ -431,21 +431,21 @@ const TodayTab = ({ setView }: { setView: (v: View) => void }) => {
                     : (
                         <div className="overflow-x-auto -mx-1">
                             <table className="w-full text-xs min-w-[300px]">
-                                <thead><tr className="border-b border-gray-100">
-                                    <th className="text-left pb-2 pr-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Agent</th>
-                                    <th className="text-right pb-2 px-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Today</th>
-                                    <th className="text-right pb-2 px-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden sm:table-cell">Last Hr</th>
-                                    <th className="text-right pb-2 px-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Happy%</th>
-                                    <th className="text-right pb-2 pl-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Last Active</th>
+                                <thead><tr className="border-b border-foreground/[0.08]">
+                                    <th className="text-left pb-2 pr-3 text-[10px] font-bold text-foreground/45 uppercase tracking-widest">Agent</th>
+                                    <th className="text-right pb-2 px-2 text-[10px] font-bold text-foreground/45 uppercase tracking-widest">Today</th>
+                                    <th className="text-right pb-2 px-2 text-[10px] font-bold text-foreground/45 uppercase tracking-widest hidden sm:table-cell">Last Hr</th>
+                                    <th className="text-right pb-2 px-2 text-[10px] font-bold text-foreground/45 uppercase tracking-widest">Happy%</th>
+                                    <th className="text-right pb-2 pl-2 text-[10px] font-bold text-foreground/45 uppercase tracking-widest">Last Active</th>
                                 </tr></thead>
                                 <tbody className="divide-y divide-gray-50">
                                     {data.agentActivity.map((a: any) => (
                                         <tr key={a.name} className="hover:bg-gray-50/50 transition-colors">
-                                            <td className="py-2.5 pr-3"><div className="flex items-center gap-2"><span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${activeRecently(a.lastActivityAt) ? 'bg-emerald-500' : 'bg-gray-300'}`} /><span className="font-semibold text-gray-800 truncate max-w-[100px]">{a.name}</span></div></td>
-                                            <td className="py-2.5 px-2 text-right font-mono font-bold text-gray-900">{a.callsToday}</td>
-                                            <td className="py-2.5 px-2 text-right text-gray-500 hidden sm:table-cell">{a.callsLastHour}</td>
-                                            <td className="py-2.5 px-2 text-right"><span className={`font-bold ${a.happyRateToday >= 20 ? 'text-emerald-600' : a.happyRateToday >= 10 ? 'text-amber-600' : 'text-gray-400'}`}>{a.happyRateToday}%</span></td>
-                                            <td className="py-2.5 pl-2 text-right text-[11px] text-gray-400 whitespace-nowrap">{timeAgo(a.lastActivityAt)}</td>
+                                            <td className="py-2.5 pr-3"><div className="flex items-center gap-2"><span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${activeRecently(a.lastActivityAt) ? 'bg-emerald-500' : 'bg-gray-300'}`} /><span className="font-semibold text-foreground/90 truncate max-w-[100px]">{a.name}</span></div></td>
+                                            <td className="py-2.5 px-2 text-right font-mono font-bold text-foreground">{a.callsToday}</td>
+                                            <td className="py-2.5 px-2 text-right text-foreground/60 hidden sm:table-cell">{a.callsLastHour}</td>
+                                            <td className="py-2.5 px-2 text-right"><span className={`font-bold ${a.happyRateToday >= 20 ? 'text-emerald-600' : a.happyRateToday >= 10 ? 'text-amber-600' : 'text-foreground/45'}`}>{a.happyRateToday}%</span></td>
+                                            <td className="py-2.5 pl-2 text-right text-[11px] text-foreground/45 whitespace-nowrap">{timeAgo(a.lastActivityAt)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -454,7 +454,7 @@ const TodayTab = ({ setView }: { setView: (v: View) => void }) => {
                     )}
                 </Card>
                 <Card>
-                    <CardHeader title="Today's Call Outcomes" right={data?.callsToday ? <span className="text-[11px] text-gray-400">{data.callsToday} calls</span> : undefined} />
+                    <CardHeader title="Today's Call Outcomes" right={data?.callsToday ? <span className="text-[11px] text-foreground/45">{data.callsToday} calls</span> : undefined} />
                     {sk ? <div className="space-y-3"><Sk className="h-8 rounded-xl" /><div className="flex gap-3"><Sk className="h-3 w-16" /><Sk className="h-3 w-20" /></div></div>
                     : !data?.callsToday ? <EmptyState message="No calls yet today" cta="Start the queue →" onCta={() => setView('callQueue')} />
                     : <SentimentBar data={data.sentimentToday} />}
@@ -469,7 +469,7 @@ const TodayTab = ({ setView }: { setView: (v: View) => void }) => {
                         <div className="w-9 h-9 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-2">
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
                         </div>
-                        <p className="text-sm font-bold text-gray-700">All clear — no action items</p>
+                        <p className="text-sm font-bold text-foreground/85">All clear — no action items</p>
                     </div>
                 ) : (
                     <div className="space-y-2.5">
@@ -511,7 +511,7 @@ const MonthTab = ({ setView }: { setView: (v: View) => void }) => {
     return (
         <div className="space-y-5">
             <div className="flex items-center justify-between text-[11px]">
-                <span className="text-gray-500 font-medium">{data?.monthLabel ?? '...'}</span>
+                <span className="text-foreground/60 font-medium">{data?.monthLabel ?? '...'}</span>
                 <button onClick={load} className="font-semibold text-foreground/85 hover:text-foreground transition-colors">Refresh</button>
             </div>
             {error && <div className="glass-chip glass-chip-tint-red rounded-xl px-4 py-3 text-sm text-foreground/85 font-medium">{error}</div>}
@@ -521,20 +521,20 @@ const MonthTab = ({ setView }: { setView: (v: View) => void }) => {
                 <GoalCard label="Revenue MTD" value={data ? formatBDT(data.revenueMTD) : '৳0'} numericValue={data?.revenueMTD ?? 0} target={data?.revenueTarget ?? 0} formattedTarget={data ? formatBDT(data.revenueTarget) : '—'} dayOfMonth={data?.dayOfMonth ?? 1} daysInMonth={data?.daysInMonth ?? 30} loading={sk} />
                 <GoalCard label="Orders MTD" value={String(data?.ordersMTD ?? 0)} numericValue={data?.ordersMTD ?? 0} target={data?.ordersTarget ?? 0} formattedTarget={String(data?.ordersTarget ?? '—')} dayOfMonth={data?.dayOfMonth ?? 1} daysInMonth={data?.daysInMonth ?? 30} loading={sk} />
                 <Card>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">New Customers MTD</span>
+                    <span className="text-[10px] font-bold text-foreground/45 uppercase tracking-widest">New Customers MTD</span>
                     {sk ? <div className="mt-3 space-y-2"><Sk className="h-10 w-16" /><Sk className="h-3 w-24" /></div> : (
                         <div className="mt-3">
-                            <div className="text-[2rem] font-black text-gray-900 leading-none font-mono">{data?.newCustomersMTD ?? 0}</div>
-                            <p className="text-[11px] text-gray-400 mt-1">First-time buyers this month</p>
+                            <div className="text-[2rem] font-black text-foreground leading-none font-mono">{data?.newCustomersMTD ?? 0}</div>
+                            <p className="text-[11px] text-foreground/45 mt-1">First-time buyers this month</p>
                         </div>
                     )}
                 </Card>
                 <Card>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Repeat Buyers MTD</span>
+                    <span className="text-[10px] font-bold text-foreground/45 uppercase tracking-widest">Repeat Buyers MTD</span>
                     {sk ? <div className="mt-3 space-y-2"><Sk className="h-10 w-16" /><Sk className="h-3 w-24" /></div> : (
                         <div className="mt-3">
-                            <div className="text-[2rem] font-black text-gray-900 leading-none font-mono">{data?.repeatCustomersMTD ?? 0}</div>
-                            <p className="text-[11px] text-gray-400 mt-1">Returning buyers this month</p>
+                            <div className="text-[2rem] font-black text-foreground leading-none font-mono">{data?.repeatCustomersMTD ?? 0}</div>
+                            <p className="text-[11px] text-foreground/45 mt-1">Returning buyers this month</p>
                         </div>
                     )}
                 </Card>
@@ -582,21 +582,21 @@ const MonthTab = ({ setView }: { setView: (v: View) => void }) => {
                     {sk ? <Sk className="h-40" /> : !data?.segmentPerformance?.length ? <EmptyState message="No calls logged this month" cta="Open queue →" onCta={() => setView('callQueue')} /> : (
                         <div className="overflow-x-auto -mx-1">
                             <table className="w-full text-xs min-w-[320px]">
-                                <thead><tr className="border-b border-gray-100">
-                                    <th className="text-left pb-2 pr-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Segment</th>
-                                    <th className="text-right pb-2 px-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Called</th>
-                                    <th className="text-right pb-2 px-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Happy%</th>
-                                    <th className="text-right pb-2 px-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Order%</th>
-                                    <th className="text-right pb-2 pl-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Revenue</th>
+                                <thead><tr className="border-b border-foreground/[0.08]">
+                                    <th className="text-left pb-2 pr-3 text-[10px] font-bold text-foreground/45 uppercase tracking-widest">Segment</th>
+                                    <th className="text-right pb-2 px-2 text-[10px] font-bold text-foreground/45 uppercase tracking-widest">Called</th>
+                                    <th className="text-right pb-2 px-2 text-[10px] font-bold text-foreground/45 uppercase tracking-widest">Happy%</th>
+                                    <th className="text-right pb-2 px-2 text-[10px] font-bold text-foreground/45 uppercase tracking-widest">Order%</th>
+                                    <th className="text-right pb-2 pl-2 text-[10px] font-bold text-foreground/45 uppercase tracking-widest">Revenue</th>
                                 </tr></thead>
                                 <tbody className="divide-y divide-gray-50">
                                     {data.segmentPerformance.map((s: any) => (
                                         <tr key={s.segment} className="hover:bg-gray-50/50">
-                                            <td className="py-2.5 pr-3 font-semibold text-gray-800">{s.segment}</td>
-                                            <td className="py-2.5 px-2 text-right text-gray-600">{s.customersCalled}</td>
-                                            <td className="py-2.5 px-2 text-right"><span className={`font-bold ${s.happyRate >= 20 ? 'text-emerald-600' : s.happyRate >= 10 ? 'text-amber-600' : 'text-gray-500'}`}>{s.happyRate}%</span></td>
-                                            <td className="py-2.5 px-2 text-right"><span className={`font-bold ${s.orderRate >= 5 ? 'text-emerald-600' : s.orderRate >= 2 ? 'text-amber-600' : 'text-gray-500'}`}>{s.orderRate}%</span></td>
-                                            <td className="py-2.5 pl-2 text-right font-mono text-gray-700">{s.revenue > 0 ? formatBDT(s.revenue) : '—'}</td>
+                                            <td className="py-2.5 pr-3 font-semibold text-foreground/90">{s.segment}</td>
+                                            <td className="py-2.5 px-2 text-right text-foreground/70">{s.customersCalled}</td>
+                                            <td className="py-2.5 px-2 text-right"><span className={`font-bold ${s.happyRate >= 20 ? 'text-emerald-600' : s.happyRate >= 10 ? 'text-amber-600' : 'text-foreground/60'}`}>{s.happyRate}%</span></td>
+                                            <td className="py-2.5 px-2 text-right"><span className={`font-bold ${s.orderRate >= 5 ? 'text-emerald-600' : s.orderRate >= 2 ? 'text-amber-600' : 'text-foreground/60'}`}>{s.orderRate}%</span></td>
+                                            <td className="py-2.5 pl-2 text-right font-mono text-foreground/85">{s.revenue > 0 ? formatBDT(s.revenue) : '—'}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -611,8 +611,8 @@ const MonthTab = ({ setView }: { setView: (v: View) => void }) => {
                 <CardHeader title="Anomalies & Signals" />
                 {sk ? <Sk className="h-14" /> : !data?.anomalies?.length ? (
                     <div className="py-4 text-center">
-                        <p className="text-sm font-bold text-gray-600">No anomalies detected</p>
-                        <p className="text-xs text-gray-400 mt-1">Signals appear once ≥7 days of data exist and a ≥25% deviation is detected.</p>
+                        <p className="text-sm font-bold text-foreground/70">No anomalies detected</p>
+                        <p className="text-xs text-foreground/45 mt-1">Signals appear once ≥7 days of data exist and a ≥25% deviation is detected.</p>
                     </div>
                 ) : (
                     <div className="space-y-2.5">
@@ -653,8 +653,8 @@ const AllTimeTab = () => {
         { key: 'vip',     label: 'VIP (5+ orders)',    bg: 'bg-violet-100', color: 'text-violet-700' },
         { key: 'loyal',   label: 'Loyal (3-4 orders)', bg: 'bg-blue-100',   color: 'text-blue-700' },
         { key: 'repeat',  label: 'Repeat (2 orders)',  bg: 'bg-sky-100',    color: 'text-sky-700' },
-        { key: 'oneTime', label: 'One-time buyer',     bg: 'bg-gray-100',   color: 'text-gray-600' },
-        { key: 'outreach',label: 'Outreach only',      bg: 'bg-gray-50',    color: 'text-gray-400' },
+        { key: 'oneTime', label: 'One-time buyer',     bg: 'bg-foreground/[0.08]',   color: 'text-foreground/70' },
+        { key: 'outreach',label: 'Outreach only',      bg: 'bg-foreground/[0.04]',    color: 'text-foreground/45' },
     ];
 
     const VARIANT_COLORS: Record<string, string> = { Chocolate: '#b45309', Natural: '#15803d', Mixed: '#7c3aed', Other: '#94a3b8' };
@@ -772,9 +772,9 @@ const AllTimeTab = () => {
                                         <div key={k} className="flex items-center justify-between text-xs">
                                             <div className="flex items-center gap-2">
                                                 <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: VARIANT_COLORS[k] ?? '#94a3b8' }} />
-                                                <span className="text-gray-700 font-medium">{k}</span>
+                                                <span className="text-foreground/85 font-medium">{k}</span>
                                             </div>
-                                            <span className="font-mono text-gray-900">{v.toLocaleString()} <span className="text-gray-400 font-normal">({((v / total) * 100).toFixed(0)}%)</span></span>
+                                            <span className="font-mono text-foreground">{v.toLocaleString()} <span className="text-foreground/45 font-normal">({((v / total) * 100).toFixed(0)}%)</span></span>
                                         </div>
                                     ))}
                                 </div>
@@ -787,10 +787,10 @@ const AllTimeTab = () => {
             {/* Row 3 — Monthly trend */}
             <Card>
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Monthly Trend</h3>
+                    <h3 className="text-[10px] font-bold text-foreground/45 uppercase tracking-widest">Monthly Trend</h3>
                     <div className="flex gap-1">
                         {trendOptions.map(opt => (
-                            <button key={opt.key} onClick={() => setTrendMetric(opt.key)} className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${trendMetric === opt.key ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100'}`}>{opt.label}</button>
+                            <button key={opt.key} onClick={() => setTrendMetric(opt.key)} className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${trendMetric === opt.key ? 'bg-blue-600 text-white' : 'text-foreground/60 hover:bg-foreground/[0.08]'}`}>{opt.label}</button>
                         ))}
                     </div>
                 </div>
@@ -805,21 +805,21 @@ const AllTimeTab = () => {
                 {sk ? <Sk className="h-40" /> : !data?.topProducts?.length ? <EmptyState message="No product purchase data" /> : (
                     <div className="overflow-x-auto -mx-1">
                         <table className="w-full text-xs min-w-[360px]">
-                            <thead><tr className="border-b border-gray-100">
-                                <th className="text-left pb-2 pr-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">#</th>
-                                <th className="text-left pb-2 pr-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Product</th>
-                                <th className="text-right pb-2 px-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Customers</th>
-                                <th className="text-right pb-2 px-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Orders</th>
-                                <th className="text-right pb-2 pl-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Revenue</th>
+                            <thead><tr className="border-b border-foreground/[0.08]">
+                                <th className="text-left pb-2 pr-3 text-[10px] font-bold text-foreground/45 uppercase tracking-widest">#</th>
+                                <th className="text-left pb-2 pr-3 text-[10px] font-bold text-foreground/45 uppercase tracking-widest">Product</th>
+                                <th className="text-right pb-2 px-2 text-[10px] font-bold text-foreground/45 uppercase tracking-widest">Customers</th>
+                                <th className="text-right pb-2 px-2 text-[10px] font-bold text-foreground/45 uppercase tracking-widest">Orders</th>
+                                <th className="text-right pb-2 pl-2 text-[10px] font-bold text-foreground/45 uppercase tracking-widest">Revenue</th>
                             </tr></thead>
                             <tbody className="divide-y divide-gray-50">
                                 {data.topProducts.map((p: any, i: number) => (
                                     <tr key={p.name} className="hover:bg-gray-50/50">
-                                        <td className="py-2.5 pr-3 text-gray-400 font-medium">{i + 1}</td>
-                                        <td className="py-2.5 pr-3 font-semibold text-gray-800 max-w-[180px] truncate">{p.name}</td>
-                                        <td className="py-2.5 px-2 text-right text-gray-600">{p.customers.toLocaleString()}</td>
-                                        <td className="py-2.5 px-2 text-right text-gray-600">{p.orders.toLocaleString()}</td>
-                                        <td className="py-2.5 pl-2 text-right font-mono font-bold text-gray-900">{formatBDT(p.revenue)}</td>
+                                        <td className="py-2.5 pr-3 text-foreground/45 font-medium">{i + 1}</td>
+                                        <td className="py-2.5 pr-3 font-semibold text-foreground/90 max-w-[180px] truncate">{p.name}</td>
+                                        <td className="py-2.5 px-2 text-right text-foreground/70">{p.customers.toLocaleString()}</td>
+                                        <td className="py-2.5 px-2 text-right text-foreground/70">{p.orders.toLocaleString()}</td>
+                                        <td className="py-2.5 pl-2 text-right font-mono font-bold text-foreground">{formatBDT(p.revenue)}</td>
                                     </tr>
                                 ))}
                             </tbody>

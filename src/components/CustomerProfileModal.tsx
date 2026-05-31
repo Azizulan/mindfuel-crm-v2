@@ -41,11 +41,11 @@ const feedbackIcons: Record<FollowUpNote['feedback'], React.ReactNode> = {
 const feedbackColors: Record<FollowUpNote['feedback'], string> = {
     'Positive': 'border-blue-300 bg-blue-50 text-blue-800',
     'Happy': 'border-green-300 bg-green-50 text-green-800',
-    'Neutral': 'border-gray-300 bg-gray-50 text-gray-700',
+    'Neutral': 'border-foreground/[0.15] bg-foreground/[0.04] text-foreground/85',
     'Angry': 'border-red-300 bg-red-50 text-red-800',
     'Not Interested': 'border-yellow-300 bg-yellow-50 text-yellow-800',
     'Call Back Later': 'border-purple-300 bg-purple-50 text-purple-800',
-    'Call Not Received': 'border-gray-200 bg-gray-100 text-gray-500',
+    'Call Not Received': 'border-foreground/[0.12] bg-foreground/[0.08] text-foreground/60',
 }
 
 
@@ -269,12 +269,12 @@ const CustomerProfileModal: React.FC<CustomerProfileModalProps> = ({
   const displayPhoneNumber = formatForDisplay(customer.phone);
   const telLink = customer.phone ? `tel:+${whatsAppNumber}` : '';
 
-  const inputCls = "w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all";
+  const inputCls = "w-full px-3.5 py-2.5 bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl text-sm text-foreground/90 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all";
 
   const TabButton: React.FC<{tabId: ModalTab, label: string}> = ({ tabId, label }) => (
     <button
         onClick={() => setActiveTab(tabId)}
-        className={`${activeTab === tabId ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm transition-colors focus:outline-none`}
+        className={`${activeTab === tabId ? 'border-blue-500 text-blue-600' : 'border-transparent text-foreground/60 hover:text-foreground/85 hover:border-foreground/[0.15]'} whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm transition-colors focus:outline-none`}
     >{label}</button>
   );
 
@@ -285,26 +285,26 @@ const CustomerProfileModal: React.FC<CustomerProfileModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col border border-gray-200">
+      <div className="bg-card rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col border border-foreground/[0.12]">
         {/* Header */}
-        <div className="p-5 border-b border-gray-100 flex justify-between items-start">
+        <div className="p-5 border-b border-foreground/[0.08] flex justify-between items-start">
             <div>
-                <h3 className="text-lg font-bold text-gray-900">{customer.name}</h3>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 text-sm text-gray-500 mt-1">
+                <h3 className="text-lg font-bold text-foreground">{customer.name}</h3>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 text-sm text-foreground/60 mt-1">
                     <span>{customer.email}</span>
                     <div className="flex items-center gap-3 mt-1 sm:mt-0">
                         <span className="hidden sm:inline">&middot;</span>
                         <span>{displayPhoneNumber}</span>
-                        <a href={telLink} title="Call Customer" className="text-gray-400 hover:text-blue-600 transition-colors"><PhoneOutgoingIcon className="h-4 w-4" /></a>
-                        <a href={`https://wa.me/${whatsAppNumber}`} title="Message on WhatsApp" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-green-600 transition-colors"><WhatsAppIcon className="h-4 w-4" /></a>
+                        <a href={telLink} title="Call Customer" className="text-foreground/45 hover:text-blue-600 transition-colors"><PhoneOutgoingIcon className="h-4 w-4" /></a>
+                        <a href={`https://wa.me/${whatsAppNumber}`} title="Message on WhatsApp" target="_blank" rel="noopener noreferrer" className="text-foreground/45 hover:text-green-600 transition-colors"><WhatsAppIcon className="h-4 w-4" /></a>
                     </div>
                 </div>
             </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors"><XMarkIcon /></button>
+            <button onClick={onClose} className="text-foreground/45 hover:text-foreground/70 p-1.5 rounded-lg hover:bg-foreground/[0.08] transition-colors"><XMarkIcon /></button>
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-gray-100 px-2">
+        <div className="border-b border-foreground/[0.08] px-2">
             <nav className="-mb-px flex space-x-1">
                 <TabButton tabId="profile" label="Profile" />
                 <TabButton tabId="log" label="Follow-up Log" />
@@ -318,25 +318,25 @@ const CustomerProfileModal: React.FC<CustomerProfileModalProps> = ({
             {activeTab === 'profile' && (
                 <div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                        <div className="bg-gray-50 border border-gray-100 p-4 rounded-2xl">
-                            <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-widest">Value Rating</div>
+                        <div className="bg-foreground/[0.04] border border-foreground/[0.08] p-4 rounded-2xl">
+                            <div className="text-[10px] text-foreground/60 uppercase font-semibold tracking-widest">Value Rating</div>
                             <div className={`mt-2 text-sm font-bold px-3 py-1 inline-flex rounded-full border ${ratingStyles[customer.valueRating]}`}>{customer.valueRating}</div>
                         </div>
-                        <div className="bg-gray-50 border border-gray-100 p-4 rounded-2xl">
-                            <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-widest">Total Spending</div>
-                            <div className="mt-2 text-lg font-bold text-gray-800">{new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(customer.totalSpending)}</div>
+                        <div className="bg-foreground/[0.04] border border-foreground/[0.08] p-4 rounded-2xl">
+                            <div className="text-[10px] text-foreground/60 uppercase font-semibold tracking-widest">Total Spending</div>
+                            <div className="mt-2 text-lg font-bold text-foreground/90">{new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(customer.totalSpending)}</div>
                         </div>
-                        <div className="bg-gray-50 border border-gray-100 p-4 rounded-2xl">
-                            <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-widest">Total Orders</div>
-                            <div className="mt-2 text-lg font-bold text-gray-800">{customer.purchaseCount}</div>
+                        <div className="bg-foreground/[0.04] border border-foreground/[0.08] p-4 rounded-2xl">
+                            <div className="text-[10px] text-foreground/60 uppercase font-semibold tracking-widest">Total Orders</div>
+                            <div className="mt-2 text-lg font-bold text-foreground/90">{customer.purchaseCount}</div>
                         </div>
                     </div>
 
-                    <div className="mt-5 bg-white border border-gray-200 rounded-2xl p-5">
+                    <div className="mt-5 bg-card border border-foreground/[0.12] rounded-2xl p-5">
                         <div className="flex items-center justify-between">
                             <div>
-                                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest">Recent Courier Activity</h4>
-                                <p className="text-xs text-gray-400 mt-0.5">Live status from the shipping partner.</p>
+                                <h4 className="text-xs font-bold text-foreground/60 uppercase tracking-widest">Recent Courier Activity</h4>
+                                <p className="text-xs text-foreground/45 mt-0.5">Live status from the shipping partner.</p>
                             </div>
                             <button
                                 onClick={handleFetchCourierData}
@@ -347,11 +347,11 @@ const CustomerProfileModal: React.FC<CustomerProfileModalProps> = ({
                             </button>
                         </div>
                         {(courierStatus || courierError) && (
-                            <div className="mt-4 pt-4 border-t border-gray-100">
+                            <div className="mt-4 pt-4 border-t border-foreground/[0.08]">
                                 {courierStatus && (
                                     <div className="flex items-center gap-3">
                                         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                        <span className="text-sm font-semibold text-gray-700 capitalize">Status: {courierStatus}</span>
+                                        <span className="text-sm font-semibold text-foreground/85 capitalize">Status: {courierStatus}</span>
                                     </div>
                                 )}
                                 {courierError && <p className="text-xs text-red-500 font-medium italic">{courierError}</p>}
@@ -360,22 +360,22 @@ const CustomerProfileModal: React.FC<CustomerProfileModalProps> = ({
                     </div>
 
                     <div className="mt-6">
-                        <h4 className="text-sm font-semibold text-gray-700 mb-3">Purchase History {isAdmin && <span className="text-xs font-normal text-gray-400">(Admin: Click date to edit)</span>}</h4>
-                        <div className="border border-gray-200 rounded-2xl max-h-60 overflow-y-auto">
+                        <h4 className="text-sm font-semibold text-foreground/85 mb-3">Purchase History {isAdmin && <span className="text-xs font-normal text-foreground/45">(Admin: Click date to edit)</span>}</h4>
+                        <div className="border border-foreground/[0.12] rounded-2xl max-h-60 overflow-y-auto">
                             <ul className="divide-y divide-gray-100">
                                 {customer.purchases.length > 0 ? customer.purchases.map((p, i) => (
                                     <li key={i} className="px-4 py-3 grid grid-cols-3 gap-4 items-center text-sm">
-                                        <span className="text-gray-800 font-medium col-span-2 truncate" title={p.product}>{p.product || 'N/A'}</span>
+                                        <span className="text-foreground/90 font-medium col-span-2 truncate" title={p.product}>{p.product || 'N/A'}</span>
                                         <div className="text-right">
-                                            <span className="font-medium text-gray-800">{new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(p.amount)}</span>
+                                            <span className="font-medium text-foreground/90">{new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(p.amount)}</span>
                                             {editingPurchaseId === p._id ? (
                                                 <div className="mt-1 flex items-center justify-end gap-1">
-                                                    <input type="date" value={tempDate} onChange={e => setTempDate(e.target.value)} className="text-xs border border-gray-200 rounded-lg px-1.5 py-0.5 bg-gray-50" />
+                                                    <input type="date" value={tempDate} onChange={e => setTempDate(e.target.value)} className="text-xs border border-foreground/[0.12] rounded-lg px-1.5 py-0.5 bg-foreground/[0.04]" />
                                                     <button onClick={() => handleUpdateDate(p)} disabled={isUpdatingDate} className="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-lg">{isUpdatingDate ? '...' : 'OK'}</button>
-                                                    <button onClick={() => setEditingPurchaseId(null)} className="bg-gray-200 text-gray-600 text-[10px] px-2 py-0.5 rounded-lg">X</button>
+                                                    <button onClick={() => setEditingPurchaseId(null)} className="bg-foreground/[0.12] text-foreground/70 text-[10px] px-2 py-0.5 rounded-lg">X</button>
                                                 </div>
                                             ) : (
-                                                <span className={`text-xs block ${isAdmin ? 'text-blue-600 cursor-pointer hover:underline' : 'text-gray-400'}`}
+                                                <span className={`text-xs block ${isAdmin ? 'text-blue-600 cursor-pointer hover:underline' : 'text-foreground/45'}`}
                                                     onClick={() => { if (isAdmin && p._id) { setEditingPurchaseId(p._id); setTempDate(new Date(p.date).toISOString().split('T')[0]); } }}>
                                                     {new Date(p.date).toLocaleDateString()}
                                                 </span>
@@ -383,7 +383,7 @@ const CustomerProfileModal: React.FC<CustomerProfileModalProps> = ({
                                         </div>
                                     </li>
                                 )) : (
-                                    <li className="px-4 py-10 text-center text-sm text-gray-400">No purchase history found.</li>
+                                    <li className="px-4 py-10 text-center text-sm text-foreground/45">No purchase history found.</li>
                                 )}
                             </ul>
                         </div>
@@ -392,13 +392,13 @@ const CustomerProfileModal: React.FC<CustomerProfileModalProps> = ({
             )}
             {activeTab === 'log' && (
                 <div>
-                    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5">
-                        <h4 className="text-sm font-semibold text-gray-700 mb-4">Add New Follow-up Note</h4>
+                    <div className="bg-foreground/[0.04] border border-foreground/[0.12] rounded-2xl p-5">
+                        <h4 className="text-sm font-semibold text-foreground/85 mb-4">Add New Follow-up Note</h4>
                         <div className="mb-4">
-                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Customer Feedback</label>
+                            <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-2">Customer Feedback</label>
                             <div className="flex flex-wrap gap-2">
                                 {feedbackOptions.map(option => (
-                                    <button key={option} onClick={() => setFeedback(option)} className={`flex items-center gap-2 text-xs px-3 py-2 border rounded-xl transition-colors ${feedback === option ? 'ring-2 ring-offset-1 ring-blue-500 ' + feedbackColors[option] : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-600'}`}>
+                                    <button key={option} onClick={() => setFeedback(option)} className={`flex items-center gap-2 text-xs px-3 py-2 border rounded-xl transition-colors ${feedback === option ? 'ring-2 ring-offset-1 ring-blue-500 ' + feedbackColors[option] : 'bg-card border-foreground/[0.12] hover:bg-foreground/[0.04] text-foreground/70'}`}>
                                         {feedbackIcons[option]} {option}
                                     </button>
                                 ))}
@@ -406,17 +406,17 @@ const CustomerProfileModal: React.FC<CustomerProfileModalProps> = ({
                         </div>
                         {feedback === 'Call Back Later' && (
                             <div className="my-3 space-y-2">
-                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1">Reminder Date & Time</label>
+                                <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1">Reminder Date & Time</label>
                                 <input type="datetime-local" value={reminderDate} onChange={e => setReminderDate(e.target.value)} className={inputCls + " sm:w-auto"} min={new Date().toISOString().slice(0, 16)}/>
                                 <div className="flex flex-wrap gap-2 pt-1">
                                     {[['hours',1,'in 1 Hour'],['hours',2,'in 2 Hours'],['days',1,'Tomorrow'],['days',7,'Next Week']].map(([unit, amount, label]) => (
-                                        <button key={String(label)} type="button" onClick={() => setReminderFor(unit as any, Number(amount))} className="text-xs px-3 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50">{label}</button>
+                                        <button key={String(label)} type="button" onClick={() => setReminderFor(unit as any, Number(amount))} className="text-xs px-3 py-1.5 bg-card border border-foreground/[0.12] text-foreground/70 rounded-lg hover:bg-foreground/[0.04]">{label}</button>
                                     ))}
                                 </div>
                             </div>
                         )}
                         <div>
-                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1">Notes (Optional)</label>
+                            <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1">Notes (Optional)</label>
                             <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} className={inputCls} placeholder="Any additional details..."></textarea>
                         </div>
                         <div className="text-right mt-3">
@@ -426,7 +426,7 @@ const CustomerProfileModal: React.FC<CustomerProfileModalProps> = ({
                         </div>
                     </div>
                     <div className="mt-6">
-                        <h4 className="text-sm font-semibold text-gray-700 mb-3">Interaction History</h4>
+                        <h4 className="text-sm font-semibold text-foreground/85 mb-3">Interaction History</h4>
                         <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
                             {(customer.followUpNotes || []).length > 0 ? customer.followUpNotes?.map((note, index) => (
                                 <div key={index} className={`border-l-4 p-4 rounded-r-xl ${feedbackColors[note.feedback]}`}>
@@ -437,7 +437,7 @@ const CustomerProfileModal: React.FC<CustomerProfileModalProps> = ({
                                     <p className="mt-1.5 text-sm">{note.notes}</p>
                                     {note.reminderDate && <p className="mt-1.5 text-xs font-semibold text-purple-700">Reminder: {new Date(note.reminderDate).toLocaleString()}</p>}
                                 </div>
-                            )) : <p className="text-center text-sm text-gray-400 py-8">No follow-up notes recorded yet.</p>}
+                            )) : <p className="text-center text-sm text-foreground/45 py-8">No follow-up notes recorded yet.</p>}
                         </div>
                     </div>
                 </div>
@@ -448,22 +448,22 @@ const CustomerProfileModal: React.FC<CustomerProfileModalProps> = ({
                     {orderError && <div className="p-3 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm">{orderError}</div>}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div><label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Customer Name</label><input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} className={inputCls} required/></div>
-                        <div><label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Phone</label><input type="text" value={customer.phone} className={inputCls + " opacity-60"} readOnly/></div>
+                        <div><label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Customer Name</label><input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} className={inputCls} required/></div>
+                        <div><label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Phone</label><input type="text" value={customer.phone} className={inputCls + " opacity-60"} readOnly/></div>
                     </div>
-                    <div><label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Shipping Address</label><textarea rows={2} value={shippingAddress} onChange={e => setShippingAddress(e.target.value)} className={inputCls} required></textarea></div>
+                    <div><label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Shipping Address</label><textarea rows={2} value={shippingAddress} onChange={e => setShippingAddress(e.target.value)} className={inputCls} required></textarea></div>
 
-                    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+                    <div className="bg-foreground/[0.04] border border-foreground/[0.12] rounded-2xl p-4">
                         <div className="grid grid-cols-1 sm:grid-cols-[1fr,auto,auto] gap-3 items-end">
                             <div>
-                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Product</label>
+                                <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Product</label>
                                 <select value={selectedProductId} onChange={e => setSelectedProductId(e.target.value)} className={inputCls}>
                                     <option value="" disabled>Select a product</option>
                                     {products.map(p => (<option key={String(p.id)} value={String(p.id)}>{p.name} - {new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(p.price)}</option>))}
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Qty</label>
+                                <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Qty</label>
                                 <input type="number" value={quantityToAdd} onChange={e => setQuantityToAdd(Math.max(1, parseInt(e.target.value, 10)))} min="1" className={inputCls + " w-20"} />
                             </div>
                             <button type="button" onClick={handleAddProduct} disabled={!selectedProductId} className="px-4 py-2.5 bg-blue-600 text-white font-semibold text-sm rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors">Add</button>
@@ -472,14 +472,14 @@ const CustomerProfileModal: React.FC<CustomerProfileModalProps> = ({
 
                     <div className="space-y-2">
                         {orderItems.length === 0 ? (
-                            <p className="text-gray-400 text-sm text-center py-4">No products added.</p>
+                            <p className="text-foreground/45 text-sm text-center py-4">No products added.</p>
                         ) : orderItems.map(item => (
-                            <div key={String(item.id)} className="flex items-center justify-between text-sm bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
-                                <div><p className="font-semibold text-gray-800">{item.name}</p><p className="text-gray-400 text-xs">{new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(item.price)}</p></div>
+                            <div key={String(item.id)} className="flex items-center justify-between text-sm bg-foreground/[0.04] border border-foreground/[0.08] rounded-xl px-4 py-3">
+                                <div><p className="font-semibold text-foreground/90">{item.name}</p><p className="text-foreground/45 text-xs">{new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(item.price)}</p></div>
                                 <div className="flex items-center gap-2">
-                                    <button type="button" onClick={() => handleQuantityChange(String(item.id), item.quantity - 1)} className="p-1.5 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"><MinusIcon /></button>
+                                    <button type="button" onClick={() => handleQuantityChange(String(item.id), item.quantity - 1)} className="p-1.5 rounded-lg bg-foreground/[0.12] hover:bg-foreground/[0.18] transition-colors"><MinusIcon /></button>
                                     <span className="w-8 text-center font-semibold">{item.quantity}</span>
-                                    <button type="button" onClick={() => handleQuantityChange(String(item.id), item.quantity + 1)} className="p-1.5 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"><PlusIcon /></button>
+                                    <button type="button" onClick={() => handleQuantityChange(String(item.id), item.quantity + 1)} className="p-1.5 rounded-lg bg-foreground/[0.12] hover:bg-foreground/[0.18] transition-colors"><PlusIcon /></button>
                                     <button type="button" onClick={() => handleQuantityChange(String(item.id), 0)} className="p-1.5 text-red-400 hover:text-red-600 transition-colors"><TrashIcon /></button>
                                 </div>
                             </div>
@@ -487,17 +487,17 @@ const CustomerProfileModal: React.FC<CustomerProfileModalProps> = ({
                     </div>
 
                     {orderItems.length > 0 && (
-                        <div className="border-t border-gray-100 pt-4 space-y-2 text-sm">
-                            <div className="flex justify-between text-gray-600"><span>Subtotal</span><span className="font-semibold">{new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(subtotal)}</span></div>
-                            <div className="flex justify-between items-center text-gray-600">
+                        <div className="border-t border-foreground/[0.08] pt-4 space-y-2 text-sm">
+                            <div className="flex justify-between text-foreground/70"><span>Subtotal</span><span className="font-semibold">{new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(subtotal)}</span></div>
+                            <div className="flex justify-between items-center text-foreground/70">
                                 <label>Discount (BDT)</label>
-                                <input type="number" value={discount} onChange={e => setDiscount(e.target.value)} className="w-28 text-right bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-sm outline-none focus:border-blue-500" placeholder="0" />
+                                <input type="number" value={discount} onChange={e => setDiscount(e.target.value)} className="w-28 text-right bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl px-3 py-1.5 text-sm outline-none focus:border-blue-500" placeholder="0" />
                             </div>
-                            <div className="flex justify-between items-center text-gray-600">
+                            <div className="flex justify-between items-center text-foreground/70">
                                 <label>Delivery Charge (BDT)</label>
-                                <input type="number" value={deliveryCharge} onChange={e => setDeliveryCharge(e.target.value)} className="w-28 text-right bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-sm outline-none focus:border-blue-500" placeholder="0" />
+                                <input type="number" value={deliveryCharge} onChange={e => setDeliveryCharge(e.target.value)} className="w-28 text-right bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl px-3 py-1.5 text-sm outline-none focus:border-blue-500" placeholder="0" />
                             </div>
-                            <div className="flex justify-between text-base font-bold border-t border-gray-100 pt-2 mt-2 text-gray-800"><span>Final Price</span><span className="text-blue-600">{new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(finalPrice)}</span></div>
+                            <div className="flex justify-between text-base font-bold border-t border-foreground/[0.08] pt-2 mt-2 text-foreground/90"><span>Final Price</span><span className="text-blue-600">{new Intl.NumberFormat('bn-BD', { style: 'currency', currency: 'BDT' }).format(finalPrice)}</span></div>
                         </div>
                     )}
 
@@ -509,19 +509,19 @@ const CustomerProfileModal: React.FC<CustomerProfileModalProps> = ({
             {activeTab === 'script' && (
                 <div>
                     <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-                        <h4 className="text-sm font-semibold text-gray-700">Recommended Sales Script</h4>
-                        <button onClick={copyToClipboard} className="inline-flex items-center gap-2 bg-gray-100 text-gray-600 px-3 py-1.5 rounded-xl hover:bg-gray-200 transition-colors text-xs font-semibold">
+                        <h4 className="text-sm font-semibold text-foreground/85">Recommended Sales Script</h4>
+                        <button onClick={copyToClipboard} className="inline-flex items-center gap-2 bg-foreground/[0.08] text-foreground/70 px-3 py-1.5 rounded-xl hover:bg-foreground/[0.12] transition-colors text-xs font-semibold">
                             <ClipboardIcon className="h-3.5 w-3.5" /> Copy Script
                         </button>
                     </div>
                     <div className="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-2xl">
-                        <p className="text-base text-gray-800 leading-relaxed font-medium whitespace-pre-wrap font-serif">
+                        <p className="text-base text-foreground/90 leading-relaxed font-medium whitespace-pre-wrap font-serif">
                             {salesScriptTemplate}
                         </p>
                     </div>
-                    <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-2xl">
-                        <h5 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Pro Tips for {currentUser.name}:</h5>
-                        <ul className="text-xs text-gray-500 space-y-1 list-disc list-inside">
+                    <div className="mt-4 p-4 bg-foreground/[0.04] border border-foreground/[0.12] rounded-2xl">
+                        <h5 className="text-xs font-bold text-foreground/60 uppercase tracking-widest mb-2">Pro Tips for {currentUser.name}:</h5>
+                        <ul className="text-xs text-foreground/60 space-y-1 list-disc list-inside">
                             <li>Keep a smiling tone; it reflects in your voice.</li>
                             <li>Pause after asking how the product was.</li>
                             <li>If they say no, ask for feedback to improve.</li>
@@ -531,8 +531,8 @@ const CustomerProfileModal: React.FC<CustomerProfileModalProps> = ({
             )}
         </div>
 
-        <div className="p-4 bg-gray-50 border-t border-gray-100 text-right rounded-b-2xl">
-           <button onClick={onClose} className="bg-gray-200 text-gray-700 px-5 py-2 rounded-xl hover:bg-gray-300 transition-colors text-sm font-semibold">Close</button>
+        <div className="p-4 bg-foreground/[0.04] border-t border-foreground/[0.08] text-right rounded-b-2xl">
+           <button onClick={onClose} className="bg-foreground/[0.12] text-foreground/85 px-5 py-2 rounded-xl hover:bg-foreground/[0.18] transition-colors text-sm font-semibold">Close</button>
         </div>
       </div>
     </div>

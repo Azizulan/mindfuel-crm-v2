@@ -39,18 +39,18 @@ const CallScriptPanel: React.FC<{ input: ScriptInput; agentName: string }> = ({ 
             </div>
 
             {/* Tone */}
-            <p className="text-[11px] text-gray-500 mb-3 leading-relaxed">🎯 {script.tone}</p>
+            <p className="text-[11px] text-foreground/60 mb-3 leading-relaxed">🎯 {script.tone}</p>
 
             {/* Script lines */}
             <div className="space-y-2">
                 {script.lines.map((line, idx) => (
-                    <div key={idx} className="group flex items-start gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-100">
-                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest pt-1 w-16 flex-shrink-0">{line.label}</span>
-                        <p className="flex-1 text-sm text-gray-800 leading-relaxed" style={{ fontFamily: "'Noto Sans Bengali', system-ui, sans-serif" }}>{line.text}</p>
+                    <div key={idx} className="group flex items-start gap-2 px-3 py-2 rounded-lg bg-foreground/[0.04] border border-foreground/[0.08]">
+                        <span className="text-[9px] font-bold text-foreground/45 uppercase tracking-widest pt-1 w-16 flex-shrink-0">{line.label}</span>
+                        <p className="flex-1 text-sm text-foreground/90 leading-relaxed" style={{ fontFamily: "'Noto Sans Bengali', system-ui, sans-serif" }}>{line.text}</p>
                         <button
                             type="button"
                             onClick={() => copy(line.text, idx)}
-                            className="flex-shrink-0 text-[10px] font-semibold text-gray-400 hover:text-blue-600 transition-colors pt-1"
+                            className="flex-shrink-0 text-[10px] font-semibold text-foreground/45 hover:text-blue-600 transition-colors pt-1"
                             title="কপি করুন"
                         >
                             {copied === idx ? '✓' : 'কপি'}
@@ -63,17 +63,17 @@ const CallScriptPanel: React.FC<{ input: ScriptInput; agentName: string }> = ({ 
             <button
                 type="button"
                 onClick={() => setShowObjections(s => !s)}
-                className="mt-3 text-[11px] font-semibold text-gray-500 hover:text-gray-700 transition-colors"
+                className="mt-3 text-[11px] font-semibold text-foreground/60 hover:text-foreground/85 transition-colors"
             >
                 {showObjections ? '▾' : '▸'} আপত্তি সামলানোর উত্তর ({script.objections.length})
             </button>
             {showObjections && (
                 <div className="mt-2 space-y-1.5">
                     {script.objections.map((o, i) => (
-                        <div key={i} className="text-xs px-3 py-2 rounded-lg bg-gray-50 border border-gray-100" style={{ fontFamily: "'Noto Sans Bengali', system-ui, sans-serif" }}>
-                            <span className="font-bold text-gray-700">"{o.q}"</span>
-                            <span className="text-gray-400"> → </span>
-                            <span className="text-gray-600">{o.a}</span>
+                        <div key={i} className="text-xs px-3 py-2 rounded-lg bg-foreground/[0.04] border border-foreground/[0.08]" style={{ fontFamily: "'Noto Sans Bengali', system-ui, sans-serif" }}>
+                            <span className="font-bold text-foreground/85">"{o.q}"</span>
+                            <span className="text-foreground/45"> → </span>
+                            <span className="text-foreground/70">{o.a}</span>
                         </div>
                     ))}
                 </div>

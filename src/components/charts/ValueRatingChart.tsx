@@ -20,15 +20,15 @@ const ValueRatingChart: React.FC<ChartProps> = ({ trend }) => {
     return (
         <div className="h-[320px] flex flex-col overflow-hidden">
             <div className="flex justify-between items-center mb-4">
-                <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest">Last {data.length} periods</p>
-                <div className="flex bg-gray-100 p-1 rounded-lg">
+                <p className="text-[10px] text-foreground/45 font-semibold uppercase tracking-widest">Last {data.length} periods</p>
+                <div className="flex bg-foreground/[0.08] p-1 rounded-lg">
                     <button
                         onClick={() => setView('monthly')}
-                        className={`px-3 py-1 text-[10px] font-semibold uppercase rounded-md transition-all ${view === 'monthly' ? 'bg-white text-gray-700 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                        className={`px-3 py-1 text-[10px] font-semibold uppercase rounded-md transition-all ${view === 'monthly' ? 'bg-card text-foreground/85 shadow-sm' : 'text-foreground/45 hover:text-foreground/70'}`}
                     >Monthly</button>
                     <button
                         onClick={() => setView('yearly')}
-                        className={`px-3 py-1 text-[10px] font-semibold uppercase rounded-md transition-all ${view === 'yearly' ? 'bg-white text-gray-700 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                        className={`px-3 py-1 text-[10px] font-semibold uppercase rounded-md transition-all ${view === 'yearly' ? 'bg-card text-foreground/85 shadow-sm' : 'text-foreground/45 hover:text-foreground/70'}`}
                     >Yearly</button>
                 </div>
             </div>
@@ -36,7 +36,7 @@ const ValueRatingChart: React.FC<ChartProps> = ({ trend }) => {
             <div className="flex-1 flex flex-col justify-end min-h-0">
                 {data.length > 0 ? (
                     <>
-                        <div className="flex-1 flex items-end gap-4 border-b border-gray-200 pb-2 min-h-0">
+                        <div className="flex-1 flex items-end gap-4 border-b border-foreground/[0.12] pb-2 min-h-0">
                             {data.map((d, i) => {
                                 const showLabel = data.length < 6 || i % 2 === 0 || i === data.length - 1;
                                 return (
@@ -54,7 +54,7 @@ const ValueRatingChart: React.FC<ChartProps> = ({ trend }) => {
                                         </div>
                                         <div className="h-6 flex items-start justify-center overflow-visible">
                                             {showLabel && (
-                                                <span className="text-[8px] font-bold text-gray-400 rotate-45 mt-1 whitespace-nowrap">
+                                                <span className="text-[8px] font-bold text-foreground/45 rotate-45 mt-1 whitespace-nowrap">
                                                     {d.period.includes('-') ? d.period.split('-')[1] + '/' + d.period.split('-')[0].slice(-2) : d.period}
                                                 </span>
                                             )}
@@ -66,20 +66,20 @@ const ValueRatingChart: React.FC<ChartProps> = ({ trend }) => {
                         <div className="mt-8 flex justify-center gap-4 flex-wrap">
                             <div className="flex items-center gap-1.5">
                                 <span className="w-2.5 h-2.5 rounded-sm bg-green-500"></span>
-                                <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-tighter">High (3k+)</span>
+                                <span className="text-[9px] font-semibold text-foreground/45 uppercase tracking-tighter">High (3k+)</span>
                             </div>
                             <div className="flex items-center gap-1.5">
                                 <span className="w-2.5 h-2.5 rounded-sm bg-yellow-500"></span>
-                                <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-tighter">Med (1k-3k)</span>
+                                <span className="text-[9px] font-semibold text-foreground/45 uppercase tracking-tighter">Med (1k-3k)</span>
                             </div>
                             <div className="flex items-center gap-1.5">
                                 <span className="w-2.5 h-2.5 rounded-sm bg-red-500"></span>
-                                <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-tighter">Low (&lt;1k)</span>
+                                <span className="text-[9px] font-semibold text-foreground/45 uppercase tracking-tighter">Low (&lt;1k)</span>
                             </div>
                         </div>
                     </>
                 ) : (
-                    <div className="flex items-center justify-center flex-1 text-gray-400 italic text-sm">No value rating data available.</div>
+                    <div className="flex items-center justify-center flex-1 text-foreground/45 italic text-sm">No value rating data available.</div>
                 )}
             </div>
         </div>

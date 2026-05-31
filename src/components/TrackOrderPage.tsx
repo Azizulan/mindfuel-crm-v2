@@ -31,19 +31,19 @@ const TrackOrderPage: React.FC = () => {
         }
     };
 
-    const inputCls = "w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all";
+    const inputCls = "w-full px-4 py-3 bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl text-sm text-foreground/90 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all";
 
     return (
         <div className="space-y-5 pb-12">
             <div className="max-w-2xl mx-auto">
-                <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-                    <div className="px-6 py-5 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
+                <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm overflow-hidden">
+                    <div className="px-6 py-5 border-b border-foreground/[0.08] bg-foreground/[0.04] flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
                             <Search className="w-5 h-5" />
                         </div>
                         <div>
-                            <h2 className="text-base font-bold text-gray-800">Track Delivery</h2>
-                            <p className="text-xs text-gray-400 mt-0.5">Real-time logistics monitoring</p>
+                            <h2 className="text-base font-bold text-foreground/90">Track Delivery</h2>
+                            <p className="text-xs text-foreground/45 mt-0.5">Real-time logistics monitoring</p>
                         </div>
                     </div>
 
@@ -51,7 +51,7 @@ const TrackOrderPage: React.FC = () => {
                         <form onSubmit={handleTrack} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">ID Type</label>
+                                    <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">ID Type</label>
                                     <div className="relative">
                                         <select
                                             value={idType}
@@ -62,13 +62,13 @@ const TrackOrderPage: React.FC = () => {
                                             <option value="invoice">Invoice ID</option>
                                             <option value="consignment_id">Consignment ID</option>
                                         </select>
-                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-foreground/45">
                                             <ChevronDownIcon className="w-4 h-4" />
                                         </div>
                                     </div>
                                 </div>
                                 <div className="md:col-span-2">
-                                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Identifier</label>
+                                    <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Identifier</label>
                                     <div className="relative">
                                         <input
                                             type="text"
@@ -116,23 +116,23 @@ const TrackOrderPage: React.FC = () => {
                                 <motion.div
                                     initial={{ opacity: 0, y: 12 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="mt-5 p-6 bg-gray-50 border border-gray-200 rounded-2xl text-center"
+                                    className="mt-5 p-6 bg-foreground/[0.04] border border-foreground/[0.12] rounded-2xl text-center"
                                 >
                                     <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-blue-100">
                                         <Truck className="w-8 h-8 text-blue-600" />
                                     </div>
-                                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Shipment Status</p>
-                                    <h3 className="text-xl font-bold text-gray-800 mb-5 capitalize">
+                                    <p className="text-[10px] font-semibold text-foreground/45 uppercase tracking-widest mb-1">Shipment Status</p>
+                                    <h3 className="text-xl font-bold text-foreground/90 mb-5 capitalize">
                                         {result.delivery_status.replace(/_/g, ' ')}
                                     </h3>
                                     <div className="flex justify-center gap-4">
-                                        <div className="px-4 py-3 bg-white rounded-xl border border-gray-200">
-                                            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Tracking ID</p>
+                                        <div className="px-4 py-3 bg-card rounded-xl border border-foreground/[0.12]">
+                                            <p className="text-[10px] font-semibold text-foreground/45 uppercase tracking-widest mb-1">Tracking ID</p>
                                             <p className="text-xs font-bold text-blue-600">{idValue}</p>
                                         </div>
-                                        <div className="px-4 py-3 bg-white rounded-xl border border-gray-200">
-                                            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Last Update</p>
-                                            <p className="text-xs font-bold text-gray-600">{new Date().toLocaleTimeString()}</p>
+                                        <div className="px-4 py-3 bg-card rounded-xl border border-foreground/[0.12]">
+                                            <p className="text-[10px] font-semibold text-foreground/45 uppercase tracking-widest mb-1">Last Update</p>
+                                            <p className="text-xs font-bold text-foreground/70">{new Date().toLocaleTimeString()}</p>
                                         </div>
                                     </div>
                                 </motion.div>
@@ -140,12 +140,12 @@ const TrackOrderPage: React.FC = () => {
                                 <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    className="mt-5 py-12 border-2 border-dashed border-gray-200 rounded-2xl text-center"
+                                    className="mt-5 py-12 border-2 border-dashed border-foreground/[0.12] rounded-2xl text-center"
                                 >
-                                    <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3 text-gray-300">
+                                    <div className="w-10 h-10 bg-foreground/[0.08] rounded-xl flex items-center justify-center mx-auto mb-3 text-foreground/30">
                                         <Truck className="w-5 h-5" />
                                     </div>
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Enter tracking details above to begin monitoring</p>
+                                    <p className="text-xs font-semibold text-foreground/45 uppercase tracking-widest">Enter tracking details above to begin monitoring</p>
                                 </motion.div>
                             )}
                         </AnimatePresence>

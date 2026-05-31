@@ -97,9 +97,9 @@ const RFM_BADGE_COLORS: Record<string, string> = {
     "New":                 'bg-teal-100 text-teal-700 border-teal-200',
     "At Risk":             'bg-orange-100 text-orange-700 border-orange-200',
     "Can't Lose":          'bg-red-100 text-red-700 border-red-200',
-    "Hibernating":         'bg-gray-100 text-gray-600 border-gray-200',
-    "Lost":                'bg-gray-100 text-gray-400 border-gray-200',
-    "Outreach Only":       'bg-gray-100 text-gray-500 border-gray-200',
+    "Hibernating":         'bg-foreground/[0.08] text-foreground/70 border-foreground/[0.12]',
+    "Lost":                'bg-foreground/[0.08] text-foreground/45 border-foreground/[0.12]',
+    "Outreach Only":       'bg-foreground/[0.08] text-foreground/60 border-foreground/[0.12]',
 };
 
 // Tier 1.4 — is the current local hour inside this customer's best-pickup
@@ -202,7 +202,7 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         return (
             <div className="flex flex-col items-center justify-center py-24 gap-4">
                 <div className="w-10 h-10 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                <p className="text-sm text-gray-400 font-medium">Building your call queue...</p>
+                <p className="text-sm text-foreground/45 font-medium">Building your call queue...</p>
             </div>
         );
     }
@@ -212,16 +212,16 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             {/* Header */}
             <div className="glass-surface px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-lg font-bold text-gray-900">Today's Call Queue</h2>
+                    <h2 className="text-lg font-bold text-foreground">Today's Call Queue</h2>
                     {data && (
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-xs text-foreground/45 mt-0.5">
                             {visibleQueue.length} remaining · {data.suppressed} suppressed · {data.totalEligible} eligible total
                         </p>
                     )}
                 </div>
                 <div className="flex items-center gap-3">
                     {data && (
-                        <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
+                        <span className="text-[10px] font-semibold text-foreground/45 uppercase tracking-widest">
                             Generated {new Date(data.generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                     )}
@@ -247,8 +247,8 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                             <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                         </svg>
                     </div>
-                    <p className="text-sm font-bold text-gray-700">Queue complete!</p>
-                    <p className="text-xs text-gray-400 mt-1">All assigned calls have been logged. Refresh for a new batch.</p>
+                    <p className="text-sm font-bold text-foreground/85">Queue complete!</p>
+                    <p className="text-xs text-foreground/45 mt-1">All assigned calls have been logged. Refresh for a new batch.</p>
                 </div>
             )}
 
@@ -273,22 +273,22 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                 {/* Main row */}
                                 <div className="flex items-start gap-4 px-5 py-4">
                                     {/* Rank */}
-                                    <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center">
-                                        <span className="text-[11px] font-bold text-gray-400">{idx + 1}</span>
+                                    <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-foreground/[0.04] border border-foreground/[0.12] flex items-center justify-center">
+                                        <span className="text-[11px] font-bold text-foreground/45">{idx + 1}</span>
                                     </div>
 
                                     {/* Customer info */}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex flex-wrap items-center gap-2 mb-1">
-                                            <span className="text-sm font-bold text-gray-900">{item.name}</span>
+                                            <span className="text-sm font-bold text-foreground">{item.name}</span>
                                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${seg.color}`}>{seg.label}</span>
                                             {item.rfmSegment && item.rfmSegment !== 'Outreach Only' && (
-                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${RFM_BADGE_COLORS[item.rfmSegment] ?? 'bg-gray-100 text-gray-500 border-gray-200'}`}>
+                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${RFM_BADGE_COLORS[item.rfmSegment] ?? 'bg-foreground/[0.08] text-foreground/60 border-foreground/[0.12]'}`}>
                                                     {item.rfmSegment}
                                                 </span>
                                             )}
                                             {item.lastSentiment && (
-                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${SENTIMENT_COLORS[item.lastSentiment] ?? 'bg-gray-100 text-gray-500'}`}>
+                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${SENTIMENT_COLORS[item.lastSentiment] ?? 'bg-foreground/[0.08] text-foreground/60'}`}>
                                                     {item.lastSentiment}
                                                 </span>
                                             )}
@@ -304,7 +304,7 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                 const inWindow = isInBestWindow(item.bestCallHourStart, item.bestCallHourEnd);
                                                 return (
                                                     <span
-                                                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${inWindow ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-50 text-gray-500 border-gray-200'}`}
+                                                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${inWindow ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-foreground/[0.04] text-foreground/60 border-foreground/[0.12]'}`}
                                                         title={item.bestCallSummary}
                                                     >
                                                         {inWindow ? '📞 ' : '⏰ '}{item.bestCallSummary}
@@ -312,14 +312,14 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                 );
                                             })()}
                                         </div>
-                                        <p className="text-xs text-gray-400 font-mono">{item.phone}</p>
-                                        <p className="text-xs text-gray-500 mt-1">{item.reason}</p>
+                                        <p className="text-xs text-foreground/45 font-mono">{item.phone}</p>
+                                        <p className="text-xs text-foreground/60 mt-1">{item.reason}</p>
                                         {item.recommendedProduct && (
                                             <p className="text-xs text-emerald-700 mt-1 font-medium" title={item.recommendedProductReason ?? ''}>
                                                 🎯 Recommend: <span className="font-bold">{item.recommendedProduct}</span>
                                             </p>
                                         )}
-                                        <div className="flex flex-wrap gap-3 mt-2 text-[10px] text-gray-400 font-semibold uppercase tracking-wide">
+                                        <div className="flex flex-wrap gap-3 mt-2 text-[10px] text-foreground/45 font-semibold uppercase tracking-wide">
                                             <span>৳{item.totalSpending.toLocaleString()}</span>
                                             {typeof item.expectedValue === 'number' && item.expectedValue > 0 && (
                                                 <span className="text-indigo-600" title="Expected value = conversion probability × average order value">
@@ -373,7 +373,7 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                             transition={{ duration: 0.2 }}
                                             className="overflow-hidden"
                                         >
-                                            <div className="px-5 pb-5 border-t border-gray-100 pt-4 bg-gray-50/50">
+                                            <div className="px-5 pb-5 border-t border-foreground/[0.08] pt-4 bg-gray-50/50">
                                                 {/* In-call Bengali script, picked from this customer's signals */}
                                                 <CallScriptPanel
                                                     agentName={currentUser.name}
@@ -392,7 +392,7 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                     <div className="flex-1 space-y-3">
                                                         {/* Sentiment */}
                                                         <div>
-                                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Outcome</label>
+                                                            <label className="block text-[10px] font-bold text-foreground/45 uppercase tracking-widest mb-1.5">Outcome</label>
                                                             <div className="flex flex-wrap gap-1.5">
                                                                 {SENTIMENTS.map(s => (
                                                                     <button
@@ -411,25 +411,25 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                         </div>
                                                         {/* Notes */}
                                                         <div>
-                                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Notes</label>
+                                                            <label className="block text-[10px] font-bold text-foreground/45 uppercase tracking-widest mb-1.5">Notes</label>
                                                             <textarea
                                                                 rows={2}
                                                                 value={form.notes}
                                                                 onChange={e => updateForm(item.id, { notes: e.target.value })}
                                                                 placeholder="Optional call notes..."
-                                                                className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none resize-none transition-all"
+                                                                className="w-full bg-card border border-foreground/[0.12] rounded-xl px-3 py-2 text-sm text-foreground/90 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none resize-none transition-all"
                                                             />
                                                         </div>
                                                     </div>
                                                     <div className="sm:w-44 space-y-3">
                                                         {/* Reminder */}
                                                         <div>
-                                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Callback Date</label>
+                                                            <label className="block text-[10px] font-bold text-foreground/45 uppercase tracking-widest mb-1.5">Callback Date</label>
                                                             <input
                                                                 type="date"
                                                                 value={form.reminderDate}
                                                                 onChange={e => updateForm(item.id, { reminderDate: e.target.value })}
-                                                                className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all"
+                                                                className="w-full bg-card border border-foreground/[0.12] rounded-xl px-3 py-2 text-sm text-foreground/90 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all"
                                                             />
                                                         </div>
                                                         {/* Submit */}
@@ -442,7 +442,7 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                         </button>
                                                         <button
                                                             onClick={() => setExpandedId(null)}
-                                                            className="w-full text-xs font-semibold text-gray-400 hover:text-gray-600 transition-colors py-1"
+                                                            className="w-full text-xs font-semibold text-foreground/45 hover:text-foreground/70 transition-colors py-1"
                                                         >
                                                             Cancel
                                                         </button>

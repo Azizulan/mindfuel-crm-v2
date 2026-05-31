@@ -10,7 +10,7 @@ interface SalesExecutiveDashboardProps {
 }
 
 const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <div className={`bg-white border border-gray-200 rounded-2xl shadow-sm ${className}`}>{children}</div>
+  <div className={`bg-card border border-foreground/[0.12] rounded-2xl shadow-sm ${className}`}>{children}</div>
 );
 
 const SalesExecutiveDashboard: React.FC<SalesExecutiveDashboardProps> = ({ currentUser, stats, outreachRange, target, isLoading }) => {
@@ -128,9 +128,9 @@ const SalesExecutiveDashboard: React.FC<SalesExecutiveDashboardProps> = ({ curre
           <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 mb-3">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{performance.monthlyConversions}</p>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-0.5">Conversions</p>
-          <p className="text-xs text-gray-400 mt-1.5">Approved orders · {monthName}</p>
+          <p className="text-2xl font-bold text-foreground">{performance.monthlyConversions}</p>
+          <p className="text-xs font-semibold text-foreground/45 uppercase tracking-widest mt-0.5">Conversions</p>
+          <p className="text-xs text-foreground/45 mt-1.5">Approved orders · {monthName}</p>
         </Card>
 
         {/* Today's Outreach */}
@@ -145,9 +145,9 @@ const SalesExecutiveDashboard: React.FC<SalesExecutiveDashboardProps> = ({ curre
               </span>
             )}
           </div>
-          <p className="text-2xl font-bold text-gray-900">{performance.outreachToday}<span className="text-sm font-normal text-gray-400">/{target}</span></p>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-0.5">Today's Outreach</p>
-          <p className="text-xs text-gray-400 mt-1.5">{outreachPct}% of daily target</p>
+          <p className="text-2xl font-bold text-foreground">{performance.outreachToday}<span className="text-sm font-normal text-foreground/45">/{target}</span></p>
+          <p className="text-xs font-semibold text-foreground/45 uppercase tracking-widest mt-0.5">Today's Outreach</p>
+          <p className="text-xs text-foreground/45 mt-1.5">{outreachPct}% of daily target</p>
         </Card>
 
         {/* Hourly Velocity */}
@@ -160,9 +160,9 @@ const SalesExecutiveDashboard: React.FC<SalesExecutiveDashboardProps> = ({ curre
               {performance.outreachThisHour >= Math.ceil(requiredPerHour) ? '✓ On pace' : 'Below pace'}
             </span>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{performance.outreachThisHour}</p>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-0.5">This Hour</p>
-          <p className="text-xs text-gray-400 mt-1.5">Target: {Math.ceil(requiredPerHour)}/hr</p>
+          <p className="text-2xl font-bold text-foreground">{performance.outreachThisHour}</p>
+          <p className="text-xs font-semibold text-foreground/45 uppercase tracking-widest mt-0.5">This Hour</p>
+          <p className="text-xs text-foreground/45 mt-1.5">Target: {Math.ceil(requiredPerHour)}/hr</p>
         </Card>
 
         {/* Leaderboard Rank */}
@@ -170,11 +170,11 @@ const SalesExecutiveDashboard: React.FC<SalesExecutiveDashboardProps> = ({ curre
           <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 mb-3 text-base">
             {myRank === 1 ? '🥇' : myRank === 2 ? '🥈' : myRank === 3 ? '🥉' : '📊'}
           </div>
-          <p className="text-2xl font-bold text-gray-900">
+          <p className="text-2xl font-bold text-foreground">
             {myRank > 0 ? `#${myRank}` : '—'}
           </p>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-0.5">Your Rank</p>
-          <p className="text-xs text-gray-400 mt-1.5">
+          <p className="text-xs font-semibold text-foreground/45 uppercase tracking-widest mt-0.5">Your Rank</p>
+          <p className="text-xs text-foreground/45 mt-1.5">
             {myRank > 0 ? `Top ${Math.round((myRank / Math.max(leaderboard.length, 1)) * 100)}% of team` : 'Not yet ranked'}
           </p>
         </Card>
@@ -193,20 +193,20 @@ const SalesExecutiveDashboard: React.FC<SalesExecutiveDashboardProps> = ({ curre
           <div className="p-5 space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-semibold text-gray-500">Next milestone: <span className="text-gray-700 font-bold">৳{nextMilestone100}</span></p>
-                <p className="text-xs text-gray-400">{ordersToMilestone} more orders needed</p>
+                <p className="text-xs font-semibold text-foreground/60">Next milestone: <span className="text-foreground/85 font-bold">৳{nextMilestone100}</span></p>
+                <p className="text-xs text-foreground/45">{ordersToMilestone} more orders needed</p>
               </div>
-              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-2 bg-foreground/[0.08] rounded-full overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full transition-all duration-700" style={{ width: `${milestonePct}%` }} />
               </div>
               <div className="flex justify-between mt-1">
-                <span className="text-[10px] text-gray-300">৳{Math.floor(personalBonus / 100) * 100}</span>
-                <span className="text-[10px] text-gray-300">৳{nextMilestone100}</span>
+                <span className="text-[10px] text-foreground/30">৳{Math.floor(personalBonus / 100) * 100}</span>
+                <span className="text-[10px] text-foreground/30">৳{nextMilestone100}</span>
               </div>
             </div>
-            <div className="bg-gray-50 rounded-xl p-3 flex items-center gap-2">
+            <div className="bg-foreground/[0.04] rounded-xl p-3 flex items-center gap-2">
               <span className="text-base">💡</span>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-foreground/60">
                 {ordersToMilestone <= 3
                   ? `Just ${ordersToMilestone} more orders and you'll hit ৳${nextMilestone100}!`
                   : `Convert ${ordersToMilestone} more customers to reach the ৳${nextMilestone100} milestone.`}
@@ -219,8 +219,8 @@ const SalesExecutiveDashboard: React.FC<SalesExecutiveDashboardProps> = ({ curre
         <Card className="p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-bold text-gray-800">Daily Goal Progress</p>
-              <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${outreachPct >= 100 ? 'bg-emerald-50 text-emerald-600' : outreachPct >= 75 ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-500'}`}>
+              <p className="text-sm font-bold text-foreground/90">Daily Goal Progress</p>
+              <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${outreachPct >= 100 ? 'bg-emerald-50 text-emerald-600' : outreachPct >= 75 ? 'bg-blue-50 text-blue-600' : 'bg-foreground/[0.08] text-foreground/60'}`}>
                 {outreachPct}% complete
               </span>
             </div>
@@ -241,12 +241,12 @@ const SalesExecutiveDashboard: React.FC<SalesExecutiveDashboardProps> = ({ curre
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-sm font-black text-gray-800">{outreachPct}%</span>
+                  <span className="text-sm font-black text-foreground/90">{outreachPct}%</span>
                 </div>
               </div>
               <div>
-                <p className="text-3xl font-black text-gray-900">{performance.outreachToday}<span className="text-lg text-gray-300 font-normal">/{target}</span></p>
-                <p className="text-xs text-gray-400 mt-1">customers reached today</p>
+                <p className="text-3xl font-black text-foreground">{performance.outreachToday}<span className="text-lg text-foreground/30 font-normal">/{target}</span></p>
+                <p className="text-xs text-foreground/45 mt-1">customers reached today</p>
                 {outreachPct < 100 && (
                   <p className="text-xs font-semibold text-blue-600 mt-1">{target - performance.outreachToday} more to go</p>
                 )}
@@ -259,12 +259,12 @@ const SalesExecutiveDashboard: React.FC<SalesExecutiveDashboardProps> = ({ curre
 
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-gray-50 rounded-xl p-3">
-                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Required/hr</p>
-                <p className="text-lg font-bold text-gray-800 mt-0.5">{Math.ceil(requiredPerHour)}</p>
+              <div className="bg-foreground/[0.04] rounded-xl p-3">
+                <p className="text-[10px] font-semibold text-foreground/45 uppercase tracking-widest">Required/hr</p>
+                <p className="text-lg font-bold text-foreground/90 mt-0.5">{Math.ceil(requiredPerHour)}</p>
               </div>
-              <div className="bg-gray-50 rounded-xl p-3">
-                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">This Hour</p>
+              <div className="bg-foreground/[0.04] rounded-xl p-3">
+                <p className="text-[10px] font-semibold text-foreground/45 uppercase tracking-widest">This Hour</p>
                 <p className={`text-lg font-bold mt-0.5 ${performance.outreachThisHour >= Math.ceil(requiredPerHour) ? 'text-emerald-600' : 'text-amber-600'}`}>{performance.outreachThisHour}</p>
               </div>
             </div>
@@ -285,8 +285,8 @@ const SalesExecutiveDashboard: React.FC<SalesExecutiveDashboardProps> = ({ curre
 
         {/* Leaderboard */}
         <Card className="overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-gray-800">Team Leaderboard</h3>
+          <div className="px-5 py-4 border-b border-foreground/[0.08] flex items-center justify-between">
+            <h3 className="text-sm font-bold text-foreground/90">Team Leaderboard</h3>
             <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full uppercase">{monthName}</span>
           </div>
           {leaderboard.length > 0 ? (
@@ -295,43 +295,43 @@ const SalesExecutiveDashboard: React.FC<SalesExecutiveDashboardProps> = ({ curre
                 const isMe = agent.name === currentUser.name;
                 const topThree = i < 3;
                 return (
-                  <div key={agent.name} className={`px-5 py-3.5 flex items-center justify-between transition-colors ${isMe ? 'bg-blue-50/70' : 'hover:bg-gray-50'}`}>
+                  <div key={agent.name} className={`px-5 py-3.5 flex items-center justify-between transition-colors ${isMe ? 'bg-blue-50/70' : 'hover:bg-foreground/[0.04]'}`}>
                     <div className="flex items-center gap-3">
                       <div className={`w-7 h-7 rounded-xl flex items-center justify-center text-xs font-black flex-shrink-0 ${
                         i === 0 ? 'bg-gradient-to-br from-amber-400 to-orange-500 text-white' :
                         i === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-400 text-white' :
                         i === 2 ? 'bg-gradient-to-br from-orange-300 to-amber-400 text-white' :
-                        'bg-gray-100 text-gray-500'
+                        'bg-foreground/[0.08] text-foreground/60'
                       }`}>
                         {topThree ? rankIcons[i] : i + 1}
                       </div>
                       <div>
-                        <span className={`text-sm font-semibold ${isMe ? 'text-blue-700' : 'text-gray-700'}`}>
+                        <span className={`text-sm font-semibold ${isMe ? 'text-blue-700' : 'text-foreground/85'}`}>
                           {agent.name}{isMe && <span className="ml-1 text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full font-bold">you</span>}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="w-20 h-1.5 bg-foreground/[0.08] rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full ${i === 0 ? 'bg-amber-400' : isMe ? 'bg-blue-500' : 'bg-gray-300'}`}
                           style={{ width: `${leaderboard[0]?.count > 0 ? (agent.count / leaderboard[0].count) * 100 : 0}%` }}
                         />
                       </div>
-                      <span className={`text-sm font-black w-8 text-right ${isMe ? 'text-blue-700' : 'text-gray-800'}`}>{agent.count}</span>
+                      <span className={`text-sm font-black w-8 text-right ${isMe ? 'text-blue-700' : 'text-foreground/90'}`}>{agent.count}</span>
                     </div>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="py-12 text-center text-gray-400 text-xs">No ranking data yet this month.</div>
+            <div className="py-12 text-center text-foreground/45 text-xs">No ranking data yet this month.</div>
           )}
         </Card>
 
         {/* Business Rules + Insights */}
         <Card className="p-6">
-          <h3 className="text-sm font-bold text-gray-800 mb-4">Performance Rules & Tips</h3>
+          <h3 className="text-sm font-bold text-foreground/90 mb-4">Performance Rules & Tips</h3>
           <div className="space-y-3">
             {[
               {
@@ -359,11 +359,11 @@ const SalesExecutiveDashboard: React.FC<SalesExecutiveDashboardProps> = ({ curre
                 desc: `You need ~${Math.ceil(requiredPerHour)} customers/hour to hit your daily target of ${target}.`,
               },
             ].map((rule) => (
-              <div key={rule.title} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+              <div key={rule.title} className="flex items-start gap-3 p-3 bg-foreground/[0.04] rounded-xl">
                 <div className={`w-8 h-8 rounded-lg ${rule.color} flex items-center justify-center text-sm flex-shrink-0 font-bold`}>{rule.icon}</div>
                 <div>
-                  <p className="text-xs font-bold text-gray-700">{rule.title}</p>
-                  <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{rule.desc}</p>
+                  <p className="text-xs font-bold text-foreground/85">{rule.title}</p>
+                  <p className="text-xs text-foreground/45 mt-0.5 leading-relaxed">{rule.desc}</p>
                 </div>
               </div>
             ))}

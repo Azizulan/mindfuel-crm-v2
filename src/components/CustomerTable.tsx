@@ -98,7 +98,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
   return (
     <div className="space-y-4">
       {displayMode === 'dashboard' && (
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card p-4 rounded-lg shadow-sm border border-slate-200">
             <div className="relative w-full sm:w-64">
             <input 
                 type="text" 
@@ -133,7 +133,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
                 <select 
                     value={pageSize}
                     onChange={(e) => onPageSizeChange?.(Number(e.target.value))}
-                    className="bg-white border border-slate-300 rounded text-[10px] px-1 py-0.5 focus:ring-1 focus:ring-blue-500 outline-none text-slate-700"
+                    className="bg-card border border-slate-300 rounded text-[10px] px-1 py-0.5 focus:ring-1 focus:ring-blue-500 outline-none text-slate-700"
                 >
                     <option value={10}>10</option>
                     <option value={20}>20</option>
@@ -143,7 +143,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
           </div>
       )}
 
-      <div className="bg-white shadow-sm rounded-lg overflow-hidden border border-slate-200">
+      <div className="bg-card shadow-sm rounded-lg overflow-hidden border border-slate-200">
         <div className={`overflow-x-auto ${isLoading ? 'opacity-50 pointer-events-none transition-opacity' : ''}`}>
           <table className="min-w-full divide-y divide-slate-200">
             <thead className="bg-slate-50">
@@ -156,7 +156,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
                 <th className="px-6 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-slate-200">
+            <tbody className="bg-card divide-y divide-slate-200">
               {customers.length > 0 ? customers.map((customer) => {
                 const latestNote = customer.followUpNotes && customer.followUpNotes.length > 0 
                   ? [...customer.followUpNotes].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
@@ -232,14 +232,14 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
                 <button 
                     disabled={currentPage === 1 || isLoading} 
                     onClick={() => onPageChange?.(currentPage - 1)}
-                    className="p-2 border border-slate-300 rounded bg-white disabled:opacity-30 hover:bg-slate-50"
+                    className="p-2 border border-slate-300 rounded bg-card disabled:opacity-30 hover:bg-slate-50"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
                 <button 
                     disabled={currentPage * pageSize >= totalCount || isLoading} 
                     onClick={() => onPageChange?.(currentPage + 1)}
-                    className="p-2 border border-slate-300 rounded bg-white disabled:opacity-30 hover:bg-slate-50"
+                    className="p-2 border border-slate-300 rounded bg-card disabled:opacity-30 hover:bg-slate-50"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                 </button>

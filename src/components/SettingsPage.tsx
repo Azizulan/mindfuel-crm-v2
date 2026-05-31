@@ -51,7 +51,7 @@ const ClearDatabaseModal: React.FC<{onClose: () => void, onConfirm: (pass: strin
             <motion.div
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="bg-white border border-red-200 rounded-2xl shadow-xl max-w-md w-full overflow-hidden"
+                className="bg-card border border-red-200 rounded-2xl shadow-xl max-w-md w-full overflow-hidden"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="px-6 py-4 bg-red-50 border-b border-red-100 flex justify-between items-center">
@@ -65,15 +65,15 @@ const ClearDatabaseModal: React.FC<{onClose: () => void, onConfirm: (pass: strin
                         ⚠️ This will delete ALL purchase histories and customers without outreach logs. This cannot be undone.
                     </p>
                     <div>
-                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Administrator Password</label>
-                        <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500 transition-all" placeholder="••••••••" required />
+                        <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Administrator Password</label>
+                        <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl px-4 py-2.5 text-sm text-foreground/90 outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500 transition-all" placeholder="••••••••" required />
                     </div>
                     <div>
-                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Human check: {challenge.n1} × {challenge.n2} = ?</label>
-                        <input type="number" value={answer} onChange={e => setAnswer(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500 transition-all" placeholder="Answer..." required />
+                        <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Human check: {challenge.n1} × {challenge.n2} = ?</label>
+                        <input type="number" value={answer} onChange={e => setAnswer(e.target.value)} className="w-full bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl px-4 py-2.5 text-sm text-foreground/90 outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500 transition-all" placeholder="Answer..." required />
                     </div>
                     <div className="flex gap-3 pt-2">
-                        <button type="button" onClick={onClose} className="flex-1 py-2.5 bg-gray-100 text-gray-600 text-sm font-medium rounded-xl hover:bg-gray-200 transition-colors">Cancel</button>
+                        <button type="button" onClick={onClose} className="flex-1 py-2.5 bg-foreground/[0.08] text-foreground/70 text-sm font-medium rounded-xl hover:bg-foreground/[0.12] transition-colors">Cancel</button>
                         <button type="submit" disabled={isProcessing} className="flex-[2] py-2.5 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 disabled:opacity-50 transition-all">
                             {isProcessing ? 'Wiping…' : 'Destroy Data'}
                         </button>
@@ -87,9 +87,9 @@ const ClearDatabaseModal: React.FC<{onClose: () => void, onConfirm: (pass: strin
 const Toggle: React.FC<{checked: boolean, onChange: () => void}> = ({ checked, onChange }) => (
     <button
         onClick={onChange}
-        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${checked ? 'bg-blue-600' : 'bg-gray-200'}`}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${checked ? 'bg-blue-600' : 'bg-foreground/[0.12]'}`}
     >
-        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
+        <span className={`inline-block h-4 w-4 transform rounded-full bg-card transition-transform shadow-sm ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
     </button>
 );
 
@@ -97,12 +97,12 @@ const Card: React.FC<{icon: any, title: string, description: string, status?: st
     <div className="glass-surface p-6 space-y-5">
         <div className="flex items-start justify-between">
             <div className="flex items-start gap-4">
-                <div className="bg-gray-50 p-2.5 rounded-xl text-blue-600 border border-gray-200">
+                <div className="bg-foreground/[0.04] p-2.5 rounded-xl text-blue-600 border border-foreground/[0.12]">
                     <Icon className="w-5 h-5" />
                 </div>
                 <div>
-                    <h3 className="text-sm font-bold text-gray-900">{title}</h3>
-                    <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{description}</p>
+                    <h3 className="text-sm font-bold text-foreground">{title}</h3>
+                    <p className="text-xs text-foreground/45 mt-0.5 leading-relaxed">{description}</p>
                 </div>
             </div>
             {status === 'success' && (
@@ -115,7 +115,7 @@ const Card: React.FC<{icon: any, title: string, description: string, status?: st
     </div>
 );
 
-const inputClass = "w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all";
+const inputClass = "w-full bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl px-4 py-2.5 text-sm text-foreground/90 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all";
 const btnClass = (color: string) => `px-6 py-2.5 bg-${color}-600 text-white text-xs font-semibold uppercase rounded-xl hover:bg-${color}-700 transition-all`;
 
 const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpdate, currentUser }) => {
@@ -302,7 +302,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                             return (
                                 <label
                                     key={seg}
-                                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${checked ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200 hover:border-gray-300'}`}
+                                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${checked ? 'bg-blue-50 border-blue-200' : 'bg-foreground/[0.04] border-foreground/[0.12] hover:border-foreground/[0.15]'}`}
                                 >
                                     <input
                                         type="checkbox"
@@ -311,10 +311,10 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                                         className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
                                     />
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-semibold text-gray-800">{seg}</p>
-                                        <p className="text-[11px] text-gray-400 mt-0.5">{SEGMENT_DESC[seg]}</p>
+                                        <p className="text-sm font-semibold text-foreground/90">{seg}</p>
+                                        <p className="text-[11px] text-foreground/45 mt-0.5">{SEGMENT_DESC[seg]}</p>
                                     </div>
-                                    <span className="text-xs font-mono text-gray-500 flex-shrink-0">{count.toLocaleString()}</span>
+                                    <span className="text-xs font-mono text-foreground/60 flex-shrink-0">{count.toLocaleString()}</span>
                                 </label>
                             );
                         })}
@@ -324,7 +324,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                             </p>
                         )}
                         <div className="flex justify-between items-center pt-2">
-                            <p className="text-[11px] text-gray-400">
+                            <p className="text-[11px] text-foreground/45">
                                 {focusSegments.length === 0
                                     ? 'No filter — using all eligible customers.'
                                     : `Filtering to ${focusSegments.length} segment${focusSegments.length === 1 ? '' : 's'} (${focusSegments.reduce((s, seg) => s + (segmentCounts[seg] ?? 0), 0).toLocaleString()} customers).`}
@@ -349,10 +349,10 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                     statusText="Done"
                 >
                     <div className="space-y-3">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-foreground/[0.04] rounded-xl border border-foreground/[0.12]">
                             <div className="flex-1">
-                                <p className="text-sm font-semibold text-gray-800">Recompute customer stats</p>
-                                <p className="text-[11px] text-gray-400 mt-0.5">Reorder cycle + RFM segment + best call time</p>
+                                <p className="text-sm font-semibold text-foreground/90">Recompute customer stats</p>
+                                <p className="text-[11px] text-foreground/45 mt-0.5">Reorder cycle + RFM segment + best call time</p>
                                 {recomputeResult && (
                                     <p className={`text-[11px] mt-1.5 ${recomputeStatus === 'error' ? 'text-red-600' : 'text-emerald-700'}`}>
                                         {recomputeResult}
@@ -367,10 +367,10 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                                 {recomputeStatus === 'running' ? 'Running…' : 'Recompute Now'}
                             </button>
                         </div>
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-foreground/[0.04] rounded-xl border border-foreground/[0.12]">
                             <div className="flex-1">
-                                <p className="text-sm font-semibold text-gray-800">Normalise phone numbers</p>
-                                <p className="text-[11px] text-gray-400 mt-0.5">Backfill last-10-digits index + duplicate report</p>
+                                <p className="text-sm font-semibold text-foreground/90">Normalise phone numbers</p>
+                                <p className="text-[11px] text-foreground/45 mt-0.5">Backfill last-10-digits index + duplicate report</p>
                                 {normalizeResult && (
                                     <p className={`text-[11px] mt-1.5 ${normalizeStatus === 'error' ? 'text-red-600' : 'text-emerald-700'}`}>
                                         {normalizeResult}
@@ -391,7 +391,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                 <Card icon={ClockIcon} title="System Clock" description="Adjust global GMT offset for hourly activity tracking." status={gmtStatus} statusText="Updated">
                     <form onSubmit={handleGmtSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">GMT Offset (Hours)</label>
+                            <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">GMT Offset (Hours)</label>
                             <input type="number" step="0.5" value={gmtOffset} onChange={e => setGmtOffsetVal(e.target.value)} className={inputClass} placeholder="6" required />
                         </div>
                         <div className="flex justify-end">
@@ -402,27 +402,27 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
 
                 <Card icon={SparklesIcon} title="Outreach Focus (Legacy)" description="Applies to the Follow-up list only. For Today's Queue, use the Queue Focus Segments card above." status={modeStatus === 'success' || valueStatus === 'success' ? 'success' : 'idle'}>
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200">
+                        <div className="flex items-center justify-between p-4 bg-foreground/[0.04] rounded-xl border border-foreground/[0.12]">
                             <div>
-                                <p className="text-sm font-semibold text-gray-800">Repeat Customers Only</p>
-                                <p className="text-xs text-gray-400 mt-0.5">Target 2+ purchase profiles</p>
+                                <p className="text-sm font-semibold text-foreground/90">Repeat Customers Only</p>
+                                <p className="text-xs text-foreground/45 mt-0.5">Target 2+ purchase profiles</p>
                             </div>
                             <Toggle checked={repeatOnly} onChange={handleRepeatToggle} />
                         </div>
-                        <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+                        <div className="p-4 bg-foreground/[0.04] rounded-xl border border-foreground/[0.12] space-y-4">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-semibold text-gray-800">Value Customers Only</p>
-                                    <p className="text-xs text-gray-400 mt-0.5">Target high-spending segments</p>
+                                    <p className="text-sm font-semibold text-foreground/90">Value Customers Only</p>
+                                    <p className="text-xs text-foreground/45 mt-0.5">Target high-spending segments</p>
                                 </div>
                                 <Toggle checked={valueOnly} onChange={handleValueToggle} />
                             </div>
                             <form onSubmit={handleMinValSubmit} className="flex items-end gap-3">
                                 <div className="flex-1">
-                                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Min Order Value (BDT)</label>
+                                    <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Min Order Value (BDT)</label>
                                     <input type="number" value={minOrderVal} onChange={e => setMinOrderValInput(e.target.value)} className={inputClass} placeholder="500" />
                                 </div>
-                                <button type="submit" className="px-4 py-2.5 bg-gray-800 text-white text-xs font-semibold rounded-xl hover:bg-gray-900 transition-all">Update</button>
+                                <button type="submit" className="px-4 py-2.5 glass-cta-primary text-xs font-semibold rounded-xl transition-all">Update</button>
                             </form>
                         </div>
                     </div>
@@ -431,7 +431,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                 <Card icon={PhoneIcon} title="Daily Target" description="Target log entries per day for Sales Executives." status={goalStatus} statusText="Updated">
                     <form onSubmit={handleGoalSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Target Calls / Logs</label>
+                            <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Target Calls / Logs</label>
                             <input type="number" value={outreachGoal} onChange={e => setOutreachGoal(e.target.value)} className={inputClass} placeholder="100" required />
                         </div>
                         <div className="flex justify-end">
@@ -444,15 +444,15 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                     <form onSubmit={handleRangeSubmit} className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Start (Days Ago)</label>
+                                <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Start (Days Ago)</label>
                                 <input type="number" value={rangeStart} onChange={e => setRangeStart(e.target.value)} className={inputClass} />
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">End (Days Ago)</label>
+                                <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">End (Days Ago)</label>
                                 <input type="number" value={rangeEnd} onChange={e => setRangeEnd(e.target.value)} className={inputClass} />
                             </div>
                         </div>
-                        <p className="text-[10px] text-gray-400 italic">Example: 32 and 28 will show customers who bought between 28 and 32 days ago.</p>
+                        <p className="text-[10px] text-foreground/45 italic">Example: 32 and 28 will show customers who bought between 28 and 32 days ago.</p>
                         <div className="flex justify-end">
                             <button type="submit" className="px-6 py-2.5 glass-cta-primary text-xs font-semibold uppercase rounded-xl transition-all">Update Range</button>
                         </div>
@@ -470,11 +470,11 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                             </div>
                         )}
                         <div>
-                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">API Key</label>
+                            <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">API Key</label>
                             <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} className={inputClass} placeholder={credStatus?.configured ? 'Enter to replace' : '••••••••'} required={!credStatus?.configured} />
                         </div>
                         <div>
-                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Secret Key</label>
+                            <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Secret Key</label>
                             <input type="password" value={secretKey} onChange={e => setSecretKey(e.target.value)} className={inputClass} placeholder={credStatus?.configured ? 'Enter to replace' : '••••••••'} required={!credStatus?.configured} />
                         </div>
                         <div className="flex justify-end">
@@ -485,9 +485,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
             </div>
 
             {/* Danger Zone */}
-            <div className="pt-4 border-t border-gray-200">
+            <div className="pt-4 border-t border-foreground/[0.12]">
                 {!showDangerZone ? (
-                    <button onClick={() => setShowDangerZone(true)} className="text-xs font-semibold text-gray-400 uppercase tracking-widest hover:text-red-500 transition-colors">
+                    <button onClick={() => setShowDangerZone(true)} className="text-xs font-semibold text-foreground/45 uppercase tracking-widest hover:text-red-500 transition-colors">
                         Reveal Danger Zone
                     </button>
                 ) : (
@@ -501,10 +501,10 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentTarget, onTargetUpda
                                 <XMarkIcon className="w-4 h-4" />
                             </button>
                         </div>
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-white rounded-xl border border-red-200">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-card rounded-xl border border-red-200">
                             <div>
-                                <p className="text-sm font-semibold text-gray-800">Clear Global Database</p>
-                                <p className="text-xs text-gray-400 mt-0.5">Delete all purchase records and profiles.</p>
+                                <p className="text-sm font-semibold text-foreground/90">Clear Global Database</p>
+                                <p className="text-xs text-foreground/45 mt-0.5">Delete all purchase records and profiles.</p>
                             </div>
                             <button
                                 onClick={() => setShowClearModal(true)}

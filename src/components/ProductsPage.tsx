@@ -45,19 +45,19 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
 
     if (!isOpen) return null;
 
-    const inputClass = "w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-800 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all";
+    const inputClass = "w-full bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl px-4 py-2.5 text-sm font-medium text-foreground/90 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all";
 
     return (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50" onClick={onClose}>
             <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                className="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden border border-gray-200"
+                className="bg-card rounded-2xl shadow-xl max-w-md w-full overflow-hidden border border-foreground/[0.12]"
                 onClick={e => e.stopPropagation()}
             >
-                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                    <h3 className="text-base font-bold text-gray-900">{product ? 'Edit Product' : 'Add New Product'}</h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+                <div className="px-6 py-4 border-b border-foreground/[0.08] flex justify-between items-center">
+                    <h3 className="text-base font-bold text-foreground">{product ? 'Edit Product' : 'Add New Product'}</h3>
+                    <button onClick={onClose} className="text-foreground/45 hover:text-foreground/70 p-1.5 rounded-lg hover:bg-foreground/[0.08] transition-colors">
                         <XMarkIcon className="h-4 w-4" />
                     </button>
                 </div>
@@ -65,22 +65,22 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                     <div className="p-6 space-y-4">
                         {error && <p className="text-xs font-medium text-red-600 bg-red-50 border border-red-100 px-3 py-2 rounded-xl">{error}</p>}
                         <div>
-                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Product Name</label>
+                            <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Product Name</label>
                             <input type="text" value={name} onChange={e => setName(e.target.value)} className={inputClass} placeholder="e.g. Premium Subscription" required />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Price (BDT)</label>
+                                <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Price (BDT)</label>
                                 <input type="number" value={price} onChange={e => setPrice(e.target.value)} className={inputClass} min="0" step="any" required />
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Stock Units</label>
+                                <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Stock Units</label>
                                 <input type="number" value={stock} onChange={e => setStock(e.target.value)} className={inputClass} min="0" required />
                             </div>
                         </div>
                     </div>
-                    <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
-                        <button type="button" onClick={onClose} className="bg-gray-100 text-gray-700 px-5 py-2 rounded-xl hover:bg-gray-200 transition-colors text-sm font-medium">
+                    <div className="px-6 py-4 bg-foreground/[0.04] border-t border-foreground/[0.08] flex justify-end gap-3">
+                        <button type="button" onClick={onClose} className="bg-foreground/[0.08] text-foreground/85 px-5 py-2 rounded-xl hover:bg-foreground/[0.12] transition-colors text-sm font-medium">
                             Cancel
                         </button>
                         <button type="submit" className="bg-blue-600 text-white px-5 py-2 rounded-xl hover:bg-blue-700 transition-all text-sm font-medium shadow-sm">
@@ -124,7 +124,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ products, onAddProduct, onU
             {/* Toolbar */}
             <div className="flex items-center justify-between">
                 <div>
-                    <p className="text-xs text-gray-400">{products.length} product{products.length !== 1 ? 's' : ''} in catalog</p>
+                    <p className="text-xs text-foreground/45">{products.length} product{products.length !== 1 ? 's' : ''} in catalog</p>
                 </div>
                 <button
                     onClick={handleOpenAddModal}
@@ -147,7 +147,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ products, onAddProduct, onU
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.04 }}
-                                className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-shadow"
+                                className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-shadow"
                             >
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
@@ -158,12 +158,12 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ products, onAddProduct, onU
                                     </span>
                                 </div>
                                 <div>
-                                    <h4 className="text-sm font-bold text-gray-900 leading-snug">{product.name}</h4>
+                                    <h4 className="text-sm font-bold text-foreground leading-snug">{product.name}</h4>
                                     <p className="text-xl font-bold text-blue-600 mt-1">
                                         ৳{product.price.toLocaleString()}
                                     </p>
                                 </div>
-                                <div className="flex gap-2 pt-1 border-t border-gray-100">
+                                <div className="flex gap-2 pt-1 border-t border-foreground/[0.08]">
                                     <button
                                         onClick={() => handleOpenEditModal(product)}
                                         className="flex-1 text-xs font-semibold text-blue-600 hover:bg-blue-50 py-1.5 rounded-lg transition-colors"
@@ -178,9 +178,9 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ products, onAddProduct, onU
                     </AnimatePresence>
                 </div>
             ) : (
-                <div className="bg-white border border-dashed border-gray-300 rounded-2xl p-16 text-center">
-                    <BoxIcon className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-400 font-medium text-sm">No products yet. Add your first product to get started.</p>
+                <div className="bg-card border border-dashed border-foreground/[0.15] rounded-2xl p-16 text-center">
+                    <BoxIcon className="h-10 w-10 text-foreground/30 mx-auto mb-3" />
+                    <p className="text-foreground/45 font-medium text-sm">No products yet. Add your first product to get started.</p>
                     <button onClick={handleOpenAddModal} className="mt-4 text-sm font-semibold text-blue-600 hover:underline">
                         Add a product
                     </button>

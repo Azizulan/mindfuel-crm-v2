@@ -28,17 +28,17 @@ const ConfirmModal: React.FC<{
             <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                className="bg-white border border-gray-200 rounded-2xl p-6 max-w-md w-full shadow-xl"
+                className="bg-card border border-foreground/[0.12] rounded-2xl p-6 max-w-md w-full shadow-xl"
             >
                 <div className="flex items-center gap-3 mb-4">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${variant === 'danger' ? "bg-red-50 border-red-100 text-red-500" : "bg-blue-50 border-blue-100 text-blue-500"}`}>
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
-                    <h3 className="text-base font-bold text-gray-800">{title}</h3>
+                    <h3 className="text-base font-bold text-foreground/90">{title}</h3>
                 </div>
-                <p className="text-sm text-gray-500 leading-relaxed mb-6">{message}</p>
+                <p className="text-sm text-foreground/60 leading-relaxed mb-6">{message}</p>
                 <div className="flex gap-3">
-                    <button onClick={onClose} className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-600 text-sm font-semibold rounded-xl hover:bg-gray-200 transition-colors">Cancel</button>
+                    <button onClick={onClose} className="flex-1 px-4 py-2.5 bg-foreground/[0.08] text-foreground/70 text-sm font-semibold rounded-xl hover:bg-foreground/[0.12] transition-colors">Cancel</button>
                     <button
                         onClick={() => { onConfirm(); onClose(); }}
                         className={`flex-1 px-4 py-2.5 text-white text-sm font-semibold rounded-xl transition-colors ${variant === 'danger' ? "bg-red-600 hover:bg-red-700" : "bg-blue-600 hover:bg-blue-700"}`}
@@ -148,21 +148,21 @@ const OrderStatusPage: React.FC<OrderStatusPageProps> = ({ currentUser }) => {
     return (
         <div className="space-y-5 pb-12">
             {/* Tabs card */}
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-                <div className="flex border-b border-gray-100 bg-gray-50 p-1.5 gap-1.5">
+            <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm overflow-hidden">
+                <div className="flex border-b border-foreground/[0.08] bg-foreground/[0.04] p-1.5 gap-1.5">
                     <button
                         onClick={() => setActiveTab('approvals')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-semibold uppercase tracking-widest transition-all ${activeTab === 'approvals' ? "bg-white shadow-sm text-gray-800 border border-gray-200" : "text-gray-400 hover:text-gray-600"}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-semibold uppercase tracking-widest transition-all ${activeTab === 'approvals' ? "bg-card shadow-sm text-foreground/90 border border-foreground/[0.12]" : "text-foreground/45 hover:text-foreground/70"}`}
                     >
-                        <ClockIcon className={`w-4 h-4 ${activeTab === 'approvals' ? "text-amber-500" : "text-gray-300"}`} />
+                        <ClockIcon className={`w-4 h-4 ${activeTab === 'approvals' ? "text-amber-500" : "text-foreground/30"}`} />
                         Pending Approvals
-                        <span className="ml-1 px-2 py-0.5 bg-gray-100 rounded-lg text-gray-500 text-[10px]">{localOrders.length}</span>
+                        <span className="ml-1 px-2 py-0.5 bg-foreground/[0.08] rounded-lg text-foreground/60 text-[10px]">{localOrders.length}</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('courier')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-semibold uppercase tracking-widest transition-all ${activeTab === 'courier' ? "bg-white shadow-sm text-gray-800 border border-gray-200" : "text-gray-400 hover:text-gray-600"}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-semibold uppercase tracking-widest transition-all ${activeTab === 'courier' ? "bg-card shadow-sm text-foreground/90 border border-foreground/[0.12]" : "text-foreground/45 hover:text-foreground/70"}`}
                     >
-                        <Truck className={`w-4 h-4 ${activeTab === 'courier' ? "text-blue-500" : "text-gray-300"}`} />
+                        <Truck className={`w-4 h-4 ${activeTab === 'courier' ? "text-blue-500" : "text-foreground/30"}`} />
                         Courier History
                     </button>
                 </div>
@@ -179,25 +179,25 @@ const OrderStatusPage: React.FC<OrderStatusPageProps> = ({ currentUser }) => {
                                 {isLoading ? (
                                     <div className="flex flex-col items-center justify-center py-16 space-y-3">
                                         <div className="w-8 h-8 border-3 border-blue-200 border-t-blue-500 rounded-full animate-spin" />
-                                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Loading...</p>
+                                        <p className="text-xs font-semibold text-foreground/45 uppercase tracking-widest">Loading...</p>
                                     </div>
                                 ) : localOrders.length === 0 ? (
                                     <div className="text-center py-16 space-y-3">
-                                        <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto border border-gray-200">
-                                            <CheckCircleIcon className="w-7 h-7 text-gray-300" />
+                                        <div className="w-14 h-14 bg-foreground/[0.04] rounded-2xl flex items-center justify-center mx-auto border border-foreground/[0.12]">
+                                            <CheckCircleIcon className="w-7 h-7 text-foreground/30" />
                                         </div>
-                                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">No orders pending approval.</p>
+                                        <p className="text-xs font-semibold text-foreground/45 uppercase tracking-widest">No orders pending approval.</p>
                                     </div>
                                 ) : (
                                     <div className="overflow-x-auto">
                                         <table className="w-full">
                                             <thead>
-                                                <tr className="border-b border-gray-100">
-                                                    <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Invoice / Agent</th>
-                                                    <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Date</th>
-                                                    <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Recipient</th>
-                                                    <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Amount</th>
-                                                    <th className="pb-3 text-right text-[10px] font-semibold uppercase tracking-widest text-gray-400">Actions</th>
+                                                <tr className="border-b border-foreground/[0.08]">
+                                                    <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-foreground/45">Invoice / Agent</th>
+                                                    <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-foreground/45">Date</th>
+                                                    <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-foreground/45">Recipient</th>
+                                                    <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-foreground/45">Amount</th>
+                                                    <th className="pb-3 text-right text-[10px] font-semibold uppercase tracking-widest text-foreground/45">Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-50">
@@ -207,19 +207,19 @@ const OrderStatusPage: React.FC<OrderStatusPageProps> = ({ currentUser }) => {
                                                         initial={{ opacity: 0, y: 8 }}
                                                         animate={{ opacity: 1, y: 0 }}
                                                         transition={{ delay: idx * 0.04 }}
-                                                        className="hover:bg-gray-50 transition-colors"
+                                                        className="hover:bg-foreground/[0.04] transition-colors"
                                                     >
                                                         <td className="py-4 pr-4">
-                                                            <div className="text-sm font-semibold text-gray-800">{order.invoice}</div>
-                                                            <div className="text-[10px] text-gray-400 mt-0.5">By: {order.agent}</div>
+                                                            <div className="text-sm font-semibold text-foreground/90">{order.invoice}</div>
+                                                            <div className="text-[10px] text-foreground/45 mt-0.5">By: {order.agent}</div>
                                                         </td>
                                                         <td className="py-4 pr-4">
-                                                            <div className="text-sm text-gray-600">{new Date(order.createdAt).toLocaleDateString()}</div>
-                                                            <div className="text-[10px] text-gray-400 mt-0.5">{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                                            <div className="text-sm text-foreground/70">{new Date(order.createdAt).toLocaleDateString()}</div>
+                                                            <div className="text-[10px] text-foreground/45 mt-0.5">{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                                         </td>
                                                         <td className="py-4 pr-4">
-                                                            <div className="text-sm font-medium text-gray-800">{order.recipient_name}</div>
-                                                            <div className="text-[10px] text-gray-400 mt-0.5">{order.recipient_phone}</div>
+                                                            <div className="text-sm font-medium text-foreground/90">{order.recipient_name}</div>
+                                                            <div className="text-[10px] text-foreground/45 mt-0.5">{order.recipient_phone}</div>
                                                         </td>
                                                         <td className="py-4 pr-4">
                                                             <span className="text-sm font-bold text-emerald-600">৳{order.cod_amount.toLocaleString()}</span>
@@ -261,7 +261,7 @@ const OrderStatusPage: React.FC<OrderStatusPageProps> = ({ currentUser }) => {
                                         <button
                                             key={s}
                                             onClick={() => setActiveStatus(s)}
-                                            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-widest transition-all border ${activeStatus === s ? "bg-white text-gray-800 border-gray-200 shadow-sm" : "bg-transparent text-gray-400 border-transparent hover:text-gray-600"}`}
+                                            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-widest transition-all border ${activeStatus === s ? "bg-card text-foreground/90 border-foreground/[0.12] shadow-sm" : "bg-transparent text-foreground/45 border-transparent hover:text-foreground/70"}`}
                                         >
                                             {s.replace('_', ' ')}
                                         </button>
@@ -271,25 +271,25 @@ const OrderStatusPage: React.FC<OrderStatusPageProps> = ({ currentUser }) => {
                                 {isLoading ? (
                                     <div className="flex flex-col items-center justify-center py-16 space-y-3">
                                         <div className="w-8 h-8 border-3 border-blue-200 border-t-blue-500 rounded-full animate-spin" />
-                                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Syncing with courier...</p>
+                                        <p className="text-xs font-semibold text-foreground/45 uppercase tracking-widest">Syncing with courier...</p>
                                     </div>
                                 ) : filteredCourierOrders.length === 0 ? (
                                     <div className="text-center py-16 space-y-3">
-                                        <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto border border-gray-200">
-                                            <Truck className="w-7 h-7 text-gray-300" />
+                                        <div className="w-14 h-14 bg-foreground/[0.04] rounded-2xl flex items-center justify-center mx-auto border border-foreground/[0.12]">
+                                            <Truck className="w-7 h-7 text-foreground/30" />
                                         </div>
-                                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">No courier records found.</p>
+                                        <p className="text-xs font-semibold text-foreground/45 uppercase tracking-widest">No courier records found.</p>
                                     </div>
                                 ) : (
                                     <div className="overflow-x-auto">
                                         <table className="w-full">
                                             <thead>
-                                                <tr className="border-b border-gray-100">
-                                                    <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Invoice / Tracking</th>
-                                                    <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Date</th>
-                                                    <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Recipient</th>
-                                                    <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Status</th>
-                                                    <th className="pb-3 text-right text-[10px] font-semibold uppercase tracking-widest text-gray-400">Price</th>
+                                                <tr className="border-b border-foreground/[0.08]">
+                                                    <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-foreground/45">Invoice / Tracking</th>
+                                                    <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-foreground/45">Date</th>
+                                                    <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-foreground/45">Recipient</th>
+                                                    <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-foreground/45">Status</th>
+                                                    <th className="pb-3 text-right text-[10px] font-semibold uppercase tracking-widest text-foreground/45">Price</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-50">
@@ -299,21 +299,21 @@ const OrderStatusPage: React.FC<OrderStatusPageProps> = ({ currentUser }) => {
                                                         initial={{ opacity: 0, y: 8 }}
                                                         animate={{ opacity: 1, y: 0 }}
                                                         transition={{ delay: idx * 0.04 }}
-                                                        className="hover:bg-gray-50 transition-colors"
+                                                        className="hover:bg-foreground/[0.04] transition-colors"
                                                     >
                                                         <td className="py-4 pr-4">
-                                                            <div className="text-sm font-semibold text-gray-800">{order.invoice}</div>
-                                                            <div className="text-[10px] text-gray-400 font-mono mt-0.5">{order.tracking_code}</div>
+                                                            <div className="text-sm font-semibold text-foreground/90">{order.invoice}</div>
+                                                            <div className="text-[10px] text-foreground/45 font-mono mt-0.5">{order.tracking_code}</div>
                                                         </td>
                                                         <td className="py-4 pr-4">
-                                                            <div className="text-sm text-gray-600">{new Date(order.created_at).toLocaleDateString()}</div>
-                                                            <div className="text-[10px] text-gray-400 mt-0.5">{new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                                            <div className="text-sm text-foreground/70">{new Date(order.created_at).toLocaleDateString()}</div>
+                                                            <div className="text-[10px] text-foreground/45 mt-0.5">{new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                                         </td>
                                                         <td className="py-4 pr-4">
-                                                            <div className="text-sm font-medium text-gray-800">{order.recipient_name}</div>
+                                                            <div className="text-sm font-medium text-foreground/90">{order.recipient_name}</div>
                                                         </td>
                                                         <td className="py-4 pr-4">
-                                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border ${statusColors[order.status] || 'bg-gray-50 text-gray-500 border-gray-100'}`}>
+                                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border ${statusColors[order.status] || 'bg-foreground/[0.04] text-foreground/60 border-foreground/[0.08]'}`}>
                                                                 {order.status.replace(/_/g, ' ')}
                                                             </span>
                                                         </td>

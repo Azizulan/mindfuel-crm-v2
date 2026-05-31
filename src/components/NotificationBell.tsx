@@ -37,7 +37,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ reminders, onRemind
                 )}
             </button>
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-xl border border-slate-200 z-20">
+                <div className="absolute right-0 mt-2 w-72 bg-card rounded-lg shadow-xl border border-slate-200 z-20">
                     <div className="p-3 border-b">
                         <h4 className="font-semibold text-sm text-slate-800">Today's Reminders</h4>
                     </div>

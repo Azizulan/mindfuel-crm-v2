@@ -48,7 +48,7 @@ const EditRecordModal: React.FC<{customer: Customer, onClose: () => void, onSave
     const [address, setAddress] = useState(customer.address || '');
     const [isSaving, setIsSaving] = useState(false);
 
-    const inputClass = "w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all";
+    const inputClass = "w-full bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl px-4 py-2.5 text-sm text-foreground/90 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all";
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -60,18 +60,18 @@ const EditRecordModal: React.FC<{customer: Customer, onClose: () => void, onSave
 
     return (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[60]" onClick={onClose}>
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white border border-gray-200 rounded-2xl shadow-xl max-w-lg w-full overflow-hidden" onClick={e => e.stopPropagation()}>
-                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                    <h3 className="font-bold text-gray-900 text-base">Edit Customer Record</h3>
-                    <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"><XMarkIcon className="w-4 h-4" /></button>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-card border border-foreground/[0.12] rounded-2xl shadow-xl max-w-lg w-full overflow-hidden" onClick={e => e.stopPropagation()}>
+                <div className="px-6 py-4 border-b border-foreground/[0.08] flex justify-between items-center">
+                    <h3 className="font-bold text-foreground text-base">Edit Customer Record</h3>
+                    <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-foreground/[0.08] text-foreground/45 transition-colors"><XMarkIcon className="w-4 h-4" /></button>
                 </div>
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    <div><label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Customer Name</label><input value={name} onChange={e => setName(e.target.value)} className={inputClass} required /></div>
-                    <div><label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Phone</label><input value={phone} onChange={e => setPhone(e.target.value)} className={inputClass} required /></div>
-                    <div><label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Email</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} className={inputClass} /></div>
-                    <div><label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1.5">Address</label><textarea value={address} onChange={e => setAddress(e.target.value)} className={inputClass} rows={3} /></div>
+                    <div><label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Customer Name</label><input value={name} onChange={e => setName(e.target.value)} className={inputClass} required /></div>
+                    <div><label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Phone</label><input value={phone} onChange={e => setPhone(e.target.value)} className={inputClass} required /></div>
+                    <div><label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Email</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} className={inputClass} /></div>
+                    <div><label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Address</label><textarea value={address} onChange={e => setAddress(e.target.value)} className={inputClass} rows={3} /></div>
                     <div className="flex justify-end gap-3 pt-2">
-                        <button type="button" onClick={onClose} className="px-5 py-2.5 bg-gray-100 text-gray-600 text-sm font-medium rounded-xl hover:bg-gray-200 transition-colors">Cancel</button>
+                        <button type="button" onClick={onClose} className="px-5 py-2.5 bg-foreground/[0.08] text-foreground/70 text-sm font-medium rounded-xl hover:bg-foreground/[0.12] transition-colors">Cancel</button>
                         <button type="submit" disabled={isSaving} className="px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all">
                             {isSaving ? 'Saving…' : 'Save Changes'}
                         </button>
@@ -126,7 +126,7 @@ const DataManagementPage: React.FC<DataManagementPageProps> = (props) => {
     };
 
     const SortHeader = ({ field, label, align = 'left' }: { field: string, label: string, align?: 'left' | 'right' }) => (
-        <th className={`px-5 py-3 text-xs font-semibold uppercase text-gray-500 tracking-wider cursor-pointer hover:bg-gray-100 transition-colors ${align === 'right' ? 'text-right' : 'text-left'}`} onClick={() => props.onSort(field)}>
+        <th className={`px-5 py-3 text-xs font-semibold uppercase text-foreground/60 tracking-wider cursor-pointer hover:bg-foreground/[0.08] transition-colors ${align === 'right' ? 'text-right' : 'text-left'}`} onClick={() => props.onSort(field)}>
             <div className={`flex items-center gap-1 ${align === 'right' ? 'justify-end' : ''}`}>
                 {label}
                 <ChevronUpDownIcon className="h-3 w-3" direction={props.sortField === field ? (props.sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'} />
@@ -138,19 +138,19 @@ const DataManagementPage: React.FC<DataManagementPageProps> = (props) => {
         <div className="space-y-5 pb-12">
 
             {/* Toolbar */}
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 flex flex-col sm:flex-row gap-3 items-center">
+            <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm p-4 flex flex-col sm:flex-row gap-3 items-center">
                 <div className="relative w-full sm:w-80">
                     <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-foreground/45" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     </div>
-                    <input type="text" placeholder="Search by phone or name…" onChange={e => props.onSearchChange(e.target.value)} className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all" />
+                    <input type="text" placeholder="Search by phone or name…" onChange={e => props.onSearchChange(e.target.value)} className="w-full pl-9 pr-4 py-2.5 bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl text-sm text-foreground/90 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all" />
                 </div>
-                <select value={props.pageSize} onChange={e => props.onPageSizeChange(Number(e.target.value))} className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
+                <select value={props.pageSize} onChange={e => props.onPageSizeChange(Number(e.target.value))} className="bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl px-3 py-2.5 text-sm text-foreground/85 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
                     <option value={10}>10 rows</option>
                     <option value={50}>50 rows</option>
                     <option value={100}>100 rows</option>
                 </select>
-                <div className="ml-auto text-xs font-semibold text-gray-400 uppercase tracking-widest">{props.totalCount} records</div>
+                <div className="ml-auto text-xs font-semibold text-foreground/45 uppercase tracking-widest">{props.totalCount} records</div>
             </div>
 
             {/* Bulk actions bar */}
@@ -164,7 +164,7 @@ const DataManagementPage: React.FC<DataManagementPageProps> = (props) => {
                         <div className="flex items-center gap-2 sm:ml-auto">
                             <span className="text-white/80 text-xs">Set date:</span>
                             <input type="date" value={bulkUpdateDate} onChange={e => setBulkUpdateDate(e.target.value)} className="bg-white/10 border border-white/20 rounded-xl px-3 py-1.5 text-white text-xs outline-none" />
-                            <button disabled={isBulkProcessing || !bulkUpdateDate} onClick={handleBulkUpdateDate} className="bg-white text-blue-700 px-4 py-1.5 rounded-xl text-xs font-bold hover:bg-blue-50 disabled:opacity-50 transition-all">
+                            <button disabled={isBulkProcessing || !bulkUpdateDate} onClick={handleBulkUpdateDate} className="bg-card text-blue-700 px-4 py-1.5 rounded-xl text-xs font-bold hover:bg-blue-50 disabled:opacity-50 transition-all">
                                 Apply
                             </button>
                         </div>
@@ -173,19 +173,19 @@ const DataManagementPage: React.FC<DataManagementPageProps> = (props) => {
             </AnimatePresence>
 
             {/* Table */}
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm overflow-hidden">
                 <div className={`overflow-x-auto transition-opacity ${props.isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
                     <table className="w-full border-collapse">
                         <thead>
-                            <tr className="bg-gray-50 border-b border-gray-100">
+                            <tr className="bg-foreground/[0.04] border-b border-foreground/[0.08]">
                                 <th className="px-5 py-3 w-10">
-                                    <input type="checkbox" checked={props.customers.length > 0 && selectedIds.size === props.customers.length} onChange={toggleSelectAll} className="w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer" />
+                                    <input type="checkbox" checked={props.customers.length > 0 && selectedIds.size === props.customers.length} onChange={toggleSelectAll} className="w-4 h-4 rounded text-blue-600 border-foreground/[0.15] focus:ring-blue-500 cursor-pointer" />
                                 </th>
                                 <SortHeader field="name" label="Customer" />
                                 <SortHeader field="health" label="Integrity" />
                                 <SortHeader field="totalSpending" label="Revenue" />
                                 <SortHeader field="lastPurchaseDate" label="Last Purchase" />
-                                <th className="px-5 py-3 text-right text-xs font-semibold uppercase text-gray-500 tracking-wider">Actions</th>
+                                <th className="px-5 py-3 text-right text-xs font-semibold uppercase text-foreground/60 tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
@@ -195,13 +195,13 @@ const DataManagementPage: React.FC<DataManagementPageProps> = (props) => {
                                     const isHealthy = issues.length === 0;
                                     const isSelected = selectedIds.has(String(c.id));
                                     return (
-                                        <motion.tr key={c.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: idx * 0.02 }} className={`transition-colors group ${isSelected ? 'bg-blue-50' : (!isHealthy ? 'bg-rose-50/50' : 'hover:bg-gray-50')}`}>
+                                        <motion.tr key={c.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: idx * 0.02 }} className={`transition-colors group ${isSelected ? 'bg-blue-50' : (!isHealthy ? 'bg-rose-50/50' : 'hover:bg-foreground/[0.04]')}`}>
                                             <td className="px-5 py-4">
-                                                <input type="checkbox" checked={isSelected} onChange={() => toggleSelect(String(c.id))} className="w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer" />
+                                                <input type="checkbox" checked={isSelected} onChange={() => toggleSelect(String(c.id))} className="w-4 h-4 rounded text-blue-600 border-foreground/[0.15] focus:ring-blue-500 cursor-pointer" />
                                             </td>
                                             <td className="px-5 py-4 whitespace-nowrap">
-                                                <div className="text-sm font-semibold text-gray-800">{c.name}</div>
-                                                <div className="text-[10px] text-gray-400 font-mono">{c.phone}</div>
+                                                <div className="text-sm font-semibold text-foreground/90">{c.name}</div>
+                                                <div className="text-[10px] text-foreground/45 font-mono">{c.phone}</div>
                                             </td>
                                             <td className="px-5 py-4">
                                                 {isHealthy ? (
@@ -217,18 +217,18 @@ const DataManagementPage: React.FC<DataManagementPageProps> = (props) => {
                                                 )}
                                             </td>
                                             <td className="px-5 py-4 whitespace-nowrap">
-                                                <div className="text-sm font-bold text-gray-700">৳{c.totalSpending.toLocaleString()}</div>
-                                                <div className="text-[10px] text-gray-400">{c.purchaseCount} orders</div>
+                                                <div className="text-sm font-bold text-foreground/85">৳{c.totalSpending.toLocaleString()}</div>
+                                                <div className="text-[10px] text-foreground/45">{c.purchaseCount} orders</div>
                                             </td>
-                                            <td className="px-5 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-5 py-4 whitespace-nowrap text-sm text-foreground/60">
                                                 {c.lastPurchaseDate ? new Date(c.lastPurchaseDate).toLocaleDateString() : '—'}
                                             </td>
                                             <td className="px-5 py-4 whitespace-nowrap text-right">
                                                 <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button onClick={() => setEditingCustomer(c)} className="p-2 bg-gray-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-xl transition-all border border-gray-200" title="Edit">
+                                                    <button onClick={() => setEditingCustomer(c)} className="p-2 bg-foreground/[0.04] text-blue-600 hover:bg-blue-600 hover:text-white rounded-xl transition-all border border-foreground/[0.12]" title="Edit">
                                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                                     </button>
-                                                    <button onClick={() => handleDelete(c.id)} className="p-2 bg-gray-50 text-red-500 hover:bg-red-600 hover:text-white rounded-xl transition-all border border-gray-200" title="Delete">
+                                                    <button onClick={() => handleDelete(c.id)} className="p-2 bg-foreground/[0.04] text-red-500 hover:bg-red-600 hover:text-white rounded-xl transition-all border border-foreground/[0.12]" title="Delete">
                                                         <TrashIcon className="w-3.5 h-3.5" />
                                                     </button>
                                                 </div>
@@ -237,7 +237,7 @@ const DataManagementPage: React.FC<DataManagementPageProps> = (props) => {
                                     );
                                 }) : (
                                     <tr>
-                                        <td colSpan={6} className="px-6 py-16 text-center text-gray-400 italic text-sm">
+                                        <td colSpan={6} className="px-6 py-16 text-center text-foreground/45 italic text-sm">
                                             {props.isLoading ? 'Loading…' : 'No records in current view.'}
                                         </td>
                                     </tr>
@@ -247,13 +247,13 @@ const DataManagementPage: React.FC<DataManagementPageProps> = (props) => {
                     </table>
                 </div>
 
-                <div className="px-5 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-                    <div className="text-xs text-gray-400 font-semibold uppercase tracking-widest">
+                <div className="px-5 py-4 bg-foreground/[0.04] border-t border-foreground/[0.08] flex items-center justify-between">
+                    <div className="text-xs text-foreground/45 font-semibold uppercase tracking-widest">
                         Page {props.currentPage} of {Math.ceil(props.totalCount / props.pageSize) || 1}
                     </div>
                     <div className="flex gap-2">
-                        <button disabled={props.currentPage === 1 || props.isLoading} onClick={() => props.onPageChange(props.currentPage - 1)} className="px-4 py-1.5 text-xs font-medium text-gray-500 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-30 transition-all">Prev</button>
-                        <button disabled={props.currentPage * props.pageSize >= props.totalCount || props.isLoading} onClick={() => props.onPageChange(props.currentPage + 1)} className="px-4 py-1.5 text-xs font-medium text-gray-500 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-30 transition-all">Next</button>
+                        <button disabled={props.currentPage === 1 || props.isLoading} onClick={() => props.onPageChange(props.currentPage - 1)} className="px-4 py-1.5 text-xs font-medium text-foreground/60 bg-card border border-foreground/[0.12] rounded-xl hover:bg-foreground/[0.04] disabled:opacity-30 transition-all">Prev</button>
+                        <button disabled={props.currentPage * props.pageSize >= props.totalCount || props.isLoading} onClick={() => props.onPageChange(props.currentPage + 1)} className="px-4 py-1.5 text-xs font-medium text-foreground/60 bg-card border border-foreground/[0.12] rounded-xl hover:bg-foreground/[0.04] disabled:opacity-30 transition-all">Next</button>
                     </div>
                 </div>
             </div>

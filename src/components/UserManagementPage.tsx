@@ -36,16 +36,16 @@ const UserManagementPage: React.FC<UserManagementPageProps> = ({ users, currentU
 
     return (
         <div className="space-y-6 pb-12">
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
-                            <tr className="bg-gray-50 border-b border-gray-100">
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Shift Hours</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                            <tr className="bg-foreground/[0.04] border-b border-foreground/[0.08]">
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-foreground/60 uppercase tracking-wider">User</th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-foreground/60 uppercase tracking-wider">Role</th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-foreground/60 uppercase tracking-wider">Shift Hours</th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-foreground/60 uppercase tracking-wider">Status</th>
+                                <th className="px-6 py-3 text-right text-xs font-semibold text-foreground/60 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
@@ -56,16 +56,16 @@ const UserManagementPage: React.FC<UserManagementPageProps> = ({ users, currentU
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: idx * 0.03 }}
-                                        className="hover:bg-gray-50 transition-colors group"
+                                        className="hover:bg-foreground/[0.04] transition-colors group"
                                     >
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center font-bold text-gray-600 text-sm">
+                                                <div className="w-8 h-8 rounded-xl bg-foreground/[0.08] flex items-center justify-center font-bold text-foreground/70 text-sm">
                                                     {user.name.charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <div className="text-sm font-semibold text-gray-800">{user.name}</div>
-                                                    <div className="text-[10px] text-gray-400">{user.email}</div>
+                                                    <div className="text-sm font-semibold text-foreground/90">{user.name}</div>
+                                                    <div className="text-[10px] text-foreground/45">{user.email}</div>
                                                 </div>
                                             </div>
                                         </td>
@@ -76,28 +76,28 @@ const UserManagementPage: React.FC<UserManagementPageProps> = ({ users, currentU
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {updatingShiftId === user.id ? (
-                                                <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-xl border border-gray-200">
+                                                <div className="flex items-center gap-2 bg-foreground/[0.04] p-2 rounded-xl border border-foreground/[0.12]">
                                                     <input
                                                         type="number" min="0" max="23"
                                                         value={shiftData.start}
                                                         onChange={e => setShiftData({...shiftData, start: Number(e.target.value)})}
-                                                        className="w-12 bg-white border border-gray-200 rounded-lg px-2 py-1 text-xs font-bold text-gray-800 outline-none focus:ring-1 focus:ring-blue-500 text-center"
+                                                        className="w-12 bg-card border border-foreground/[0.12] rounded-lg px-2 py-1 text-xs font-bold text-foreground/90 outline-none focus:ring-1 focus:ring-blue-500 text-center"
                                                     />
-                                                    <span className="text-gray-400 text-xs">–</span>
+                                                    <span className="text-foreground/45 text-xs">–</span>
                                                     <input
                                                         type="number" min="0" max="23"
                                                         value={shiftData.end}
                                                         onChange={e => setShiftData({...shiftData, end: Number(e.target.value)})}
-                                                        className="w-12 bg-white border border-gray-200 rounded-lg px-2 py-1 text-xs font-bold text-gray-800 outline-none focus:ring-1 focus:ring-blue-500 text-center"
+                                                        className="w-12 bg-card border border-foreground/[0.12] rounded-lg px-2 py-1 text-xs font-bold text-foreground/90 outline-none focus:ring-1 focus:ring-blue-500 text-center"
                                                     />
                                                     <button onClick={() => handleSaveShift(user.id)} className="px-3 py-1 bg-blue-600 text-white text-[10px] font-bold uppercase rounded-lg hover:bg-blue-700 transition-colors">Save</button>
-                                                    <button onClick={() => setUpdatingShiftId(null)} className="p-1 text-gray-400 hover:text-gray-600">
+                                                    <button onClick={() => setUpdatingShiftId(null)} className="p-1 text-foreground/45 hover:text-foreground/70">
                                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                                                     </button>
                                                 </div>
                                             ) : (
                                                 <button
-                                                    className="font-mono text-xs font-semibold text-gray-600 hover:text-blue-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-blue-50"
+                                                    className="font-mono text-xs font-semibold text-foreground/70 hover:text-blue-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-blue-50"
                                                     onClick={() => {
                                                         setShiftData({ start: user.shiftStart || 10, end: user.shiftEnd || 21 });
                                                         setUpdatingShiftId(user.id);
@@ -126,13 +126,13 @@ const UserManagementPage: React.FC<UserManagementPageProps> = ({ users, currentU
                                                     )}
                                                 </div>
                                             ) : (
-                                                <span className="text-[10px] font-semibold text-gray-300 uppercase tracking-widest">Protected</span>
+                                                <span className="text-[10px] font-semibold text-foreground/30 uppercase tracking-widest">Protected</span>
                                             )}
                                         </td>
                                     </motion.tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-16 text-center text-gray-400 italic text-sm">
+                                        <td colSpan={5} className="px-6 py-16 text-center text-foreground/45 italic text-sm">
                                             No users found.
                                         </td>
                                     </tr>

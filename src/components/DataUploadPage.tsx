@@ -108,8 +108,8 @@ const SteadfastSyncTab: React.FC = () => {
     <div className="space-y-5">
 
       {/* Date range picker */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-4">
-        <div className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest">
+      <div className="bg-card border border-foreground/[0.12] rounded-2xl p-5 space-y-4">
+        <div className="flex items-center gap-2 text-xs font-bold text-foreground/60 uppercase tracking-widest">
           <Calendar className="w-3.5 h-3.5" />
           Select Delivery Date Range
         </div>
@@ -134,14 +134,14 @@ const SteadfastSyncTab: React.FC = () => {
               type="date"
               value={customStart}
               onChange={e => setCustomStart(e.target.value)}
-              className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-700 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none"
+              className="px-3 py-2 bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl text-xs text-foreground/85 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none"
             />
-            <span className="text-xs text-gray-400">to</span>
+            <span className="text-xs text-foreground/45">to</span>
             <input
               type="date"
               value={customEnd}
               onChange={e => setCustomEnd(e.target.value)}
-              className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-700 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none"
+              className="px-3 py-2 bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl text-xs text-foreground/85 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none"
             />
           </div>
         )}
@@ -199,13 +199,13 @@ const SteadfastSyncTab: React.FC = () => {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
                   { label: 'Payments Fetched',  value: result.paymentsProcessed, color: 'text-blue-700',    bg: 'bg-blue-50 border-blue-100' },
-                  { label: 'Customers Updated', value: result.synced,            color: 'text-emerald-700', bg: 'bg-white border-emerald-200' },
+                  { label: 'Customers Updated', value: result.synced,            color: 'text-emerald-700', bg: 'bg-card border-emerald-200' },
                   { label: 'New Customers',     value: result.newCustomers,      color: 'text-violet-700',  bg: 'bg-violet-50 border-violet-100' },
-                  { label: 'Already Synced',    value: result.alreadySynced,     color: 'text-gray-600',    bg: 'bg-gray-50 border-gray-200' },
+                  { label: 'Already Synced',    value: result.alreadySynced,     color: 'text-foreground/70',    bg: 'bg-foreground/[0.04] border-foreground/[0.12]' },
                 ].map(s => (
                   <div key={s.label} className={`border rounded-xl p-3 ${s.bg}`}>
                     <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
-                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mt-0.5">{s.label}</p>
+                    <p className="text-[10px] font-semibold text-foreground/45 uppercase tracking-widest mt-0.5">{s.label}</p>
                   </div>
                 ))}
               </div>
@@ -227,15 +227,15 @@ const SteadfastSyncTab: React.FC = () => {
 
       {/* How it works */}
       {!result && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-gray-500">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-foreground/60">
           {[
             { icon: '📦', title: 'Reads Payment Batches', desc: 'Fetches all Steadfast payment records within your selected date range.' },
             { icon: '🔍', title: 'Matches by Phone', desc: 'Each delivered consignment is matched to a customer in your CRM by phone number.' },
             { icon: '🔄', title: 'Dedup Protected', desc: 'Each consignment ID is only applied once — syncing the same range twice is safe.' },
           ].map(item => (
-            <div key={item.title} className="bg-white border border-gray-200 rounded-xl p-3.5 space-y-1">
+            <div key={item.title} className="bg-card border border-foreground/[0.12] rounded-xl p-3.5 space-y-1">
               <p className="text-base">{item.icon}</p>
-              <p className="font-bold text-gray-700">{item.title}</p>
+              <p className="font-bold text-foreground/85">{item.title}</p>
               <p className="leading-relaxed">{item.desc}</p>
             </div>
           ))}
@@ -316,51 +316,51 @@ const CsvUploadTab: React.FC<{ onUploadSuccess: () => void }> = ({ onUploadSucce
 
   return (
     <div className="space-y-4">
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 space-y-6">
+      <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm p-6 space-y-6">
         {!parsedRows ? (
           <div
             onDrop={handleDrop}
             onDragOver={e => e.preventDefault()}
-            className="group border-2 border-dashed border-gray-200 rounded-2xl p-12 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-all"
+            className="group border-2 border-dashed border-foreground/[0.12] rounded-2xl p-12 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-all"
             onClick={() => document.getElementById('file-upload')?.click()}
           >
             <input type="file" id="file-upload" className="hidden" accept=".csv, .xlsx" onChange={handleFileChange} />
-            <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto border border-gray-200 group-hover:border-blue-200 group-hover:bg-blue-50 transition-all mb-4">
-              <UploadIcon className="w-7 h-7 text-gray-400 group-hover:text-blue-500 transition-colors" />
+            <div className="w-14 h-14 bg-foreground/[0.04] rounded-2xl flex items-center justify-center mx-auto border border-foreground/[0.12] group-hover:border-blue-200 group-hover:bg-blue-50 transition-all mb-4">
+              <UploadIcon className="w-7 h-7 text-foreground/45 group-hover:text-blue-500 transition-colors" />
             </div>
-            <p className="text-sm font-semibold text-gray-700">Drop your file here or click to browse</p>
-            <p className="text-xs text-gray-400 mt-1">Supports CSV, Excel (.xlsx)</p>
+            <p className="text-sm font-semibold text-foreground/85">Drop your file here or click to browse</p>
+            <p className="text-xs text-foreground/45 mt-1">Supports CSV, Excel (.xlsx)</p>
           </div>
         ) : (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-foreground/[0.04] border border-foreground/[0.12] rounded-2xl p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="bg-blue-50 p-2 rounded-xl border border-blue-100">
                   <CheckCircleIcon className="w-4 h-4 text-blue-600" />
                 </div>
-                <span className="text-sm font-semibold text-gray-800">Ready to Import</span>
+                <span className="text-sm font-semibold text-foreground/90">Ready to Import</span>
               </div>
-              <button onClick={() => { setParsedRows(null); setFileName(null); }} className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-400 hover:text-gray-600 transition-colors">
+              <button onClick={() => { setParsedRows(null); setFileName(null); }} className="p-1.5 rounded-lg hover:bg-foreground/[0.12] text-foreground/45 hover:text-foreground/70 transition-colors">
                 <XMarkIcon className="w-4 h-4" />
               </button>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white p-3 rounded-xl border border-gray-200">
-                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Source File</p>
-                <p className="text-sm font-medium text-gray-800 truncate">{fileName}</p>
+              <div className="bg-card p-3 rounded-xl border border-foreground/[0.12]">
+                <p className="text-[10px] font-semibold text-foreground/45 uppercase tracking-widest mb-1">Source File</p>
+                <p className="text-sm font-medium text-foreground/90 truncate">{fileName}</p>
               </div>
-              <div className="bg-white p-3 rounded-xl border border-gray-200">
-                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Detected Records</p>
+              <div className="bg-card p-3 rounded-xl border border-foreground/[0.12]">
+                <p className="text-[10px] font-semibold text-foreground/45 uppercase tracking-widest mb-1">Detected Records</p>
                 <p className="text-sm font-bold text-blue-600">{parsedRows.length} customers</p>
               </div>
             </div>
             {isLoading && progress && (
               <div className="space-y-1.5">
-                <div className="flex justify-between text-xs font-medium text-gray-500">
+                <div className="flex justify-between text-xs font-medium text-foreground/60">
                   <span>Processing…</span>
                   <span>{Math.round((progress.current / progress.total) * 100)}%</span>
                 </div>
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-2 bg-foreground/[0.12] rounded-full overflow-hidden">
                   <motion.div initial={{ width: 0 }} animate={{ width: `${(progress.current / progress.total) * 100}%` }} className="h-full bg-blue-600 rounded-full" />
                 </div>
               </div>
@@ -387,13 +387,13 @@ const CsvUploadTab: React.FC<{ onUploadSuccess: () => void }> = ({ onUploadSucce
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">ID Detection</p>
-          <p className="text-xs text-gray-500 leading-relaxed">Phone, Mobile, Email, or ID columns are used as unique keys for profile identification.</p>
+        <div className="bg-card p-4 rounded-2xl border border-foreground/[0.12] shadow-sm">
+          <p className="text-xs font-bold text-foreground/60 uppercase tracking-widest mb-2">ID Detection</p>
+          <p className="text-xs text-foreground/60 leading-relaxed">Phone, Mobile, Email, or ID columns are used as unique keys for profile identification.</p>
         </div>
-        <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Smart Merge</p>
-          <p className="text-xs text-gray-500 leading-relaxed">New purchases are appended to history; names and addresses are intelligently updated.</p>
+        <div className="bg-card p-4 rounded-2xl border border-foreground/[0.12] shadow-sm">
+          <p className="text-xs font-bold text-foreground/60 uppercase tracking-widest mb-2">Smart Merge</p>
+          <p className="text-xs text-foreground/60 leading-relaxed">New purchases are appended to history; names and addresses are intelligently updated.</p>
         </div>
       </div>
     </div>
@@ -412,7 +412,7 @@ const DataUploadPage: React.FC<DataUploadPageProps> = ({ onUploadSuccess }) => {
       <div className="max-w-2xl mx-auto space-y-5">
 
         {/* Tab switcher */}
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-1.5 flex gap-1">
+        <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm p-1.5 flex gap-1">
           {([
             { id: 'csv' as Tab,       icon: <UploadIcon className="w-3.5 h-3.5" />, label: 'CSV / Excel Upload',  sub: 'Manual batch import' },
             { id: 'steadfast' as Tab, icon: <Database className="w-3.5 h-3.5" />,  label: 'Steadfast Sync',      sub: 'Auto-import deliveries' },

@@ -50,23 +50,23 @@ const isToday = (someDate: Date) => {
 }
 
 const CollapsibleSection: React.FC<{title: string, count: number, isOpen: boolean, setIsOpen: (v: boolean) => void, children: React.ReactNode, accent?: string}> = ({ title, count, isOpen, setIsOpen, children, accent = 'text-amber-600' }) => (
-    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+    <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm overflow-hidden">
         <button
             onClick={() => setIsOpen(!isOpen)}
-            className="w-full flex justify-between items-center px-5 py-4 text-left hover:bg-gray-50 transition-colors"
+            className="w-full flex justify-between items-center px-5 py-4 text-left hover:bg-foreground/[0.04] transition-colors"
         >
             <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center">
                     <ClockIcon className={`w-4 h-4 ${accent}`} />
                 </div>
                 <div>
-                    <h3 className="text-sm font-bold text-gray-800">{title}</h3>
-                    <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest">{count} records</p>
+                    <h3 className="text-sm font-bold text-foreground/90">{title}</h3>
+                    <p className="text-[10px] text-foreground/45 font-semibold uppercase tracking-widest">{count} records</p>
                 </div>
             </div>
             <div className="flex items-center gap-3">
                 <span className="bg-amber-50 text-amber-600 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-100 uppercase">{count}</span>
-                <ChevronDownIcon className={`h-4 w-4 text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDownIcon className={`h-4 w-4 text-foreground/45 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
             </div>
         </button>
         <AnimatePresence>
@@ -77,7 +77,7 @@ const CollapsibleSection: React.FC<{title: string, count: number, isOpen: boolea
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.25, ease: 'easeInOut' }}
                 >
-                    <div className="px-5 pb-5 border-t border-gray-100 pt-4">
+                    <div className="px-5 pb-5 border-t border-foreground/[0.08] pt-4">
                         {children}
                     </div>
                 </motion.div>
@@ -137,7 +137,7 @@ const FollowUpPage: React.FC<FollowUpPageProps> = ({
         { id: 'ordered', name: 'Ordered', icon: PositiveIcon, count: segmentCounts.ordered, color: 'text-emerald-500' },
         { id: 'callLater', name: 'Call Later', icon: CallBackIcon, count: segmentCounts.callLater, color: 'text-blue-500' },
         { id: 'noAnswer', name: 'No Answer', icon: NoAnswerIcon, count: segmentCounts.noAnswer, color: 'text-rose-500' },
-        { id: 'notInterested', name: 'Not Interested', icon: NotInterestedIcon, count: segmentCounts.notInterested, color: 'text-gray-400' },
+        { id: 'notInterested', name: 'Not Interested', icon: NotInterestedIcon, count: segmentCounts.notInterested, color: 'text-foreground/45' },
         { id: 'all', name: 'History', icon: CheckCircleIcon, count: segmentCounts.all, color: 'text-indigo-500' },
     ];
 
@@ -165,38 +165,38 @@ const FollowUpPage: React.FC<FollowUpPageProps> = ({
         <div className="space-y-6 pb-12">
 
             {/* Search & Filter Bar */}
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 flex flex-col lg:flex-row items-center gap-4">
+            <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm p-4 flex flex-col lg:flex-row items-center gap-4">
                 <div className="relative w-full lg:w-80">
                     <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-foreground/45" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                         </svg>
                     </div>
                     <input
                         type="text"
                         placeholder="Search by name or phone..."
-                        className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all"
+                        className="w-full pl-9 pr-4 py-2.5 bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl text-sm text-foreground/90 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all"
                         onChange={(e) => onSearchChange(e.target.value)}
                     />
                 </div>
 
                 {isExecutive && (
-                    <div className="flex flex-wrap items-center gap-3 lg:border-l lg:border-gray-200 lg:pl-4 w-full lg:w-auto">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">Refine Window:</span>
+                    <div className="flex flex-wrap items-center gap-3 lg:border-l lg:border-foreground/[0.12] lg:pl-4 w-full lg:w-auto">
+                        <span className="text-[10px] font-bold text-foreground/45 uppercase tracking-widest whitespace-nowrap">Refine Window:</span>
                         <div className="flex items-center gap-2">
                             <input
                                 type="number"
                                 value={localRefinedStart}
                                 onChange={e => setLocalRefinedStart(e.target.value)}
-                                className="w-16 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-bold text-center text-gray-800 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                                className="w-16 bg-foreground/[0.04] border border-foreground/[0.12] rounded-lg px-2 py-1.5 text-xs font-bold text-center text-foreground/90 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
                                 placeholder="Start"
                             />
-                            <span className="text-gray-400 text-xs">to</span>
+                            <span className="text-foreground/45 text-xs">to</span>
                             <input
                                 type="number"
                                 value={localRefinedEnd}
                                 onChange={e => setLocalRefinedEnd(e.target.value)}
-                                className="w-16 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-bold text-center text-gray-800 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                                className="w-16 bg-foreground/[0.04] border border-foreground/[0.12] rounded-lg px-2 py-1.5 text-xs font-bold text-center text-foreground/90 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
                                 placeholder="End"
                             />
                             <button
@@ -206,7 +206,7 @@ const FollowUpPage: React.FC<FollowUpPageProps> = ({
                             {(userRefinedRange?.start || userRefinedRange?.end) && (
                                 <button
                                     onClick={handleResetRefinement}
-                                    className="text-xs font-semibold text-gray-400 hover:text-gray-700 transition-colors"
+                                    className="text-xs font-semibold text-foreground/45 hover:text-foreground/85 transition-colors"
                                 >Reset</button>
                             )}
                         </div>
@@ -257,21 +257,21 @@ const FollowUpPage: React.FC<FollowUpPageProps> = ({
             )}
 
             {/* Retention Segments */}
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-                <div className="px-6 py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm overflow-hidden">
+                <div className="px-6 py-5 border-b border-foreground/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                        <h3 className="text-base font-bold text-gray-900">
+                        <h3 className="text-base font-bold text-foreground">
                             {activeTab === 'all' ? 'Activity History' : 'Retention Pool'}
                         </h3>
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-xs text-foreground/45 mt-0.5">
                             {activeTab === 'all'
                                 ? 'All interactions in the last 10 days.'
                                 : `Customers within the ${userRefinedRange?.end || outreachRange.end}–${userRefinedRange?.start || outreachRange.start} day window.`}
                         </p>
                     </div>
-                    <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-200">
+                    <div className="flex items-center gap-2 bg-foreground/[0.04] px-3 py-1.5 rounded-xl border border-foreground/[0.12]">
                         <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                        <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">{totalCount} records</span>
+                        <span className="text-[10px] font-semibold text-foreground/60 uppercase tracking-widest">{totalCount} records</span>
                     </div>
                 </div>
 

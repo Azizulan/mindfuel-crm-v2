@@ -10,7 +10,7 @@ const OrdersChart: React.FC<OrdersChartProps> = ({ data }) => {
 
     if (data.length === 0) {
         return (
-            <div className="h-56 flex items-center justify-center text-gray-400 text-sm italic">
+            <div className="h-56 flex items-center justify-center text-foreground/45 text-sm italic">
                 No order data for the last 30 days.
             </div>
         );
@@ -30,7 +30,7 @@ const OrdersChart: React.FC<OrdersChartProps> = ({ data }) => {
                 {/* Y-axis */}
                 <div className="flex flex-col justify-between items-end pr-2 flex-shrink-0" style={{ height: '180px' }}>
                     {[...yTicks].reverse().map(t => (
-                        <span key={t} className="text-[9px] text-gray-300 font-mono">{t}</span>
+                        <span key={t} className="text-[9px] text-foreground/30 font-mono">{t}</span>
                     ))}
                 </div>
 
@@ -41,7 +41,7 @@ const OrdersChart: React.FC<OrdersChartProps> = ({ data }) => {
                         className="absolute left-0 right-0 border-t border-dashed border-amber-300/60 z-10 pointer-events-none"
                         style={{ bottom: `${(avg / maxValue) * 100}%` }}
                     >
-                        <span className="absolute right-0 -top-3.5 text-[8px] text-amber-400 font-semibold bg-white px-1">avg {avg.toFixed(1)}</span>
+                        <span className="absolute right-0 -top-3.5 text-[8px] text-amber-400 font-semibold bg-card px-1">avg {avg.toFixed(1)}</span>
                     </div>
 
                     {data.map((d, i) => {
@@ -57,14 +57,14 @@ const OrdersChart: React.FC<OrdersChartProps> = ({ data }) => {
                                 onMouseLeave={() => setHoveredIdx(null)}
                             >
                                 <div
-                                    className={`w-full rounded-t-sm transition-all duration-150 ${isHovered ? 'bg-blue-600' : d.count === 0 ? 'bg-gray-100' : isWeekend ? 'bg-blue-300/70' : 'bg-blue-400/70'}`}
+                                    className={`w-full rounded-t-sm transition-all duration-150 ${isHovered ? 'bg-blue-600' : d.count === 0 ? 'bg-foreground/[0.08]' : isWeekend ? 'bg-blue-300/70' : 'bg-blue-400/70'}`}
                                     style={{ height: `${Math.max(heightPct, d.count > 0 ? 2 : 0)}%` }}
                                 />
                                 {/* Tooltip */}
                                 {isHovered && (
                                     <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] px-2.5 py-1.5 rounded-lg z-20 whitespace-nowrap shadow-xl">
                                         <p className="font-bold">{d.count} orders</p>
-                                        <p className="text-gray-400">{d.date}</p>
+                                        <p className="text-foreground/45">{d.date}</p>
                                     </div>
                                 )}
                             </div>
@@ -78,7 +78,7 @@ const OrdersChart: React.FC<OrdersChartProps> = ({ data }) => {
                 {data.map((d, i) => (
                     <div key={d.date} className="flex-1 text-center overflow-visible">
                         {(i === 0 || i % 7 === 0 || i === data.length - 1) ? (
-                            <span className="text-[8px] text-gray-300 font-mono">
+                            <span className="text-[8px] text-foreground/30 font-mono">
                                 {d.date.slice(5)}
                             </span>
                         ) : null}
@@ -87,13 +87,13 @@ const OrdersChart: React.FC<OrdersChartProps> = ({ data }) => {
             </div>
 
             {/* Summary row */}
-            <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                <div className="flex items-center gap-4 text-xs text-gray-400">
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-foreground/[0.08]">
+                <div className="flex items-center gap-4 text-xs text-foreground/45">
                     <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-blue-400/70 inline-block" />Daily orders</span>
                     <span className="flex items-center gap-1.5"><span className="w-2.5 h-1 border-t-2 border-dashed border-amber-300 inline-block" />30-day avg</span>
                 </div>
-                <div className="text-xs text-gray-400">
-                    Peak: <span className="font-semibold text-gray-600">{maxValue}</span> &nbsp;·&nbsp; Total: <span className="font-semibold text-gray-600">{total}</span>
+                <div className="text-xs text-foreground/45">
+                    Peak: <span className="font-semibold text-foreground/70">{maxValue}</span> &nbsp;·&nbsp; Total: <span className="font-semibold text-foreground/70">{total}</span>
                 </div>
             </div>
         </div>

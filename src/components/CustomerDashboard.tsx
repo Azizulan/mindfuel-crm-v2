@@ -28,17 +28,17 @@ interface CustomerDashboardProps {
 }
 
 const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <div className={`bg-white border border-gray-200 rounded-2xl shadow-sm ${className}`}>{children}</div>
+  <div className={`bg-card border border-foreground/[0.12] rounded-2xl shadow-sm ${className}`}>{children}</div>
 );
 
 const feedbackConfig: Record<string, { bg: string; text: string; dot: string }> = {
   'Positive':          { bg: 'bg-blue-50',   text: 'text-blue-700',   dot: 'bg-blue-500' },
   'Happy':             { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500' },
-  'Neutral':           { bg: 'bg-gray-100',   text: 'text-gray-600',   dot: 'bg-gray-400' },
+  'Neutral':           { bg: 'bg-foreground/[0.08]',   text: 'text-foreground/70',   dot: 'bg-gray-400' },
   'Angry':             { bg: 'bg-red-50',     text: 'text-red-600',    dot: 'bg-red-500' },
   'Not Interested':    { bg: 'bg-amber-50',   text: 'text-amber-700',  dot: 'bg-amber-500' },
   'Call Back Later':   { bg: 'bg-purple-50',  text: 'text-purple-700', dot: 'bg-purple-500' },
-  'Call Not Received': { bg: 'bg-gray-100',   text: 'text-gray-500',   dot: 'bg-gray-400' },
+  'Call Not Received': { bg: 'bg-foreground/[0.08]',   text: 'text-foreground/60',   dot: 'bg-gray-400' },
 };
 
 const CustomerDashboard: React.FC<CustomerDashboardProps> = (props) => {
@@ -95,9 +95,9 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = (props) => {
             </div>
             <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">{repeatPct}% repeat</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{totalCustomers.toLocaleString()}</p>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-0.5">Total Customers</p>
-          <p className="text-xs text-gray-400 mt-2">{repeatBuyers.toLocaleString()} repeat buyers</p>
+          <p className="text-2xl font-bold text-foreground">{totalCustomers.toLocaleString()}</p>
+          <p className="text-xs font-semibold text-foreground/45 uppercase tracking-widest mt-0.5">Total Customers</p>
+          <p className="text-xs text-foreground/45 mt-2">{repeatBuyers.toLocaleString()} repeat buyers</p>
         </Card>
 
         {/* Monthly Outreach */}
@@ -108,9 +108,9 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = (props) => {
             </div>
             <span className="text-[10px] font-bold bg-violet-50 text-violet-600 px-2 py-0.5 rounded-full">{outreachPct}% of DB</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{reachedCount.toLocaleString()}</p>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-0.5">Monthly Outreach</p>
-          <p className="text-xs text-gray-400 mt-2">Unique contacts this month</p>
+          <p className="text-2xl font-bold text-foreground">{reachedCount.toLocaleString()}</p>
+          <p className="text-xs font-semibold text-foreground/45 uppercase tracking-widest mt-0.5">Monthly Outreach</p>
+          <p className="text-xs text-foreground/45 mt-2">Unique contacts this month</p>
         </Card>
 
         {/* Conversion */}
@@ -125,9 +125,9 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = (props) => {
               </span>
             )}
           </div>
-          <p className="text-2xl font-bold text-gray-900">{orderedCount.toLocaleString()}</p>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-0.5">Monthly Orders</p>
-          <p className="text-xs text-gray-400 mt-2">{conversionRate}% conversion rate</p>
+          <p className="text-2xl font-bold text-foreground">{orderedCount.toLocaleString()}</p>
+          <p className="text-xs font-semibold text-foreground/45 uppercase tracking-widest mt-0.5">Monthly Orders</p>
+          <p className="text-xs text-foreground/45 mt-2">{conversionRate}% conversion rate</p>
         </Card>
 
         {/* Retention Pool */}
@@ -138,9 +138,9 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = (props) => {
             </div>
             <span className="text-[10px] font-bold bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full">Action needed</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{retentionPool.toLocaleString()}</p>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-0.5">Retention Pool</p>
-          <p className="text-xs text-gray-400 mt-2">Due touchpoint ({rangeText} ago)</p>
+          <p className="text-2xl font-bold text-foreground">{retentionPool.toLocaleString()}</p>
+          <p className="text-xs font-semibold text-foreground/45 uppercase tracking-widest mt-0.5">Retention Pool</p>
+          <p className="text-xs text-foreground/45 mt-2">Due touchpoint ({rangeText} ago)</p>
         </Card>
       </div>
 
@@ -151,8 +151,8 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = (props) => {
         <Card className="p-6">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h3 className="text-sm font-bold text-gray-800">Conversion Pipeline</h3>
-              <p className="text-xs text-gray-400 mt-0.5">How customers flow from database to orders</p>
+              <h3 className="text-sm font-bold text-foreground/90">Conversion Pipeline</h3>
+              <p className="text-xs text-foreground/45 mt-0.5">How customers flow from database to orders</p>
             </div>
           </div>
           <div className="space-y-3">
@@ -164,32 +164,32 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = (props) => {
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2">
                       <span className={`w-2 h-2 rounded-full ${step.color}`} />
-                      <span className="text-xs font-semibold text-gray-600">{step.label}</span>
+                      <span className="text-xs font-semibold text-foreground/70">{step.label}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       {convPct !== null && (
-                        <span className="text-[10px] text-gray-400">{convPct}% of prev</span>
+                        <span className="text-[10px] text-foreground/45">{convPct}% of prev</span>
                       )}
-                      <span className="text-sm font-bold text-gray-800">{step.value.toLocaleString()}</span>
+                      <span className="text-sm font-bold text-foreground/90">{step.value.toLocaleString()}</span>
                     </div>
                   </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-2 bg-foreground/[0.08] rounded-full overflow-hidden">
                     <div className={`h-full ${step.color} rounded-full transition-all duration-700`} style={{ width: `${barPct}%` }} />
                   </div>
                 </div>
               );
             })}
           </div>
-          <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 gap-3">
-            <div className="bg-gray-50 rounded-xl p-3">
-              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Outreach Coverage</p>
-              <p className="text-lg font-bold text-gray-800 mt-0.5">{outreachPct}%</p>
-              <p className="text-[10px] text-gray-400">of total DB reached</p>
+          <div className="mt-4 pt-4 border-t border-foreground/[0.08] grid grid-cols-2 gap-3">
+            <div className="bg-foreground/[0.04] rounded-xl p-3">
+              <p className="text-[10px] font-semibold text-foreground/45 uppercase tracking-widest">Outreach Coverage</p>
+              <p className="text-lg font-bold text-foreground/90 mt-0.5">{outreachPct}%</p>
+              <p className="text-[10px] text-foreground/45">of total DB reached</p>
             </div>
-            <div className="bg-gray-50 rounded-xl p-3">
-              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Conversion Rate</p>
-              <p className="text-lg font-bold text-gray-800 mt-0.5">{conversionRate}%</p>
-              <p className="text-[10px] text-gray-400">outreach → orders</p>
+            <div className="bg-foreground/[0.04] rounded-xl p-3">
+              <p className="text-[10px] font-semibold text-foreground/45 uppercase tracking-widest">Conversion Rate</p>
+              <p className="text-lg font-bold text-foreground/90 mt-0.5">{conversionRate}%</p>
+              <p className="text-[10px] text-foreground/45">outreach → orders</p>
             </div>
           </div>
         </Card>
@@ -198,8 +198,8 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = (props) => {
         <Card className="p-6">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h3 className="text-sm font-bold text-gray-800">Customer Quality</h3>
-              <p className="text-xs text-gray-400 mt-0.5">Value rating distribution across your base</p>
+              <h3 className="text-sm font-bold text-foreground/90">Customer Quality</h3>
+              <p className="text-xs text-foreground/45 mt-0.5">Value rating distribution across your base</p>
             </div>
           </div>
           <div className="space-y-4">
@@ -212,13 +212,13 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = (props) => {
               return (
                 <div key={row.label}>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-semibold text-gray-600">{row.label}</span>
+                    <span className="text-xs font-semibold text-foreground/70">{row.label}</span>
                     <div className="flex items-center gap-2">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${row.badge}`}>{pct.toFixed(1)}%</span>
-                      <span className="text-sm font-bold text-gray-800 w-16 text-right">{row.count.toLocaleString()}</span>
+                      <span className="text-sm font-bold text-foreground/90 w-16 text-right">{row.count.toLocaleString()}</span>
                     </div>
                   </div>
-                  <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-2.5 bg-foreground/[0.08] rounded-full overflow-hidden">
                     <div className={`h-full ${row.color} rounded-full transition-all duration-700`} style={{ width: `${pct}%` }} />
                   </div>
                 </div>
@@ -227,16 +227,16 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = (props) => {
           </div>
 
           {topAgent && (
-            <div className="mt-5 pt-4 border-t border-gray-100">
-              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">Top Performer This Month</p>
+            <div className="mt-5 pt-4 border-t border-foreground/[0.08]">
+              <p className="text-[10px] font-semibold text-foreground/45 uppercase tracking-widest mb-3">Top Performer This Month</p>
               <div className="flex items-center justify-between bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center font-bold text-white text-sm">
                     {topAgent.name.charAt(0)}
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-gray-800">{topAgent.name}</p>
-                    <p className="text-[10px] text-gray-400">Rank #1 — {topAgent.count} orders</p>
+                    <p className="text-sm font-bold text-foreground/90">{topAgent.name}</p>
+                    <p className="text-[10px] text-foreground/45">Rank #1 — {topAgent.count} orders</p>
                   </div>
                 </div>
                 <div className="text-xl">🏆</div>
@@ -251,8 +251,8 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = (props) => {
         <Card className="lg:col-span-2 p-6">
           <div className="flex items-center justify-between mb-1">
             <div>
-              <h3 className="text-sm font-bold text-gray-800">Order Activity — Last 30 Days</h3>
-              <p className="text-xs text-gray-400 mt-0.5">{totalOrdersLast30} total orders
+              <h3 className="text-sm font-bold text-foreground/90">Order Activity — Last 30 Days</h3>
+              <p className="text-xs text-foreground/45 mt-0.5">{totalOrdersLast30} total orders
                 {trendPct !== null && (
                   <span className={`ml-2 font-semibold ${trendUp ? 'text-emerald-600' : 'text-red-500'}`}>
                     {trendUp ? '▲' : '▼'} {Math.abs(parseInt(trendPct))}% vs first half
@@ -266,8 +266,8 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = (props) => {
 
         {/* Activity Feed */}
         <Card className="flex flex-col overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-gray-800">Live Team Feed</h3>
+          <div className="px-5 py-4 border-b border-foreground/[0.08] flex items-center justify-between">
+            <h3 className="text-sm font-bold text-foreground/90">Live Team Feed</h3>
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-[10px] font-bold text-emerald-600 uppercase">Live</span>
@@ -278,32 +278,32 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = (props) => {
               ? stats.recentActivity.map((act, i) => {
                   const fb = feedbackConfig[act.feedback] || feedbackConfig['Neutral'];
                   return (
-                    <div key={i} className="px-4 py-3 hover:bg-gray-50 transition-colors">
+                    <div key={i} className="px-4 py-3 hover:bg-foreground/[0.04] transition-colors">
                       <div className="flex items-start gap-3">
                         <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 mt-0.5">
                           {act.agent?.charAt(0) || '?'}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-1">
-                            <p className="text-xs font-bold text-gray-800 truncate">{act.customerName}</p>
+                            <p className="text-xs font-bold text-foreground/90 truncate">{act.customerName}</p>
                             <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md flex-shrink-0 flex items-center gap-1 ${fb.bg} ${fb.text}`}>
                               <span className={`w-1.5 h-1.5 rounded-full ${fb.dot}`} />
                               {act.feedback}
                             </span>
                           </div>
                           <div className="flex items-center justify-between mt-0.5">
-                            <p className="text-[10px] text-gray-400">{act.agent}</p>
-                            <p className="text-[10px] text-gray-300">{new Date(act.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                            <p className="text-[10px] text-foreground/45">{act.agent}</p>
+                            <p className="text-[10px] text-foreground/30">{new Date(act.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                           </div>
                         </div>
                       </div>
                     </div>
                   );
                 })
-              : <div className="py-12 text-center text-gray-400 text-xs">No interactions recorded today.</div>
+              : <div className="py-12 text-center text-foreground/45 text-xs">No interactions recorded today.</div>
             }
           </div>
-          <div className="px-5 py-3 border-t border-gray-100">
+          <div className="px-5 py-3 border-t border-foreground/[0.08]">
             <button onClick={props.onViewAuditLog} className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors w-full text-left">
               View full audit log →
             </button>
@@ -315,15 +315,15 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = (props) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <Card className="lg:col-span-2 p-6">
           <div className="mb-1">
-            <h3 className="text-sm font-bold text-gray-800">Customer Segmentation</h3>
-            <p className="text-xs text-gray-400 mt-0.5">Repeat vs one-time buyers over time</p>
+            <h3 className="text-sm font-bold text-foreground/90">Customer Segmentation</h3>
+            <p className="text-xs text-foreground/45 mt-0.5">Repeat vs one-time buyers over time</p>
           </div>
           <CustomerSegmentationChart trend={stats?.segmentTrend} />
         </Card>
         <Card className="p-6">
           <div className="mb-1">
-            <h3 className="text-sm font-bold text-gray-800">Value Rating Trend</h3>
-            <p className="text-xs text-gray-400 mt-0.5">High / Medium / Low over time</p>
+            <h3 className="text-sm font-bold text-foreground/90">Value Rating Trend</h3>
+            <p className="text-xs text-foreground/45 mt-0.5">High / Medium / Low over time</p>
           </div>
           <ValueRatingChart trend={stats?.valueTrend} />
         </Card>
@@ -332,8 +332,8 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = (props) => {
       {/* Best Sellers */}
       <Card className="p-6">
         <div className="mb-4">
-          <h3 className="text-sm font-bold text-gray-800">Best Selling Products</h3>
-          <p className="text-xs text-gray-400 mt-0.5">Ranked by total order count across all time</p>
+          <h3 className="text-sm font-bold text-foreground/90">Best Selling Products</h3>
+          <p className="text-xs text-foreground/45 mt-0.5">Ranked by total order count across all time</p>
         </div>
         <BestSellingProducts products={stats?.bestSellers || []} />
       </Card>
@@ -341,8 +341,8 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = (props) => {
       {/* Customer Table */}
       <div>
         <div className="flex items-center gap-3 mb-3">
-          <h3 className="text-base font-bold text-gray-900">Customer Database</h3>
-          <span className="text-xs font-semibold bg-gray-100 text-gray-500 px-2.5 py-0.5 rounded-full">
+          <h3 className="text-base font-bold text-foreground">Customer Database</h3>
+          <span className="text-xs font-semibold bg-foreground/[0.08] text-foreground/60 px-2.5 py-0.5 rounded-full">
             {props.totalCount.toLocaleString()} records
           </span>
         </div>

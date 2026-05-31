@@ -69,11 +69,11 @@ const WinBackPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             </div>
 
             {loading ? (
-                <div className="py-16 text-center text-gray-400 italic">Building win-back list…</div>
+                <div className="py-16 text-center text-foreground/45 italic">Building win-back list…</div>
             ) : visible.length === 0 ? (
                 <div className="glass-surface px-6 py-16 text-center">
-                    <p className="text-sm font-bold text-gray-700">No customers at risk right now 🎉</p>
-                    <p className="text-xs text-gray-400 mt-1">Your retention is healthy — nobody valuable is lapsing.</p>
+                    <p className="text-sm font-bold text-foreground/85">No customers at risk right now 🎉</p>
+                    <p className="text-xs text-foreground/45 mt-1">Your retention is healthy — nobody valuable is lapsing.</p>
                 </div>
             ) : (
                 <div className="space-y-2">
@@ -92,7 +92,7 @@ const WinBackPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                     <div className="flex items-start gap-4 px-5 py-4">
                                         <div className="flex-1 min-w-0">
                                             <div className="flex flex-wrap items-center gap-2 mb-1">
-                                                <span className="text-sm font-bold text-gray-900">{c.name}</span>
+                                                <span className="text-sm font-bold text-foreground">{c.name}</span>
                                                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${c.rfmSegment === "Can't Lose" ? 'glass-chip glass-chip-tint-red text-foreground/85' : 'glass-chip glass-chip-tint-orange text-foreground/85'}`}>
                                                     {c.rfmSegment}
                                                 </span>
@@ -100,14 +100,14 @@ const WinBackPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full glass-chip text-foreground/70">{c.lastSentiment}</span>
                                                 )}
                                             </div>
-                                            <p className="text-xs text-gray-400 font-mono">{c.phone}</p>
-                                            <p className="text-xs text-gray-600 mt-1">{c.rfmAction}</p>
+                                            <p className="text-xs text-foreground/45 font-mono">{c.phone}</p>
+                                            <p className="text-xs text-foreground/70 mt-1">{c.rfmAction}</p>
                                             {c.recommendedProduct && (
                                                 <p className="text-xs text-emerald-700 mt-1 font-medium" title={c.recommendedProductReason ?? ''}>
                                                     🎯 Recommend: <span className="font-bold">{c.recommendedProduct}</span>
                                                 </p>
                                             )}
-                                            <div className="flex flex-wrap gap-3 mt-2 text-[10px] text-gray-400 font-semibold uppercase tracking-wide">
+                                            <div className="flex flex-wrap gap-3 mt-2 text-[10px] text-foreground/45 font-semibold uppercase tracking-wide">
                                                 <span className="text-amber-600">{bdt(c.valueAtRisk)} at risk</span>
                                                 <span>{c.purchaseCount} orders</span>
                                                 {c.daysSinceLastOrder !== null && <span>{c.daysSinceLastOrder}d since order</span>}
@@ -134,7 +134,7 @@ const WinBackPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                     <AnimatePresence>
                                         {expanded && (
                                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-                                                <div className="px-5 pb-5 border-t border-gray-100 pt-4 bg-gray-50/50 space-y-3">
+                                                <div className="px-5 pb-5 border-t border-foreground/[0.08] pt-4 bg-gray-50/50 space-y-3">
                                                     <CallScriptPanel
                                                         agentName={currentUser.name}
                                                         input={{
@@ -160,7 +160,7 @@ const WinBackPage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                         rows={2} value={form.notes}
                                                         onChange={e => setForms(p => ({ ...p, [c.id]: { ...form, notes: e.target.value } }))}
                                                         placeholder="Win-back call notes…"
-                                                        className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 resize-none"
+                                                        className="w-full bg-card border border-foreground/[0.12] rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 resize-none"
                                                     />
                                                     <button onClick={() => submitLog(c)} disabled={form.submitting}
                                                         className="w-full glass-cta-primary text-sm font-semibold py-2.5 rounded-xl disabled:opacity-50 transition-all">

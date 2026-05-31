@@ -63,7 +63,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onDataLoaded, isLoading, error 
   }, [parseFile]);
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-md border border-slate-200 text-center">
+    <div className="bg-card p-8 rounded-lg shadow-md border border-slate-200 text-center">
       <h2 className="text-2xl font-semibold mb-2 text-slate-700">Upload Customer Data</h2>
       <p className="text-slate-500 mb-6">Drag and drop or select a CSV or Excel file to get started.</p>
       

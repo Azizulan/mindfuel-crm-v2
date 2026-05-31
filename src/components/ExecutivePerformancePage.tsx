@@ -86,7 +86,7 @@ const ExecutivePerformancePage: React.FC = () => {
 
             {/* Date range filter */}
             <div className="glass-surface p-4 flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-widest flex-shrink-0">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground/60 uppercase tracking-widest flex-shrink-0">
                     <CalendarIcon className="w-3.5 h-3.5" />
                     Period
                 </div>
@@ -111,14 +111,14 @@ const ExecutivePerformancePage: React.FC = () => {
                             type="date"
                             value={customStart}
                             onChange={e => setCustomStart(e.target.value)}
-                            className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-700 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none"
+                            className="px-3 py-1.5 bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl text-xs text-foreground/85 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none"
                         />
-                        <span className="text-xs text-gray-400">to</span>
+                        <span className="text-xs text-foreground/45">to</span>
                         <input
                             type="date"
                             value={customEnd}
                             onChange={e => setCustomEnd(e.target.value)}
-                            className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-700 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none"
+                            className="px-3 py-1.5 bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl text-xs text-foreground/85 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none"
                         />
                         <button
                             onClick={handleCustomApply}
@@ -142,7 +142,7 @@ const ExecutivePerformancePage: React.FC = () => {
                         <div key={stat.label} className="glass-surface p-4 flex items-center gap-3">
                             <div className={`w-9 h-9 rounded-xl ${stat.bg} ${stat.color} flex items-center justify-center flex-shrink-0`}>{stat.icon}</div>
                             <div>
-                                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">{stat.label}</p>
+                                <p className="text-[10px] font-semibold text-foreground/45 uppercase tracking-widest">{stat.label}</p>
                                 <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
                             </div>
                         </div>
@@ -150,7 +150,7 @@ const ExecutivePerformancePage: React.FC = () => {
                 </div>
                 <button
                     onClick={() => fetchData(preset, customStart, customEnd)}
-                    className="p-2.5 bg-white border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-all shadow-sm"
+                    className="p-2.5 bg-card border border-foreground/[0.12] rounded-xl text-foreground/60 hover:bg-foreground/[0.04] transition-all shadow-sm"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -161,7 +161,7 @@ const ExecutivePerformancePage: React.FC = () => {
             {/* Agent list */}
             <div className="space-y-3">
                 {isLoading ? (
-                    <div className="p-16 text-center text-gray-400 italic bg-white rounded-2xl border border-dashed border-gray-300">
+                    <div className="p-16 text-center text-foreground/45 italic bg-card rounded-2xl border border-dashed border-foreground/[0.15]">
                         Loading…
                     </div>
                 ) : data.length > 0 ? data.map((agent, index) => (
@@ -170,10 +170,10 @@ const ExecutivePerformancePage: React.FC = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden"
+                        className="bg-card rounded-2xl shadow-sm border border-foreground/[0.12] overflow-hidden"
                     >
                         <div
-                            className="px-5 py-4 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors"
+                            className="px-5 py-4 flex justify-between items-center cursor-pointer hover:bg-foreground/[0.04] transition-colors"
                             onClick={() => setExpandedAgent(expandedAgent === agent.agentName ? null : agent.agentName)}
                         >
                             <div className="flex items-center gap-4">
@@ -181,16 +181,16 @@ const ExecutivePerformancePage: React.FC = () => {
                                     {agent.agentName.charAt(0)}
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-gray-800 text-sm">{agent.agentName}</h4>
-                                    <p className="text-[10px] text-gray-400">{agent.history.length} month{agent.history.length > 1 ? 's' : ''} on record</p>
+                                    <h4 className="font-bold text-foreground/90 text-sm">{agent.agentName}</h4>
+                                    <p className="text-[10px] text-foreground/45">{agent.history.length} month{agent.history.length > 1 ? 's' : ''} on record</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-6">
                                 <div className="text-right hidden sm:block">
-                                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Latest Bonus</p>
+                                    <p className="text-[10px] font-semibold text-foreground/45 uppercase tracking-widest">Latest Bonus</p>
                                     <p className="text-lg font-bold text-blue-600">৳{(agent.history[0]?.earnings || 0).toLocaleString()}</p>
                                 </div>
-                                <motion.svg animate={{ rotate: expandedAgent === agent.agentName ? 180 : 0 }} transition={{ duration: 0.25 }} xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <motion.svg animate={{ rotate: expandedAgent === agent.agentName ? 180 : 0 }} transition={{ duration: 0.25 }} xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-foreground/45" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                 </motion.svg>
                             </div>
@@ -205,36 +205,36 @@ const ExecutivePerformancePage: React.FC = () => {
                                     transition={{ duration: 0.25 }}
                                     className="overflow-hidden"
                                 >
-                                    <div className="px-5 pb-5 border-t border-gray-100">
-                                        <div className="overflow-x-auto rounded-xl border border-gray-200 mt-4">
+                                    <div className="px-5 pb-5 border-t border-foreground/[0.08]">
+                                        <div className="overflow-x-auto rounded-xl border border-foreground/[0.12] mt-4">
                                             <table className="min-w-full divide-y divide-gray-100">
-                                                <thead className="bg-gray-50">
+                                                <thead className="bg-foreground/[0.04]">
                                                     <tr>
-                                                        <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Month</th>
-                                                        <th className="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Outreach</th>
-                                                        <th className="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Orders</th>
-                                                        <th className="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Bonus (৳)</th>
+                                                        <th className="px-5 py-3 text-left text-xs font-semibold text-foreground/60 uppercase tracking-wider">Month</th>
+                                                        <th className="px-5 py-3 text-center text-xs font-semibold text-foreground/60 uppercase tracking-wider">Outreach</th>
+                                                        <th className="px-5 py-3 text-center text-xs font-semibold text-foreground/60 uppercase tracking-wider">Orders</th>
+                                                        <th className="px-5 py-3 text-right text-xs font-semibold text-foreground/60 uppercase tracking-wider">Bonus (৳)</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-gray-100">
                                                     {agent.history.map((record: any, idx) => (
-                                                        <tr key={idx} className="hover:bg-gray-50 transition-colors">
-                                                            <td className="px-5 py-3 text-sm font-medium text-gray-700">{getMonthName(record.month)}</td>
+                                                        <tr key={idx} className="hover:bg-foreground/[0.04] transition-colors">
+                                                            <td className="px-5 py-3 text-sm font-medium text-foreground/85">{getMonthName(record.month)}</td>
                                                             <td className="px-5 py-3 text-center">
                                                                 <span className="bg-blue-50 text-blue-600 px-2.5 py-0.5 rounded-full text-xs font-semibold">{record.outreachCount || 0}</span>
                                                             </td>
                                                             <td className="px-5 py-3 text-center">
                                                                 <span className="bg-emerald-50 text-emerald-600 px-2.5 py-0.5 rounded-full text-xs font-semibold">{record.orderCount || 0}</span>
                                                             </td>
-                                                            <td className="px-5 py-3 text-right text-sm font-bold text-gray-800">৳{(record.earnings || 0).toLocaleString()}</td>
+                                                            <td className="px-5 py-3 text-right text-sm font-bold text-foreground/90">৳{(record.earnings || 0).toLocaleString()}</td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
-                                                <tfoot className="bg-gray-50">
+                                                <tfoot className="bg-foreground/[0.04]">
                                                     <tr>
-                                                        <td className="px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Period Totals</td>
-                                                        <td className="px-5 py-3 text-center text-xs font-bold text-gray-700">{agent.history.reduce((s: number, r: any) => s + (r.outreachCount || 0), 0)}</td>
-                                                        <td className="px-5 py-3 text-center text-xs font-bold text-gray-700">{agent.history.reduce((s: number, r: any) => s + (r.orderCount || 0), 0)}</td>
+                                                        <td className="px-5 py-3 text-xs font-semibold text-foreground/60 uppercase">Period Totals</td>
+                                                        <td className="px-5 py-3 text-center text-xs font-bold text-foreground/85">{agent.history.reduce((s: number, r: any) => s + (r.outreachCount || 0), 0)}</td>
+                                                        <td className="px-5 py-3 text-center text-xs font-bold text-foreground/85">{agent.history.reduce((s: number, r: any) => s + (r.orderCount || 0), 0)}</td>
                                                         <td className="px-5 py-3 text-right text-xs font-bold text-blue-600">৳{agent.history.reduce((s: number, r: any) => s + (r.earnings || 0), 0).toLocaleString()}</td>
                                                     </tr>
                                                 </tfoot>
@@ -246,7 +246,7 @@ const ExecutivePerformancePage: React.FC = () => {
                         </AnimatePresence>
                     </motion.div>
                 )) : (
-                    <div className="p-16 text-center text-gray-400 italic bg-white rounded-2xl border border-dashed border-gray-300">
+                    <div className="p-16 text-center text-foreground/45 italic bg-card rounded-2xl border border-dashed border-foreground/[0.15]">
                         No performance data found for this period.
                     </div>
                 )}

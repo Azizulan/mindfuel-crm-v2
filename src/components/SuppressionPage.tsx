@@ -19,7 +19,7 @@ const REASON_COLORS: Record<string, string> = {
 };
 
 const reasonColor = (reason: string) =>
-    REASON_COLORS[reason] ?? 'bg-gray-100 text-gray-600';
+    REASON_COLORS[reason] ?? 'bg-foreground/[0.08] text-foreground/70';
 
 const daysLeft = (until: string): number =>
     Math.max(0, Math.ceil((new Date(until).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
@@ -67,10 +67,10 @@ const SuppressionPage: React.FC = () => {
     return (
         <div className="space-y-5 pb-12">
             {/* Header */}
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm px-6 py-5 flex items-center justify-between">
+            <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm px-6 py-5 flex items-center justify-between">
                 <div>
-                    <h2 className="text-lg font-bold text-gray-900">Suppressed Customers</h2>
-                    <p className="text-xs text-gray-400 mt-0.5">
+                    <h2 className="text-lg font-bold text-foreground">Suppressed Customers</h2>
+                    <p className="text-xs text-foreground/45 mt-0.5">
                         {total} customer{total !== 1 ? 's' : ''} currently suppressed from the call queue
                     </p>
                 </div>
@@ -86,33 +86,33 @@ const SuppressionPage: React.FC = () => {
                 <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 text-sm text-red-700 font-medium">{error}</div>
             )}
 
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            <div className="bg-card border border-foreground/[0.12] rounded-2xl shadow-sm overflow-hidden">
                 {loading ? (
                     <div className="flex justify-center py-16">
                         <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
                     </div>
                 ) : data.length === 0 ? (
                     <div className="text-center py-16">
-                        <p className="text-sm font-bold text-gray-700">No suppressed customers</p>
-                        <p className="text-xs text-gray-400 mt-1">All customers are eligible for the call queue.</p>
+                        <p className="text-sm font-bold text-foreground/85">No suppressed customers</p>
+                        <p className="text-xs text-foreground/45 mt-1">All customers are eligible for the call queue.</p>
                     </div>
                 ) : (
                     <table className="w-full text-sm">
                         <thead>
-                            <tr className="border-b border-gray-100">
-                                <th className="text-left px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Customer</th>
-                                <th className="text-left px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden sm:table-cell">Reason</th>
-                                <th className="text-left px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden md:table-cell">Lifts In</th>
-                                <th className="text-left px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden lg:table-cell">Value</th>
+                            <tr className="border-b border-foreground/[0.08]">
+                                <th className="text-left px-5 py-3 text-[10px] font-bold text-foreground/45 uppercase tracking-widest">Customer</th>
+                                <th className="text-left px-5 py-3 text-[10px] font-bold text-foreground/45 uppercase tracking-widest hidden sm:table-cell">Reason</th>
+                                <th className="text-left px-5 py-3 text-[10px] font-bold text-foreground/45 uppercase tracking-widest hidden md:table-cell">Lifts In</th>
+                                <th className="text-left px-5 py-3 text-[10px] font-bold text-foreground/45 uppercase tracking-widest hidden lg:table-cell">Value</th>
                                 <th className="px-5 py-3" />
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                             {data.map(c => (
-                                <tr key={c.id} className="hover:bg-gray-50 transition-colors">
+                                <tr key={c.id} className="hover:bg-foreground/[0.04] transition-colors">
                                     <td className="px-5 py-3.5">
-                                        <p className="font-semibold text-gray-900">{c.name}</p>
-                                        <p className="text-xs text-gray-400 font-mono mt-0.5">{c.phone}</p>
+                                        <p className="font-semibold text-foreground">{c.name}</p>
+                                        <p className="text-xs text-foreground/45 font-mono mt-0.5">{c.phone}</p>
                                     </td>
                                     <td className="px-5 py-3.5 hidden sm:table-cell">
                                         <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${reasonColor(c.suppressionReason)}`}>
@@ -120,14 +120,14 @@ const SuppressionPage: React.FC = () => {
                                         </span>
                                     </td>
                                     <td className="px-5 py-3.5 hidden md:table-cell">
-                                        <p className="text-xs font-semibold text-gray-700">{daysLeft(c.suppressedUntil)}d</p>
-                                        <p className="text-[10px] text-gray-400 mt-0.5">
+                                        <p className="text-xs font-semibold text-foreground/85">{daysLeft(c.suppressedUntil)}d</p>
+                                        <p className="text-[10px] text-foreground/45 mt-0.5">
                                             {new Date(c.suppressedUntil).toLocaleDateString()}
                                         </p>
                                     </td>
                                     <td className="px-5 py-3.5 hidden lg:table-cell">
-                                        <p className="text-xs font-semibold text-gray-700">৳{c.totalSpending.toLocaleString()}</p>
-                                        <p className="text-[10px] text-gray-400 mt-0.5">{c.purchaseCount} order{c.purchaseCount !== 1 ? 's' : ''}</p>
+                                        <p className="text-xs font-semibold text-foreground/85">৳{c.totalSpending.toLocaleString()}</p>
+                                        <p className="text-[10px] text-foreground/45 mt-0.5">{c.purchaseCount} order{c.purchaseCount !== 1 ? 's' : ''}</p>
                                     </td>
                                     <td className="px-5 py-3.5 text-right">
                                         <button
@@ -146,21 +146,21 @@ const SuppressionPage: React.FC = () => {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                    <div className="px-5 py-4 border-t border-gray-100 flex items-center justify-between">
-                        <span className="text-xs text-gray-400">{total} total</span>
+                    <div className="px-5 py-4 border-t border-foreground/[0.08] flex items-center justify-between">
+                        <span className="text-xs text-foreground/45">{total} total</span>
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={() => load(page - 1)}
                                 disabled={page <= 1}
-                                className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-all"
+                                className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-foreground/[0.12] text-foreground/70 hover:bg-foreground/[0.04] disabled:opacity-40 transition-all"
                             >
                                 Prev
                             </button>
-                            <span className="text-xs text-gray-500 font-medium">{page} / {totalPages}</span>
+                            <span className="text-xs text-foreground/60 font-medium">{page} / {totalPages}</span>
                             <button
                                 onClick={() => load(page + 1)}
                                 disabled={page >= totalPages}
-                                className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-all"
+                                className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-foreground/[0.12] text-foreground/70 hover:bg-foreground/[0.04] disabled:opacity-40 transition-all"
                             >
                                 Next
                             </button>
