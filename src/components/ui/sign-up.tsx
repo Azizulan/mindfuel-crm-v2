@@ -296,7 +296,19 @@ export const AuthComponent = ({
       <Modal />
 
       <div className={cn("flex w-full flex-1 h-full items-center justify-center bg-card", "relative overflow-hidden")}>
-        <div className="absolute inset-0 z-0"><GradientBackground /></div>
+        {/* Video background — replaces the animated SVG gradient. */}
+        <video
+          src="/login-bg.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        />
+        {/* Subtle vignette so the glass form reads against any video frame. */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-t from-background/35 via-transparent to-background/15 pointer-events-none" />
 
         <fieldset disabled={modalStatus !== 'closed'} className="relative z-10 flex flex-col items-center gap-8 w-[360px] max-w-[92vw] mx-auto p-4">
           {/* Heading — bigger editorial type, more breathing room */}

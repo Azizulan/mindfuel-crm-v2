@@ -6,11 +6,26 @@ export const metadata: Metadata = {
   description: 'Sales CRM Assistant',
 };
 
+// Runs before React hydrates — applies the persisted/system theme so there's
+// no flash of light mode on first paint.
+const themeInitScript = `
+(function(){
+  try {
+    var stored = localStorage.getItem('mindfuel-theme');
+    var pref = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    if (pref === 'dark') document.documentElement.classList.add('dark');
+    document.documentElement.style.colorScheme = pref;
+  } catch (e) {}
+})();
+`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Bengali font for the in-call script panel (Tier — call scripts) */}
+        {/* Theme — applied pre-hydration to prevent flash */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        {/* Bengali font for the in-call script panel */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
