@@ -62,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({ user, activeView, setView, isOpen, se
       <motion.aside
         initial={false}
         animate={{ x: isOpen ? 0 : (typeof window !== 'undefined' && window.innerWidth < 768 ? -260 : 0) }}
-        className={`glass-pane border-r border-foreground/10 flex flex-col fixed inset-y-0 left-0 z-40 w-60 md:sticky md:top-0 md:h-screen md:flex-shrink-0 ${!isOpen && 'hidden md:flex'}`}
+        className={`glass-pane flex flex-col fixed inset-y-0 left-0 z-40 w-60 md:sticky md:top-3 md:m-3 md:h-[calc(100vh-1.5rem)] md:flex-shrink-0 md:rounded-3xl overflow-hidden ${!isOpen && 'hidden md:flex'}`}
       >
         {/* Brand */}
         <div className="flex items-center justify-between px-5 py-5 border-b border-foreground/10">

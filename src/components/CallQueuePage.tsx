@@ -50,38 +50,39 @@ const SENTIMENTS: FollowUpNote['feedback'][] = [
     'Happy', 'Positive', 'Neutral', 'Call Back Later', 'Call Not Received', 'Not Interested', 'Angry'
 ];
 
+// iOS 26 — every status pill is a glass capsule, optionally tinted with the semantic colour.
 const SENTIMENT_COLORS: Record<string, string> = {
-    Happy: 'bg-emerald-100 text-emerald-700',
-    Positive: 'bg-green-100 text-green-700',
-    Neutral: 'bg-gray-100 text-gray-600',
-    'Call Back Later': 'bg-blue-100 text-blue-700',
-    'Call Not Received': 'bg-rose-100 text-rose-600',
-    'Not Interested': 'bg-orange-100 text-orange-600',
-    Angry: 'bg-red-100 text-red-700',
+    Happy:               'glass-chip glass-chip-tint-emerald text-emerald-700',
+    Positive:            'glass-chip glass-chip-tint-emerald text-emerald-700',
+    Neutral:             'glass-chip text-foreground/70',
+    'Call Back Later':   'glass-chip glass-chip-tint-blue text-blue-700',
+    'Call Not Received': 'glass-chip glass-chip-tint-red text-rose-600',
+    'Not Interested':    'glass-chip glass-chip-tint-amber text-orange-700',
+    Angry:               'glass-chip glass-chip-tint-red text-red-700',
 };
 
 const scoreColor = (score: number) => {
-    if (score >= 180) return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-    if (score >= 100) return 'bg-amber-50 text-amber-700 border-amber-200';
-    return 'bg-gray-50 text-gray-500 border-gray-200';
+    if (score >= 180) return 'glass-chip glass-chip-tint-emerald text-emerald-700';
+    if (score >= 100) return 'glass-chip glass-chip-tint-amber text-amber-700';
+    return 'glass-chip text-foreground/60';
 };
 
 const segmentLabel = (purchaseCount: number) => {
-    if (purchaseCount >= 5) return { label: 'VIP', color: 'bg-violet-100 text-violet-700' };
-    if (purchaseCount >= 3) return { label: 'Loyal', color: 'bg-blue-100 text-blue-700' };
-    if (purchaseCount === 2) return { label: 'Repeat', color: 'bg-sky-100 text-sky-700' };
-    if (purchaseCount === 1) return { label: '1× Buyer', color: 'bg-gray-100 text-gray-600' };
-    return { label: 'Outreach', color: 'bg-gray-100 text-gray-500' };
+    if (purchaseCount >= 5) return { label: 'VIP',      color: 'glass-chip glass-chip-tint-violet text-violet-700' };
+    if (purchaseCount >= 3) return { label: 'Loyal',    color: 'glass-chip glass-chip-tint-blue text-blue-700' };
+    if (purchaseCount === 2) return { label: 'Repeat',  color: 'glass-chip glass-chip-tint-blue text-sky-700' };
+    if (purchaseCount === 1) return { label: '1× Buyer',color: 'glass-chip text-foreground/70' };
+    return                       { label: 'Outreach',   color: 'glass-chip text-foreground/60' };
 };
 
 // Tier 1.1 — reorder-cycle badge. Tells the agent at a glance whether this
 // customer is in their personal buying window. "Ripe" = highest conversion EV.
 const reorderBadge = (status: QueueItem['reorderStatus'], daysVs: number | null | undefined, predicted: number | null | undefined) => {
     if (!status || predicted == null) return null;
-    if (status === 'ripe')        return { label: `Ripe now · ~${predicted}d cycle`, color: 'bg-emerald-100 text-emerald-700 border-emerald-200' };
-    if (status === 'early')       return { label: `${Math.abs(daysVs ?? 0)}d early · ~${predicted}d cycle`, color: 'bg-sky-50 text-sky-700 border-sky-200' };
-    if (status === 'overdue')     return { label: `${daysVs}d overdue · ~${predicted}d cycle`, color: 'bg-amber-100 text-amber-800 border-amber-200' };
-    if (status === 'churn-risk')  return { label: `${daysVs}d past cycle · churn risk`, color: 'bg-red-100 text-red-700 border-red-200' };
+    if (status === 'ripe')        return { label: `Ripe now · ~${predicted}d cycle`,         color: 'glass-chip glass-chip-tint-emerald text-emerald-700' };
+    if (status === 'early')       return { label: `${Math.abs(daysVs ?? 0)}d early · ~${predicted}d cycle`, color: 'glass-chip glass-chip-tint-blue text-sky-700' };
+    if (status === 'overdue')     return { label: `${daysVs}d overdue · ~${predicted}d cycle`, color: 'glass-chip glass-chip-tint-amber text-amber-800' };
+    if (status === 'churn-risk')  return { label: `${daysVs}d past cycle · churn risk`,        color: 'glass-chip glass-chip-tint-red text-red-700' };
     return null;
 };
 

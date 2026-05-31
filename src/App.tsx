@@ -369,10 +369,10 @@ const App: React.FC = () => {
       <GlassBackground />
       <div className="min-h-screen text-foreground md:flex font-sans relative">
         <Sidebar user={currentUser} activeView={activeView} setView={setActiveView} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} onLogout={() => { setCurrentUser(null); setActiveView('loading'); }} />
-        <main className="flex-1 p-4 md:p-10 overflow-y-auto">
+        <main className="flex-1 p-4 md:py-6 md:pr-6 md:pl-3 overflow-y-auto">
           <Header title={activeView} onMenuClick={() => setIsSidebarOpen(true)} reminders={[]} onReminderClick={() => setActiveView('followUp')} />
           {error && (
-            <div className="mb-6 px-4 py-3 rounded-2xl text-red-700 text-sm font-medium glass-surface border-red-200/40">
+            <div className="mb-6 px-4 py-3 text-red-700 text-sm font-medium glass-surface glass-chip-tint-red">
               {error}
             </div>
           )}
