@@ -296,14 +296,22 @@ export const AuthComponent = ({
       <Modal />
 
       <div className={cn("flex w-full flex-1 h-full items-center justify-center bg-card", "relative overflow-hidden")}>
-        {/* Video background — replaces the animated SVG gradient. */}
+        {/*
+          Video background.
+          - poster: first-frame JPG (24KB) shows instantly while video loads,
+            so the page isn't blank waiting on the MP4.
+          - preload="metadata": don't burn bandwidth eagerly fetching the whole
+            file — the browser pulls it once render starts.
+          - 1280-wide, 24fps, H.264 CRF 28 → 696KB (down from 7MB source).
+        */}
         <video
           src="/login-bg.mp4"
+          poster="/login-bg-poster.jpg"
           autoPlay
           loop
           muted
           playsInline
-          preload="auto"
+          preload="metadata"
           aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover z-0"
         />
