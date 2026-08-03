@@ -213,6 +213,67 @@ export const syncSteadfast = (
     errors: string[];
 }> => apiRequest('/sync/steadfast', 'POST', { startDate, endDate });
 
+// ─── Sync coverage / reconciliation ─────────────────────────────────────────
+
+export interface CoverageDay {
+    date: string;        // YYYY-MM-DD in CRM timezone
+    deliveries: number;
+    distinct: number;    // distinct consignment ids — < deliveries means a dupe
+    revenue: number;
+}
+
+export interface CoverageResponse {
+    days: CoverageDay[];
+    firstDate: string | null;
+    lastDate: string | null;
+    daysWithData: number;
+    deliveries: number;
+    revenue: number;
+    duplicates: number;
+    timezone: string;
+}
+
+/** Per-day delivery density from our own data. Fast; no courier API calls. */
+export const getSyncCoverage = (start?: string, end?: string): Promise<CoverageResponse> => {
+    const p = new URLSearchParams();
+    if (start) p.set('start', start);
+    if (end) p.set('end', end);
+    const qs = p.toString();
+    return apiRequest(`/sync/coverage${qs ? `?${qs}` : ''}`);
+};
+
+export interface ReconcileDay {
+    date: string;
+    expected: number;
+    present: number;
+    missing: number;
+    missingIds: string[];
+    codAmount: number;
+    status: 'complete' | 'partial' | 'never-synced';
+}
+
+export interface ReconcileResponse {
+    startDate: string;
+    endDate: string;
+    days: ReconcileDay[];
+    summary: {
+        datesWithDeliveries: number;
+        datesComplete: number;
+        datesPartial: number;
+        datesNeverSynced: number;
+        totalExpected: number;
+        totalPresent: number;
+        totalMissing: number;
+        paymentsExamined: number;
+    };
+    warnings: string[];
+    generatedAt: string;
+}
+
+/** Authoritative diff against Steadfast. Slower — it sweeps the courier API. */
+export const reconcileSync = (startDate: string, endDate: string): Promise<ReconcileResponse> =>
+    apiRequest('/sync/reconcile', 'POST', { startDate, endDate });
+
 // ─── RFM segment focus + admin maintenance (Tier 1.6 / 1.4 / 3.12) ──────────
 
 export const getSegmentDistribution = (): Promise<Record<string, number>> =>
