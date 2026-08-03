@@ -1,21 +1,15 @@
 import { handleApi, err } from '@/app/lib/api-helper';
 import { Customer, Setting } from '@/app/lib/models';
 import { scoreCustomer } from '@/app/lib/helpers';
+import { getCached, setCached, queueKey, todayStamp } from '@/app/lib/queueCache';
 
 export const dynamic = 'force-dynamic';
 
-// Most recent real product (skips the generic Steadfast fallback) — used by
-// the in-call script panel for "আপনার <product>".
-function deriveLastProduct(purchases: any[]): string | null {
-  if (!purchases?.length) return null;
-  const sorted = [...purchases].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  for (const p of sorted) {
-    const name = String(p.product || '').trim();
-    const low = name.toLowerCase();
-    if (name && low !== 'steadfast delivery' && low !== 'unknown') return name;
-  }
-  return null;
-}
+// Only the most recent notes matter for scoring: the widest suppression window
+// we evaluate is 60 days ("Not Interested ×2"), and the sentiment modifier only
+// reads the latest note. Slicing server-side keeps an unbounded array from
+// dominating the payload for long-tenured customers.
+const NOTES_WINDOW = 40;
 
 export async function GET(req: Request) {
   return handleApi(async () => {
@@ -24,22 +18,31 @@ export async function GET(req: Request) {
     const size = Math.min(Math.max(Number(url.searchParams.get('size') || '50'), 1), 200);
     if (!agentId) return err('agentId is required');
 
+    // Explicit refresh (the UI's Refresh button) bypasses the cache.
+    const forceRefresh = url.searchParams.get('refresh') === '1';
+
     const now = new Date();
+    const cacheKey = queueKey(agentId, size, todayStamp(now));
+
+    if (!forceRefresh) {
+      const hit = getCached<any>(cacheKey);
+      if (hit) return { ...hit, cached: true };
+    }
 
     // Optional admin-controlled segment filter (Settings → Queue Focus).
     // Empty / unset = no filter → use all eligible customers.
     const [focusSetting, convSetting] = await Promise.all([
-      Setting.findOne({ key: 'queue_focus_segments' }),
-      Setting.findOne({ key: 'conversion_model' }),
+      Setting.findOne({ key: 'queue_focus_segments' }).lean(),
+      Setting.findOne({ key: 'conversion_model' }).lean(),
     ]);
     const focusSegments: string[] | null =
-      Array.isArray(focusSetting?.value) && focusSetting!.value.length > 0
-        ? (focusSetting!.value as string[])
+      Array.isArray((focusSetting as any)?.value) && (focusSetting as any).value.length > 0
+        ? ((focusSetting as any).value as string[])
         : null;
 
     // Conversion model (Tier 1.2). Expected value = P(convert|segment) × avg
     // order value for this customer. Used to surface EV and nudge ranking.
-    const convModel: any = convSetting?.value || null;
+    const convModel: any = (convSetting as any)?.value || null;
     const expectedValueFor = (doc: any): number => {
       if (!convModel) return 0;
       const seg = doc.rfmSegment;
@@ -60,15 +63,31 @@ export async function GET(req: Request) {
     };
     if (focusSegments) baseQuery.rfmSegment = { $in: focusSegments };
 
-    const candidates = await Customer.find(baseQuery)
-      .select('id name phone totalSpending purchaseCount lastPurchaseDate followUpNotes purchases predictedReorderDays reorderConfidence nextOutreachDate rfmSegment rfmAction rScore fScore mScore bestCallHourStart bestCallHourEnd bestPickupRate bestCallConfidence bestCallSummary recommendedProduct recommendedProductReason recommendedProductLift')
-      .lean();
+    // Projection notes:
+    //   - `purchases` is NOT loaded. The only thing the queue needed it for was
+    //     the last-product label, which now lives on `lastProduct`.
+    //   - `followUpNotes` is sliced to the most recent NOTES_WINDOW entries.
+    //   - `_id` is dropped; this route keys off the business `id`.
+    const candidates = await Customer.find(baseQuery, {
+      _id: 0,
+      id: 1, name: 1, phone: 1,
+      totalSpending: 1, purchaseCount: 1, lastPurchaseDate: 1,
+      lastProduct: 1,
+      predictedReorderDays: 1, reorderConfidence: 1, nextOutreachDate: 1,
+      rfmSegment: 1, rfmAction: 1, rScore: 1, fScore: 1, mScore: 1,
+      bestCallHourStart: 1, bestCallHourEnd: 1, bestPickupRate: 1,
+      bestCallConfidence: 1, bestCallSummary: 1,
+      recommendedProduct: 1, recommendedProductReason: 1, recommendedProductLift: 1,
+      followUpNotes: { $slice: -NOTES_WINDOW },
+    }).lean();
 
     let suppressed = 0;
     const scored: any[] = [];
     const msPerDay = 86400000;
 
-    for (const doc of candidates) {
+    for (const doc of candidates as any[]) {
+      const notes = (doc.followUpNotes ?? []) as any[];
+
       const result = scoreCustomer(
         {
           id: doc.id,
@@ -77,12 +96,12 @@ export async function GET(req: Request) {
           totalSpending: doc.totalSpending ?? 0,
           purchaseCount: doc.purchaseCount ?? 0,
           lastPurchaseDate: doc.lastPurchaseDate,
-          followUpNotes: (doc.followUpNotes ?? []).map((n: any) => ({
+          followUpNotes: notes.map((n: any) => ({
             date: n.date, feedback: n.feedback, agent: n.agent, reminderDate: n.reminderDate ?? null,
           })),
-          predictedReorderDays: (doc as any).predictedReorderDays ?? null,
-          reorderConfidence:    (doc as any).reorderConfidence    ?? 'none',
-          rfmSegment:           (doc as any).rfmSegment           ?? undefined,
+          predictedReorderDays: doc.predictedReorderDays ?? null,
+          reorderConfidence:    doc.reorderConfidence    ?? 'none',
+          rfmSegment:           doc.rfmSegment           ?? undefined,
         },
         agentId,
         now
@@ -96,9 +115,10 @@ export async function GET(req: Request) {
       const expectedValue = expectedValueFor(doc);
       const evBoost = Math.min(Math.round(expectedValue / 20), 60);
 
-      const notes = (doc.followUpNotes ?? []) as any[];
-      const sortedNotes = [...notes].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      const latestNote = sortedNotes[0] ?? null;
+      // Notes are stored in insertion order, so the newest is last — no need to
+      // copy and re-sort the array for every candidate.
+      const latestNote = notes.length > 0 ? notes[notes.length - 1] : null;
+
       scored.push({
         id: doc.id, name: doc.name, phone: doc.phone,
         score: result.score + evBoost, reason: result.reason,
@@ -108,29 +128,30 @@ export async function GET(req: Request) {
         daysSinceLastOrder: doc.lastPurchaseDate ? Math.floor((now.getTime() - new Date(doc.lastPurchaseDate).getTime()) / msPerDay) : null,
         totalSpending: doc.totalSpending, purchaseCount: doc.purchaseCount,
         // Personalised reorder cycle, surfaced to the queue card UI.
-        predictedReorderDays: (doc as any).predictedReorderDays ?? null,
-        reorderConfidence:    (doc as any).reorderConfidence    ?? 'none',
-        reorderStatus:        result.reorderStatus              ?? null,
-        daysVsReorder:        result.daysVsReorder              ?? null,
+        predictedReorderDays: doc.predictedReorderDays ?? null,
+        reorderConfidence:    doc.reorderConfidence    ?? 'none',
+        reorderStatus:        result.reorderStatus     ?? null,
+        daysVsReorder:        result.daysVsReorder     ?? null,
         // RFM segment + recommended action (Tier 1.6).
-        rfmSegment:           (doc as any).rfmSegment           ?? null,
-        rfmAction:            (doc as any).rfmAction            ?? null,
+        rfmSegment:           doc.rfmSegment           ?? null,
+        rfmAction:            doc.rfmAction            ?? null,
         // Best call time (Tier 1.4) — only meaningful at medium+ confidence.
-        bestCallSummary:      (doc as any).bestCallSummary      ?? '',
-        bestCallConfidence:   (doc as any).bestCallConfidence   ?? 'none',
-        bestCallHourStart:    (doc as any).bestCallHourStart    ?? null,
-        bestCallHourEnd:      (doc as any).bestCallHourEnd      ?? null,
+        bestCallSummary:      doc.bestCallSummary      ?? '',
+        bestCallConfidence:   doc.bestCallConfidence   ?? 'none',
+        bestCallHourStart:    doc.bestCallHourStart    ?? null,
+        bestCallHourEnd:      doc.bestCallHourEnd      ?? null,
         // Best next product to pitch (Tier 1.3).
-        recommendedProduct:       (doc as any).recommendedProduct       ?? null,
-        recommendedProductReason: (doc as any).recommendedProductReason ?? null,
-        recommendedProductLift:   (doc as any).recommendedProductLift   ?? 0,
-        // Most recent product — for the in-call script panel.
-        lastProduct:              deriveLastProduct((doc as any).purchases),
+        recommendedProduct:       doc.recommendedProduct       ?? null,
+        recommendedProductReason: doc.recommendedProductReason ?? null,
+        recommendedProductLift:   doc.recommendedProductLift   ?? 0,
+        // Most recent product — precomputed on write (recalculateCustomerStats).
+        lastProduct:              doc.lastProduct              ?? null,
       });
     }
 
     scored.sort((a, b) => b.score - a.score);
-    return {
+
+    const payload = {
       queue: scored.slice(0, size),
       suppressed,
       totalEligible: scored.length,
@@ -138,5 +159,8 @@ export async function GET(req: Request) {
       // Helps the UI tell agents which campaign is active without surprising them.
       focusSegments: focusSegments ?? [],
     };
+
+    setCached(cacheKey, payload);
+    return { ...payload, cached: false };
   });
 }

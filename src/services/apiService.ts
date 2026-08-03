@@ -170,8 +170,10 @@ export const setMinOrderValue = (value: number): Promise<any> => apiRequest('/se
 export const getGmtOffset = (): Promise<{ value: number }> => apiRequest('/settings/gmt-offset');
 export const setGmtOffset = (value: number): Promise<any> => apiRequest('/settings/gmt-offset', 'POST', { value });
 
-export const getCallQueue = (agentId: string, size: number = 50): Promise<any> => {
+// `refresh` bypasses the server-side queue cache — used by the Refresh button.
+export const getCallQueue = (agentId: string, size: number = 50, refresh = false): Promise<any> => {
     const params = new URLSearchParams({ agentId, size: String(size) });
+    if (refresh) params.set('refresh', '1');
     return apiRequest(`/queue/today?${params.toString()}`);
 };
 

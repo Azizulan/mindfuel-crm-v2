@@ -36,6 +36,10 @@ const CustomerSchema = new mongoose.Schema({
   totalSpending: { type: Number, default: 0 },
   valueRating: { type: String, index: true },
   purchaseHistory: { type: String },
+  // Most recent real product (skips the generic Steadfast fallback). Cached
+  // here so the queue endpoint never has to load the whole `purchases` array
+  // just to render "আপনার <product>" in the call-script panel.
+  lastProduct: { type: String, default: null },
   followUpNotes: [FollowUpNoteSchema],
   suppressedUntil: { type: Date, default: null, index: true },
   suppressionReason: { type: String, default: null },
@@ -72,6 +76,11 @@ const CustomerSchema = new mongoose.Schema({
   recommendedProductReason:  { type: String, default: null },
   recommendedProductLift:    { type: Number, default: 0 },
 });
+
+// Today's Queue candidate scan. The endpoint filters on suppressedUntil and
+// (optionally) rfmSegment, so a compound index lets Mongo serve the scan from
+// the index instead of walking all ~21k documents.
+CustomerSchema.index({ suppressedUntil: 1, rfmSegment: 1, purchaseCount: 1 });
 
 // Auto-sync normalizedPhone whenever phone changes on .save() (Tier 3.12).
 // Note: this hook does NOT run for updateOne / bulkWrite / findOneAndUpdate —
@@ -169,6 +178,7 @@ export interface ICustomer extends Document {
   totalSpending: number;
   valueRating: string;
   purchaseHistory: string;
+  lastProduct: string | null;
   followUpNotes: mongoose.Types.DocumentArray<any>;
   suppressedUntil: Date | null;
   suppressionReason: string | null;

@@ -336,6 +336,22 @@ export function computeReorderCycle(
 
 // ─── Customer stats recalculation ────────────────────────────────────────────
 
+// Most recent real product, skipping the generic Steadfast courier fallback.
+// Cached onto the customer doc so read paths (notably Today's Queue) never
+// need to project the full `purchases` array.
+export function deriveLastProduct(purchases: any[]): string | null {
+  if (!purchases?.length) return null;
+  const sorted = [...purchases].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+  for (const p of sorted) {
+    const name = String(p?.product || '').trim();
+    const low = name.toLowerCase();
+    if (name && low !== 'steadfast delivery' && low !== 'unknown') return name;
+  }
+  return null;
+}
+
 export function recalculateCustomerStats(customer: ICustomer) {
   const purchases = customer.purchases;
   if (!purchases || purchases.length === 0) {
@@ -343,6 +359,7 @@ export function recalculateCustomerStats(customer: ICustomer) {
     customer.totalSpending = 0;
     customer.valueRating = 'Low';
     customer.purchaseHistory = '';
+    customer.lastProduct = null;
     customer.predictedReorderDays = null;
     customer.nextOutreachDate = null;
     customer.reorderConfidence = 'none';
@@ -371,6 +388,7 @@ export function recalculateCustomerStats(customer: ICustomer) {
   customer.valueRating =
     customer.totalSpending >= 3000 ? 'High' : customer.totalSpending >= 1000 ? 'Medium' : 'Low';
   customer.purchaseHistory = [...new Set(purchases.map((p: any) => p.product))].join(', ');
+  customer.lastProduct = deriveLastProduct(purchases as any);
 
   // Compute personal reorder cycle from this customer's purchase history.
   const cycle = computeReorderCycle(purchases as any);
