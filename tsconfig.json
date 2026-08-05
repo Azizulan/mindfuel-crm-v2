@@ -19,5 +19,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "api/index.ts", "server.ts", "app.js", "backend", "components", "services", "utils", "dist", "migrated_prompt_history"]
+  "exclude": ["node_modules", "server.ts", "app.js", "backend", "components", "services", "utils", "dist", "migrated_prompt_history"]
 }
