@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { XMarkIcon } from './icons/XMarkIcon';
 import { CheckCircleIcon } from './icons/CheckCircleIcon';
 import { RefreshCw, Calendar, AlertCircle, Database } from 'lucide-react';
+import SyncCoverageCalendar from './SyncCoverageCalendar';
 
 declare const Papa: any;
 declare const XLSX: any;
@@ -432,7 +433,13 @@ const DataUploadPage: React.FC<DataUploadPageProps> = ({ onUploadSuccess }) => {
         </div>
 
         {tab === 'csv'       && <CsvUploadTab onUploadSuccess={onUploadSuccess} />}
-        {tab === 'steadfast' && <SteadfastSyncTab />}
+        {tab === 'steadfast' && (
+          <div className="space-y-5">
+            <SteadfastSyncTab />
+            {/* Reads our own data, so it stays useful even without credentials. */}
+            <SyncCoverageCalendar />
+          </div>
+        )}
       </div>
     </div>
   );
