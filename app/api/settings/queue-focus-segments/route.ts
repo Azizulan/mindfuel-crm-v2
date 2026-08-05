@@ -1,5 +1,6 @@
 import { handleApi, err } from '@/app/lib/api-helper';
 import { Setting } from '@/app/lib/models';
+import { invalidateCache } from '@/app/lib/queueCache';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +28,8 @@ export async function POST(req: Request) {
       { $set: { key: 'queue_focus_segments', value: cleaned } },
       { upsert: true }
     );
+    // Changing the focus campaign changes who is in the queue at all.
+    invalidateCache('queue:');
     return { value: cleaned };
   });
 }

@@ -1,6 +1,7 @@
 import { handleApi, err } from '@/app/lib/api-helper';
 import { Customer } from '@/app/lib/models';
 import { computeBestCallTime } from '@/app/lib/helpers';
+import { invalidateCache } from '@/app/lib/queueCache';
 
 // Tier 2.7 — when a call ends positively/neutrally and the agent didn't set a
 // manual callback, auto-schedule the next outreach so the warm lead doesn't
@@ -83,6 +84,11 @@ export async function POST(
     customer.bestCallSummary    = callTime.bestCallSummary;
 
     await customer.save();
+
+    // This call changes suppression and ordering for everyone, so drop the
+    // cached queues rather than serve a list that still contains this customer.
+    invalidateCache('queue:');
+
     return customer;
   });
 }

@@ -135,30 +135,63 @@ interface LogFormState {
     submitting: boolean;
 }
 
+// Module-level cache. The queue view unmounts whenever the agent navigates
+// away, and rebuilding it server-side is expensive — so hold the last result
+// here and reuse it on remount instead of refetching every time.
+// Cleared by the Refresh button and whenever a call is logged.
+const CACHE_TTL_MS = 5 * 60 * 1000;
+let queueCache: {
+    key: string;
+    data: QueueResponse;
+    dismissed: string[];
+    at: number;
+} | null = null;
+
 const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
-    const [data, setData] = useState<QueueResponse | null>(null);
-    const [loading, setLoading] = useState(true);
+    const cacheKey = currentUser.name;
+    const cached =
+        queueCache && queueCache.key === cacheKey && Date.now() - queueCache.at < CACHE_TTL_MS
+            ? queueCache
+            : null;
+
+    const [data, setData] = useState<QueueResponse | null>(cached?.data ?? null);
+    const [loading, setLoading] = useState(!cached);
     const [error, setError] = useState<string | null>(null);
-    const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+    const [dismissed, setDismissed] = useState<Set<string>>(new Set(cached?.dismissed ?? []));
     const [expandedId, setExpandedId] = useState<string | null>(null);
     const [logForms, setLogForms] = useState<Record<string, LogFormState>>({});
 
-    const fetch = useCallback(async () => {
+    const load = useCallback(async (force: boolean) => {
+        if (!force) {
+            const hit =
+                queueCache && queueCache.key === cacheKey && Date.now() - queueCache.at < CACHE_TTL_MS
+                    ? queueCache
+                    : null;
+            if (hit) {
+                setData(hit.data);
+                setDismissed(new Set(hit.dismissed));
+                setLoading(false);
+                return;
+            }
+        }
         setLoading(true);
         setError(null);
         setDismissed(new Set());
         setExpandedId(null);
         try {
-            const res = await api.getCallQueue(currentUser.name, 50);
+            const res = await api.getCallQueue(cacheKey, 50, force);
             setData(res);
+            queueCache = { key: cacheKey, data: res, dismissed: [], at: Date.now() };
         } catch (err: any) {
             setError(err.message || 'Failed to load queue');
         } finally {
             setLoading(false);
         }
-    }, [currentUser.name]);
+    }, [cacheKey]);
 
-    useEffect(() => { fetch(); }, [fetch]);
+    useEffect(() => { load(false); }, [load]);
+
+    const refresh = useCallback(() => { queueCache = null; load(true); }, [load]);
 
     const visibleQueue = (data?.queue ?? []).filter(item => !dismissed.has(item.id));
 
@@ -190,7 +223,15 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                 reminderStatus: form.reminderDate ? 'pending' : undefined,
             };
             await api.addFollowUpNote(item.id, note);
-            setDismissed(prev => new Set([...prev, item.id]));
+            setDismissed(prev => {
+                const next = new Set([...prev, item.id]);
+                // Keep the cache in step so navigating away and back doesn't
+                // resurface a customer this agent has already handled.
+                if (queueCache && queueCache.key === cacheKey) {
+                    queueCache.dismissed = [...next];
+                }
+                return next;
+            });
             setExpandedId(null);
         } catch (err: any) {
             updateForm(item.id, { submitting: false });
@@ -226,7 +267,7 @@ const CallQueuePage: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                         </span>
                     )}
                     <button
-                        onClick={fetch}
+                        onClick={refresh}
                         className="flex items-center gap-2 px-4 py-2 glass-cta-primary text-sm font-semibold rounded-xl transition-all"
                     >
                         <RefreshIcon />
