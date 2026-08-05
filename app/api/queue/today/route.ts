@@ -1,6 +1,6 @@
 import { handleApi, err } from '@/app/lib/api-helper';
 import { Customer, Setting } from '@/app/lib/models';
-import { scoreCustomer } from '@/app/lib/helpers';
+import { scoreCustomer, DEFAULT_MAX_DORMANCY_DAYS } from '@/app/lib/helpers';
 import { getCached, setCached, queueKey, todayStamp } from '@/app/lib/queueCache';
 
 export const dynamic = 'force-dynamic';
@@ -31,10 +31,17 @@ export async function GET(req: Request) {
 
     // Optional admin-controlled segment filter (Settings → Queue Focus).
     // Empty / unset = no filter → use all eligible customers.
-    const [focusSetting, convSetting] = await Promise.all([
+    const [focusSetting, convSetting, dormancySetting] = await Promise.all([
       Setting.findOne({ key: 'queue_focus_segments' }).lean(),
       Setting.findOne({ key: 'conversion_model' }).lean(),
+      Setting.findOne({ key: 'queue_max_dormancy_days' }).lean(),
     ]);
+
+    // Past this many days of silence a customer drops out of the daily queue
+    // and belongs to the Win-Back lane instead. Tunable without a deploy.
+    const rawDormancy = Number((dormancySetting as any)?.value);
+    const maxDormancyDays =
+      Number.isFinite(rawDormancy) && rawDormancy > 0 ? rawDormancy : DEFAULT_MAX_DORMANCY_DAYS;
     const focusSegments: string[] | null =
       Array.isArray((focusSetting as any)?.value) && (focusSetting as any).value.length > 0
         ? ((focusSetting as any).value as string[])
@@ -104,16 +111,17 @@ export async function GET(req: Request) {
           rfmSegment:           doc.rfmSegment           ?? undefined,
         },
         agentId,
-        now
+        now,
+        { maxDormancyDays }
       );
 
       if (result.suppressed) { suppressed++; continue; }
 
-      // Expected value = P(convert) × avg order value (Tier 1.2). Nudge the
-      // score so high-EV customers rise, without overriding the urgency
-      // signals (reorder window, suppression, etc.).
+      // Expected value = P(convert) × avg order value (Tier 1.2). Decayed by
+      // the same recency factor as the base score — otherwise a dormant whale's
+      // EV would float free of the dormancy discount and undo it.
       const expectedValue = expectedValueFor(doc);
-      const evBoost = Math.min(Math.round(expectedValue / 20), 60);
+      const evBoost = Math.min(Math.round(expectedValue / 20), 60) * result.recencyFactor;
 
       // Notes are stored in insertion order, so the newest is last — no need to
       // copy and re-sort the array for every candidate.
@@ -121,8 +129,9 @@ export async function GET(req: Request) {
 
       scored.push({
         id: doc.id, name: doc.name, phone: doc.phone,
-        score: result.score + evBoost, reason: result.reason,
+        score: Math.round(result.score + evBoost), reason: result.reason,
         expectedValue: Math.round(expectedValue),
+        recencyFactor: Math.round(result.recencyFactor * 100) / 100,
         lastSentiment: latestNote?.feedback ?? null,
         daysSinceLastCall: latestNote ? Math.floor((now.getTime() - new Date(latestNote.date).getTime()) / msPerDay) : null,
         daysSinceLastOrder: doc.lastPurchaseDate ? Math.floor((now.getTime() - new Date(doc.lastPurchaseDate).getTime()) / msPerDay) : null,
