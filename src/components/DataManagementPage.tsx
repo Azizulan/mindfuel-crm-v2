@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Customer, User } from '../types';
-import { updateCustomer, deleteCustomer, bulkDeleteCustomers, bulkUpdateCustomersDate } from '../services/apiService';
+import { updateCustomer, deleteCustomer, bulkDeleteCustomers, bulkUpdateCustomersDate, exportCustomers } from '../services/apiService';
 import { XMarkIcon } from './icons/XMarkIcon';
 import { TrashIcon } from './icons/TrashIcon';
 import { ChevronUpDownIcon } from './icons/ChevronUpDownIcon';
@@ -82,8 +82,77 @@ const EditRecordModal: React.FC<{customer: Customer, onClose: () => void, onSave
     );
 };
 
+const EXPORT_LISTS: { value: string, label: string, hint: string }[] = [
+    { value: 'all',          label: 'Everyone',              hint: 'Full list with a "Campaign list" column to filter in Excel. Includes do-not-contact customers, marked.' },
+    { value: 'winback',      label: 'Win-back',              hint: "At Risk + Can't Lose: used to buy often, gone quiet. Send an offer." },
+    { value: 'reorder_due',  label: 'Reorder due',           hint: 'Their usual reorder gap is up now or within 7 days. Send a reminder.' },
+    { value: 'second_order', label: 'Second order push',     hint: 'New + Potential Loyalist: 1–2 orders, recent. Push the next order with a bundle.' },
+    { value: 'vip',          label: 'VIP / loyal',           hint: 'Champion + Loyal: reward, preview new products, ask for referrals.' },
+    { value: 'revive',       label: 'Revive (low priority)', hint: 'Hibernating + Lost: long silent. Cheap broadcast only.' },
+    { value: 'never',        label: 'Never ordered',         hint: 'In the CRM but no purchase yet. Intro offer.' },
+];
+
+const ExportModal: React.FC<{ adminEmail: string, onClose: () => void }> = ({ adminEmail, onClose }) => {
+    const [list, setList] = useState('all');
+    const [password, setPassword] = useState('');
+    const [isExporting, setIsExporting] = useState(false);
+
+    const inputClass = "w-full bg-foreground/[0.04] border border-foreground/[0.12] rounded-xl px-4 py-2.5 text-sm text-foreground/90 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition-all";
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsExporting(true);
+        try {
+            const { blob, filename } = await exportCustomers(password, adminEmail, list);
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+            onClose();
+        }
+        catch (err) { alert("Export failed: " + (err as Error).message); }
+        finally { setIsExporting(false); }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[60]" onClick={onClose}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-card border border-foreground/[0.12] rounded-2xl shadow-xl max-w-lg w-full overflow-hidden" onClick={e => e.stopPropagation()}>
+                <div className="px-6 py-4 border-b border-foreground/[0.08] flex justify-between items-center">
+                    <h3 className="font-bold text-foreground text-base">Export Customers (CSV)</h3>
+                    <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-foreground/[0.08] text-foreground/45 transition-colors"><XMarkIcon className="w-4 h-4" /></button>
+                </div>
+                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                    <div>
+                        <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Which customers</label>
+                        <select value={list} onChange={e => setList(e.target.value)} className={inputClass}>
+                            {EXPORT_LISTS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
+                        </select>
+                        <p className="text-xs text-foreground/50 mt-1.5 leading-relaxed">{EXPORT_LISTS.find(l => l.value === list)?.hint}</p>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-semibold text-foreground/60 uppercase tracking-widest mb-1.5">Administrator Password</label>
+                        <input type="password" value={password} onChange={e => setPassword(e.target.value)} className={inputClass} placeholder="••••••••" required />
+                    </div>
+                    <p className="text-xs text-amber-700 bg-amber-50 border border-amber-100 px-4 py-3 rounded-xl leading-relaxed">
+                        This file contains customer phone numbers and addresses. Keep it private and don't upload it anywhere public.
+                    </p>
+                    <div className="flex justify-end gap-3 pt-2">
+                        <button type="button" onClick={onClose} className="px-5 py-2.5 bg-foreground/[0.08] text-foreground/70 text-sm font-medium rounded-xl hover:bg-foreground/[0.12] transition-colors">Cancel</button>
+                        <button type="submit" disabled={isExporting} className="px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all">
+                            {isExporting ? 'Preparing…' : 'Download CSV'}
+                        </button>
+                    </div>
+                </form>
+            </motion.div>
+        </div>
+    );
+};
+
 const DataManagementPage: React.FC<DataManagementPageProps> = (props) => {
     const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+    const [showExport, setShowExport] = useState(false);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [bulkUpdateDate, setBulkUpdateDate] = useState('');
     const [isBulkProcessing, setIsBulkProcessing] = useState(false);
@@ -151,6 +220,12 @@ const DataManagementPage: React.FC<DataManagementPageProps> = (props) => {
                     <option value={100}>100 rows</option>
                 </select>
                 <div className="ml-auto text-xs font-semibold text-foreground/45 uppercase tracking-widest">{props.totalCount} records</div>
+                {props.currentUser.role === 'Administrator' && (
+                    <button onClick={() => setShowExport(true)} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                        Export
+                    </button>
+                )}
             </div>
 
             {/* Bulk actions bar */}
@@ -260,6 +335,10 @@ const DataManagementPage: React.FC<DataManagementPageProps> = (props) => {
 
             {editingCustomer && (
                 <EditRecordModal customer={editingCustomer} onClose={() => setEditingCustomer(null)} onSave={handleUpdate} />
+            )}
+
+            {showExport && (
+                <ExportModal adminEmail={props.currentUser.email} onClose={() => setShowExport(false)} />
             )}
         </div>
     );

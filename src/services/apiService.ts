@@ -53,6 +53,21 @@ export const bulkUpdateCustomersDate = (ids: string[], date: string): Promise<{ 
 export const clearDatabase = (password: string, adminEmail: string): Promise<{ message: string }> =>
     apiRequest('/customers/clear-database', 'POST', { password, adminEmail });
 
+// Returns a CSV file rather than JSON, so it bypasses apiRequest.
+export const exportCustomers = async (password: string, adminEmail: string, list: string): Promise<{ blob: Blob, filename: string }> => {
+    const response = await fetch(`${API_BASE_URL}/admin/export-customers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password, adminEmail, list }),
+    });
+    if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || 'Export failed');
+    }
+    const match = /filename="([^"]+)"/.exec(response.headers.get('Content-Disposition') || '');
+    return { blob: await response.blob(), filename: match?.[1] || 'mindfuel-customers.csv' };
+};
+
 export const getFollowUpCustomers = (
     search: string = '',
     page: number = 1,
